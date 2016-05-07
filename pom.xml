@@ -7,209 +7,170 @@
     <groupId>org.metaborg.spoofax</groupId>
     <artifactId>shell</artifactId>
     <version>0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <name>Spoofax Shell</name>
-    <description>A REPL generator for Spoofax</description>
-    <url>https://github.com/spoofax-shell/spoofax-shell</url>
+    <packaging>pom</packaging>
 
-    <developers>
-        <developer>
-            <name>Gerlof Fokkema</name>
-            <email>g.r.fokkema@student.tudelft.nl</email>
-            <url>https://github.com/gfokkema</url>
-        </developer>
-        <developer>
-            <name>Jente Hidskes</name>
-            <email>hjdskes@gmail.com</email>
-            <url>https://unia.github.io</url>
-        </developer>
-        <developer>
-            <name>Skip Lentz</name>
-            <email>s.m.lentz@student.tudelft.nl</email>
-            <url>https://github.com/Balletie</url>
-        </developer>
-    </developers>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.metaborg</groupId>
+                <artifactId>org.metaborg.spoofax.core</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
+            </dependency>
 
-    <licenses>
-        <license>
-            <name>Apache License, version 2.0</name>
-            <url>https://raw.githubusercontent.com/spoofax-shell/spoofax-shell/master/LICENSE</url>
-            <comments>The Apache license, version 2.0.</comments>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+            <!-- Test dependencies. -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.10.19</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>shell.client</module>
+        <module>shell.middle</module>
+        <module>shell.core</module>
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <scm>
-        <connection>scm:git:git@github.com:spoofax-shell/spoofax-shell.git</connection>
-        <developerConnection>scm:git:git@github.com:spoofax-shell/spoofax-shell.git</developerConnection>
-        <url>https://github.com/spoofax-shell/spoofax-shell</url>
-    </scm>
-
-    <distributionManagement>
-        <site>
-            <id>github</id>
-            <name>Spoofax Shell GitHub repository</name>
-            <url>scm:git:https://github.com/spoofax-shell/spoofax-shell.github.io</url>
-        </site>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>metaborg-snapshot-repo</id>
-            <url>http://artifacts.metaborg.org/content/repositories/snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.metaborg</groupId>
-            <artifactId>org.metaborg.spoofax.core</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-        </dependency>
-        <!-- Test dependencies. -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
     <build>
-        <plugins>
-            <!-- Compile Java 8 sources -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <!-- Checkstyle -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
-                <dependencies>
-                    <!-- Update Checkstyle to version 6.18 at runtime -->
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>6.18</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <configLocation>${project.basedir}/checkstyle.xml</configLocation>
-                    <failOnViolation>true</failOnViolation>
-                    <logViolationsToConsole>true</logViolationsToConsole>
-                    <violationSeverity>warning</violationSeverity>
-                    <consoleOutput>false</consoleOutput>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>verify-style</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- PMD -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.6</version>
-                <!-- Using the latest version here breaks the reporting. -->
-                <!-- dependencies>
-                    <dependency>
-                        <groupId>net.sourceforge.pmd</groupId>
-                        <artifactId>pmd-java</artifactId>
-                        <version>5.4.0</version>
-                    </dependency>
-                </dependencies-->
-                <configuration>
-                    <verbose>true</verbose>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>pmd-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>cpd-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>cpd-check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- FindBugs -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.3</version>
-                <configuration>
-                    <includeTests>true</includeTests>
-                    <!-- See: http://stackoverflow.com/questions/29594445/cobertura-maven-plugin-conflicts-with-findbugs -->
-                    <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>findbugs-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>shell.SpoofaxShell</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- Compile Java 8 sources -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.5.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+                <!-- Checkstyle -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>2.17</version>
+                    <dependencies>
+                        <!-- Update Checkstyle to version 6.18 at runtime -->
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>6.18</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <configLocation>checkstyle.xml</configLocation>
+                        <failOnViolation>true</failOnViolation>
+                        <logViolationsToConsole>true</logViolationsToConsole>
+                        <violationSeverity>warning</violationSeverity>
+                        <consoleOutput>false</consoleOutput>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>verify-style</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- PMD -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>3.6</version>
+                    <!-- Using the latest version here breaks the reporting. -->
+                    <!-- dependencies>
+                        <dependency>
+                            <groupId>net.sourceforge.pmd</groupId>
+                            <artifactId>pmd-java</artifactId>
+                            <version>5.4.0</version>
+                        </dependency>
+                    </dependencies-->
+                    <configuration>
+                        <verbose>true</verbose>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>pmd-check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>cpd-check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>cpd-check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- FindBugs -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <version>3.0.3</version>
+                    <configuration>
+                        <includeTests>true</includeTests>
+                        <!-- See: http://stackoverflow.com/questions/29594445/cobertura-maven-plugin-conflicts-with-findbugs -->
+                        <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>findbugs-check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- Site dependencies for deploying to git scm. Using pluginManagement for this is
+                a hack, please refer to https://jira.codehaus.org/browse/MNG-2173 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.5.1</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.wagon</groupId>
+                            <artifactId>wagon-scm</artifactId>
+                            <version>2.10</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.maven.scm</groupId>
+                            <artifactId>maven-scm-manager-plexus</artifactId>
+                            <version>1.9.4</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.maven.scm</groupId>
+                            <artifactId>maven-scm-provider-gitexe</artifactId>
+                            <version>1.9.4</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.maven.scm</groupId>
+                            <artifactId>maven-scm-api</artifactId>
+                            <version>1.9.4</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <reporting>
@@ -230,7 +191,7 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.17</version>
                 <configuration>
-                    <configLocation>${project.basedir}/checkstyle.xml</configLocation>
+                    <configLocation>checkstyle.xml</configLocation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
             </plugin>
@@ -267,4 +228,67 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <name>Spoofax Shell</name>
+    <description>A REPL for all languages defined in Spoofax</description>
+    <url>http://spoofax-shell.github.io/</url>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://raw.githubusercontent.com/metaborg/spoofax-shell/master/LICENSE</url>
+            <comments>The Apache license, version 2.0.</comments>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <organization>
+        <name>Delft University of Technology</name>
+        <url>http://www.ewi.tudelft.nl/en</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>Gerlof Fokkema</name>
+            <email>g.r.fokkema@student.tudelft.nl</email>
+            <url>https://github.com/gfokkema</url>
+        </developer>
+        <developer>
+            <name>Jente Hidskes</name>
+            <email>hjdskes@gmail.com</email>
+            <url>https://unia.github.io</url>
+        </developer>
+        <developer>
+            <name>Skip Lentz</name>
+            <email>s.m.lentz@student.tudelft.nl</email>
+            <url>https://github.com/Balletie</url>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/spoofax-shell/spoofax-shell/issues</url>
+    </issueManagement>
+    <scm>
+        <connection>scm:git:git@github.com:spoofax-shell/spoofax-shell.git</connection>
+        <developerConnection>scm:git:git@github.com:spoofax-shell/spoofax-shell.git</developerConnection>
+        <url>https://github.com/spoofax-shell/spoofax-shell</url>
+    </scm>
+    <repositories>
+        <repository>
+            <id>metaborg-snapshot-repo</id>
+            <url>http://artifacts.metaborg.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <site>
+            <id>github</id>
+            <name>Spoofax Shell GitHub repository</name>
+            <url>scm:git:https://github.com/spoofax-shell/spoofax-shell.github.io/</url>
+            <!--url>scm:git:ssh://git@github.com:spoofax-shell/spoofax-shell.github.io.git</url-->
+        </site>
+    </distributionManagement>
 </project>
