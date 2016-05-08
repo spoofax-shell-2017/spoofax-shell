@@ -22,7 +22,6 @@
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.core</artifactId>
         </dependency>
-
         <!-- Test dependencies. -->
         <dependency>
             <groupId>junit</groupId>

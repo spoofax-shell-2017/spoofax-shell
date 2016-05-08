@@ -18,7 +18,25 @@
 
     <dependencies>
         <!-- From here on, all plugins are inherited from the parent project. -->
-
+        <dependency>
+            <groupId>org.metaborg.spoofax</groupId>
+            <artifactId>shell.middle</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.metaborg.spoofax.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>2.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.12</version>
+        </dependency>
         <!-- Test dependencies. -->
         <dependency>
             <groupId>junit</groupId>
