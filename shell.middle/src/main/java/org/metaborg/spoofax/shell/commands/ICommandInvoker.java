@@ -30,6 +30,19 @@ public interface ICommandInvoker {
     }
 
     /**
+     * Set the command to be executed for evaluation. This command is executed when the input string
+     * does not start with {@link #commandPrefix()}.
+     *
+     * @param eval The {@link IEvaluationCommand} to be executed for evaluation.
+     */
+    void setEvaluationCommand(IEvaluationCommand eval);
+
+    /**
+     * @return The command executed for evaluation.
+     */
+    IEvaluationCommand evaluationCommand();
+
+    /**
      * @param commandName
      *            The name of an {@link IReplCommand}.
      * @return The description of what the {@link IReplCommand} bound to {@code commandName} does.
@@ -75,5 +88,6 @@ public interface ICommandInvoker {
             commandFromName(optionallyPrefixedCommandName.substring(commandPrefix().length())).execute();
             return;
         }
+        evaluationCommand().evaluate(optionallyPrefixedCommandName);
     }
 }

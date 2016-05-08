@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
+import org.metaborg.spoofax.shell.commands.IEvaluationCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 /**
@@ -20,6 +21,11 @@ public class ICommandInvokerTest implements ICommandInvoker {
     @Test
     public void testExecutesCommandWithoutPrefix() {
         execute("PREFIX/test");
+    }
+
+    @Test
+    public void testExecutesEvaluationCommand() {
+        execute("test");
     }
 
     @Override
@@ -47,6 +53,15 @@ public class ICommandInvokerTest implements ICommandInvoker {
     @Override
     public String commandPrefix() {
         return "PREFIX/";
+    }
+
+    @Override
+    public void setEvaluationCommand(IEvaluationCommand eval) {
+    }
+
+    @Override
+    public IEvaluationCommand evaluationCommand() {
+        return (s) -> assertEquals("test", s);
     }
 
 }

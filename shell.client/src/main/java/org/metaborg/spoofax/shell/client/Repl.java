@@ -42,33 +42,7 @@ public final class Repl {
             if (input.length() == 0) {
                 continue;
             }
-            try {
-                display.displayResult(invoker.execute(input));
-            } catch (IOException | MetaborgException e) {
-                display.displayError(e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * A simple test REPL.
-     * 
-     * @param args
-     *            <languagepath> <projectpath>.
-     */
-    public static void main(String[] args) {
-        if (args.length != 2) {
-            System.err.println("Usage: <languagepath> <projectpath>\n");
-            return;
-        }
-
-        try (Spoofax spoofax = new Spoofax()) {
-            SpoofaxTest test = new SpoofaxTest(spoofax, args[0], args[1]);
-            new Repl(test, System.in, System.out, System.err).run();
-        } catch (MetaborgException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            invoker.execute(input);
         }
     }
 }
