@@ -6,7 +6,7 @@ package org.metaborg.spoofax.shell.client;
  */
 public interface IDisplay {
 
-    public void displayResult(String s);
+    void displayResult(String s);
 
-    public void displayError(String s);
+    void displayError(String s);
 }

@@ -18,20 +18,20 @@ public interface IEditor {
      * @return The input typed in by the user.
      * @throws IOException
      */
-    public String getInput() throws IOException;
+    String getInput() throws IOException;
 
     /**
      * Set the completion service to be used when hitting TAB.
      * 
      * @param completionService
      */
-    public void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService);
+    void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService);
 
     /**
      * TODO: Consider replacing List<String> with a History type?
      * 
      * @return the history of evaluated expressions, from recent to old.
      */
-    public List<String> history();
+    List<String> history();
 
 }

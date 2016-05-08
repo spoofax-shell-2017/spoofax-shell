@@ -9,5 +9,5 @@ public interface IReplCommand {
     /**
      * Execute this command.
      */
-    public void execute();
+    void execute();
 }

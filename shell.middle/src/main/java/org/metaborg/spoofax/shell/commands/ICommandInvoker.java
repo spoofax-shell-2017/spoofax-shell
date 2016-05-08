@@ -16,7 +16,7 @@ public interface ICommandInvoker {
      * @param c
      *            The {@link IReplCommand} to be bound to {@code commandName}.
      */
-    public void addCommand(String commandName, String description, IReplCommand c);
+    void addCommand(String commandName, String description, IReplCommand c);
 
     /**
      * Same as {@link #addCommand(String, String, IReplCommand)}, with the empty {@link String}
@@ -25,7 +25,7 @@ public interface ICommandInvoker {
      * @param commandName
      * @param c
      */
-    public default void addCommand(String commandName, IReplCommand c) {
+    default void addCommand(String commandName, IReplCommand c) {
         addCommand(commandName, "", c);
     }
 
@@ -34,20 +34,20 @@ public interface ICommandInvoker {
      *            The name of an {@link IReplCommand}.
      * @return The description of what the {@link IReplCommand} bound to {@code commandName} does.
      */
-    public String commandDescriptionFromName(String commandName);
+    String commandDescriptionFromName(String commandName);
 
     /**
      * @param commandName
      *            The name of an {@link IReplCommand}.
      * @return The {@link IReplCommand} bound to {@code commandName}
      */
-    public IReplCommand commandFromName(String commandName);
+    IReplCommand commandFromName(String commandName);
 
     /**
      * @return The prefix of the {@link IReplCommand}s. The {@link IReplCommand}s are stored without
      *         this prefix.
      */
-    public String commandPrefix();
+    String commandPrefix();
 
     /**
      * Ensure that the given parameter is returned without the {@link #commandPrefix()}.
@@ -57,7 +57,7 @@ public interface ICommandInvoker {
      * @return The command name without prefix if found. Otherwise just the same String as the
      *         argument
      */
-    public default String ensureNoPrefix(String optionallyPrefixedCommandName) {
+    default String ensureNoPrefix(String optionallyPrefixedCommandName) {
         if (optionallyPrefixedCommandName.startsWith(commandPrefix()))
             return optionallyPrefixedCommandName.substring(commandPrefix().length());
         // No prefix found, so just return the argument.
@@ -67,11 +67,13 @@ public interface ICommandInvoker {
     /**
      * Execute the {@link IReplCommand} which is bound to the given command name, minus the prefix.
      * 
-     * @param prefixedCommandName
+     * @param optionallyPrefixedCommandName
      *            The name of the {@link IReplCommand} to be executed.
      */
-    public default void execute(String prefixedCommandName) {
-        if (prefixedCommandName.startsWith(commandPrefix()))
-            commandFromName(prefixedCommandName.substring(commandPrefix().length())).execute();
+    default void execute(String optionallyPrefixedCommandName) {
+        if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {
+            commandFromName(optionallyPrefixedCommandName.substring(commandPrefix().length())).execute();
+            return;
+        }
     }
 }
