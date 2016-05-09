@@ -1,6 +1,6 @@
 package org.metaborg.spoofax.shell.commands;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 /**
  * Factory for creating commands. Implementations of this factory encapsulate the creation of
@@ -18,5 +18,5 @@ public interface ICommandFactory {
      * @param onErrorHook
      * @param onCompleteHook
      */
-    public void createEvaluationCommand(Function onErrorHook, Function onCompleteHook);
+    void createEvaluationCommand(Consumer<String> onErrorHook, Consumer<String> onCompleteHook);
 }

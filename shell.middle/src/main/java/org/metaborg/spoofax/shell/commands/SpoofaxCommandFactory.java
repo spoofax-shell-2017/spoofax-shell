@@ -1,6 +1,6 @@
 package org.metaborg.spoofax.shell.commands;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 public class SpoofaxCommandFactory implements ICommandFactory {
     private ICommandInvoker invoker;
@@ -10,8 +10,10 @@ public class SpoofaxCommandFactory implements ICommandFactory {
     };
 
     @Override
-    public void createEvaluationCommand(Function onErrorHook, Function onCompleteHook) {
-        invoker.setEvaluationCommand(s -> { });
+    public void createEvaluationCommand(Consumer<String> onErrorHook, Consumer<String> onCompleteHook) {
+        invoker.setEvaluationCommand(s -> {
+          onCompleteHook.accept("Hello.");
+        });
     }
 
 }

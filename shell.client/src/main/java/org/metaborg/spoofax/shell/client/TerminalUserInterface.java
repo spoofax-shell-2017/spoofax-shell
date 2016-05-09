@@ -1,8 +1,11 @@
 package org.metaborg.spoofax.shell.client;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,27 +21,31 @@ import jline.console.ConsoleReader;
 /**
  * An {@link IEditor} to be used in a terminal.
  */
-public class TerminalEditor implements IEditor {
+public class TerminalUserInterface implements IEditor, IDisplay {
     ConsoleReader reader;
     String prompt;
     String continuationPrompt;
     ArrayList<String> lines;
+    PrintWriter out;
+    PrintWriter err;
 
-    public TerminalEditor() throws IOException {
-        this(System.in, System.out);
+    public TerminalUserInterface() throws IOException {
+        this(System.in, System.out, System.err);
     }
 
-    public TerminalEditor(InputStream in, OutputStream out) throws IOException {
+    public TerminalUserInterface(InputStream in, OutputStream out, OutputStream err) throws IOException {
         reader = new ConsoleReader(in, out);
         reader.setExpandEvents(false);
         reader.setHandleUserInterrupt(true);
         reader.setBellEnabled(true);
+        this.out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out)));
+        this.err = new PrintWriter(new BufferedWriter(new OutputStreamWriter(err)));
         setPrompt(">>> ");
         setContinuationPrompt("... ");
         lines = new ArrayList<>();
     }
 
-    protected void saveLine(String lastLine) {
+    public void saveLine(String lastLine) {
         lines.add(lastLine);
     }
 
@@ -87,9 +94,21 @@ public class TerminalEditor implements IEditor {
     public static void main(String[] args) throws IOException {
         System.out.println(ansi().a("Welcome to the ").bold().a("Spoofax").reset().a(" REPL"));
         String input = "";
-        IEditor ed = new TerminalEditor();
+        IEditor ed = new TerminalUserInterface();
         while (!(input = ed.getInput()).trim().equals("exit")) {
             System.out.println("User typed in \"" + input + '"');
         }
+    }
+
+    @Override
+    public void displayResult(String s) {
+        out.println(s);
+        out.flush();
+    }
+
+    @Override
+    public void displayError(String s) {
+        err.println(s);
+        out.flush();
     }
 }
