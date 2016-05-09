@@ -1,7 +1,7 @@
 package org.metaborg.spoofax.shell.client;
 
 /**
- * An {@link IDisplay} is for displaying the results of a command or expressions that was executed,
+ * An {@link IDisplay} is for displaying the results of a command or expression that was executed,
  * whether it was an error or a successful result.
  */
 public interface IDisplay {

@@ -18,7 +18,7 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import jline.console.ConsoleReader;
 
 /**
- * A terminal UI which is both an {@link IEditor} and {@link IDisplay}.
+ * A terminal UI which is both an {@link IEditor} and an {@link IDisplay}.
  */
 public class TerminalUserInterface implements IEditor, IDisplay {
     private ConsoleReader reader;
@@ -38,7 +38,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     /**
      * @param in
-     *            The {@link InputStream} from which to read user input
+     *            The {@link InputStream} from which to read user input.
      * @param out
      *            The {@link PrintStream} to write results to.
      * @param err

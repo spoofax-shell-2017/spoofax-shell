@@ -16,7 +16,7 @@ public interface ICommandFactory {
      * The parameters that are needed are currently unknown.
      *
      * @param onErrorHook Called upon an error by the created {@link IEvaluationCommand}.
-     * @param onCompleteHook Called upon successful by the created {@link IEvaluationCommand}.
+     * @param onCompleteHook Called upon success by the created {@link IEvaluationCommand}.
      */
     void createEvaluationCommand(Consumer<String> onErrorHook, Consumer<String> onCompleteHook);
 }

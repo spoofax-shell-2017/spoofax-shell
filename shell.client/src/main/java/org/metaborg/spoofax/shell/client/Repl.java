@@ -23,7 +23,7 @@ public final class Repl {
 
     /**
      * @param in
-     *            The {@link InputStream} from which to read user input
+     *            The {@link InputStream} from which to read user input.
      * @param out
      *            The {@link PrintStream} to write results to.
      * @param err

@@ -6,7 +6,7 @@ package org.metaborg.spoofax.shell.commands;
 public interface ICommandInvoker {
 
     /**
-     * Add a {@link IReplCommand} to be executed when {@code commandName} is given, under the given
+     * Add an {@link IReplCommand} to be executed when {@code commandName} is given, under the given
      * description.
      *
      * @param commandName
