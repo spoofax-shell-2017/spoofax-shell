@@ -14,7 +14,7 @@ public interface IEditor {
 
     /**
      * Get the input from the user, optionally spanning multiple lines.
-     * 
+     *
      * @return The input typed in by the user.
      * @throws IOException
      *             when an IO error occurs.
@@ -23,7 +23,7 @@ public interface IEditor {
 
     /**
      * Set the completion service to be used when hitting TAB.
-     * 
+     *
      * @param completionService
      *            The {@link ICompletionService} for providing completion.
      */
@@ -31,7 +31,7 @@ public interface IEditor {
 
     /**
      * TODO: Consider replacing List<String> with a History type?
-     * 
+     *
      * @return the history of evaluated expressions, from recent to old.
      */
     List<String> history();

@@ -8,7 +8,7 @@ public interface ICommandInvoker {
     /**
      * Add a {@link IReplCommand} to be executed when {@code commandName} is given, under the given
      * description.
-     * 
+     *
      * @param commandName
      *            The name to which the command is bound.
      * @param description
@@ -21,7 +21,7 @@ public interface ICommandInvoker {
     /**
      * Same as {@link #addCommand(String, String, IReplCommand)}, with the empty {@link String}
      * {@code ""} as description.
-     * 
+     *
      * @param commandName
      *            The name to which the command is bound.
      * @param c
@@ -67,7 +67,7 @@ public interface ICommandInvoker {
 
     /**
      * Ensure that the given parameter is returned without the {@link #commandPrefix()}.
-     * 
+     *
      * @param optionallyPrefixedCommandName
      *            And optionally prefixed command name.
      * @return The command name without prefix if found. Otherwise just the same String as the
@@ -83,7 +83,7 @@ public interface ICommandInvoker {
 
     /**
      * Execute the {@link IReplCommand} which is bound to the given command name, minus the prefix.
-     * 
+     *
      * @param optionallyPrefixedCommandName
      *            The name of the {@link IReplCommand} to be executed.
      */
