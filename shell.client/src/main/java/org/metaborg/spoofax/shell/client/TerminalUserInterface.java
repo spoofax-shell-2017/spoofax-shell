@@ -14,26 +14,39 @@ import java.util.stream.StreamSupport;
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
-import static org.fusesource.jansi.Ansi.ansi;
-
 import jline.console.ConsoleReader;
 
 /**
- * An {@link IEditor} to be used in a terminal.
+ * A terminal UI which is both an {@link IEditor} and {@link IDisplay}.
  */
 public class TerminalUserInterface implements IEditor, IDisplay {
-    ConsoleReader reader;
-    String prompt;
-    String continuationPrompt;
-    ArrayList<String> lines;
-    PrintWriter out;
-    PrintWriter err;
+    private ConsoleReader reader;
+    private String prompt;
+    private String continuationPrompt;
+    private ArrayList<String> lines;
+    private PrintWriter out;
+    private PrintWriter err;
 
+    /**
+     * @throws IOException
+     *             when an IO error occurs.
+     */
     public TerminalUserInterface() throws IOException {
         this(System.in, System.out, System.err);
     }
 
-    public TerminalUserInterface(InputStream in, OutputStream out, OutputStream err) throws IOException {
+    /**
+     * @param in
+     *            The {@link InputStream} from which to read user input
+     * @param out
+     *            The {@link PrintStream} to write results to.
+     * @param err
+     *            The {@link PrintStream} to write errors to.
+     * @throws IOException
+     *             when an IO error occurs.
+     */
+    public TerminalUserInterface(InputStream in, OutputStream out, OutputStream err)
+        throws IOException {
         reader = new ConsoleReader(in, out);
         reader.setExpandEvents(false);
         reader.setHandleUserInterrupt(true);
@@ -45,14 +58,30 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         lines = new ArrayList<>();
     }
 
-    public void saveLine(String lastLine) {
+    /**
+     * Save this line as the end of the multi-line input.
+     * @param lastLine the line to save.
+     */
+    protected void saveLine(String lastLine) {
         lines.add(lastLine);
     }
 
+    /**
+     * Set the prompt to display.
+     *
+     * @param promptString
+     *            The prompt string.
+     */
     public void setPrompt(String promptString) {
         prompt = promptString;
     }
 
+    /**
+     * Set the prompt to display when in multi-line mode.
+     *
+     * @param promptString
+     *            The prompt string.
+     */
     public void setContinuationPrompt(String promptString) {
         continuationPrompt = promptString;
     }
@@ -89,15 +118,6 @@ public class TerminalUserInterface implements IEditor, IDisplay {
                             .map(entry -> entry.value().toString())
                             .collect(Collectors.toList());
         // @formatter:on
-    }
-
-    public static void main(String[] args) throws IOException {
-        System.out.println(ansi().a("Welcome to the ").bold().a("Spoofax").reset().a(" REPL"));
-        String input = "";
-        IEditor ed = new TerminalUserInterface();
-        while (!(input = ed.getInput()).trim().equals("exit")) {
-            System.out.println("User typed in \"" + input + '"');
-        }
     }
 
     @Override

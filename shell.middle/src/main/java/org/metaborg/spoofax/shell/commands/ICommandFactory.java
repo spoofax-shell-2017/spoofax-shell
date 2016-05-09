@@ -10,13 +10,13 @@ import java.util.function.Consumer;
 public interface ICommandFactory {
 
     /**
-     * Create an evaluation command.
+     * Create an {@link IEvaluationCommand}.
      * 
      * TODO: Create more specific interfaces for the hooks, which can accept more parameters.
      * The parameters that are needed are currently unknown.
      * 
-     * @param onErrorHook
-     * @param onCompleteHook
+     * @param onErrorHook Called upon an error by the created {@link IEvaluationCommand}.
+     * @param onCompleteHook Called upon successful by the created {@link IEvaluationCommand}.
      */
     void createEvaluationCommand(Consumer<String> onErrorHook, Consumer<String> onCompleteHook);
 }

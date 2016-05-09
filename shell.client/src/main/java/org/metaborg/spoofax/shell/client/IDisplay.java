@@ -6,7 +6,15 @@ package org.metaborg.spoofax.shell.client;
  */
 public interface IDisplay {
 
+    /**
+     * Display a result string.
+     * @param s The string to be displayed.
+     */
     void displayResult(String s);
 
+    /**
+     * Display an error string.
+     * @param s The string to be displayed.
+     */
     void displayError(String s);
 }

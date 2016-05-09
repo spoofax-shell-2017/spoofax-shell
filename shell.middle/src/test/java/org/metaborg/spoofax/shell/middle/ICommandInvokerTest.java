@@ -1,6 +1,6 @@
 package org.metaborg.spoofax.shell.middle;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
@@ -12,17 +12,30 @@ import org.metaborg.spoofax.shell.commands.IReplCommand;
  */
 public class ICommandInvokerTest implements ICommandInvoker {
 
+    /**
+     * Test whether {@link #ensureNoPrefix(String)} correctly strips off the prefix, and keeps it
+     * otherwise when there is none.
+     */
     @Test
     public void testEnsureNoPrefix() {
         assertEquals("Returns argument without prefix.", "expected",
                      ensureNoPrefix(commandPrefix() + "expected"));
+        assertEquals("Returns argument as given.", "expected", ensureNoPrefix("expected"));
     }
 
+    /**
+     * Test whether the command gets executed without a prefix. See {@link #commandFromName(String)}
+     * for the assertion.
+     */
     @Test
     public void testExecutesCommandWithoutPrefix() {
-        execute("PREFIX/test");
+        execute(commandPrefix() + "test");
     }
 
+    /**
+     * Test whether the command gets evaluated, because it does not begin with
+     * {@link #commandPrefix()}.
+     */
     @Test
     public void testExecutesEvaluationCommand() {
         execute("test");
@@ -38,8 +51,10 @@ public class ICommandInvokerTest implements ICommandInvoker {
     }
 
     /**
-     * Called from {@link #testExecutesCommandWithoutPrefix()}
-     * @param commandName if correctly, without the prefix.
+     * Called from {@link #testExecutesCommandWithoutPrefix()}.
+     *
+     * @param commandName
+     *            if correctly, without the prefix.
      * @return an empty command.
      */
     @Override
@@ -59,6 +74,9 @@ public class ICommandInvokerTest implements ICommandInvoker {
     public void setEvaluationCommand(IEvaluationCommand eval) {
     }
 
+    /**
+     * Called from {@link #testExecutesEvaluationCommand()}.
+     */
     @Override
     public IEvaluationCommand evaluationCommand() {
         return (s) -> assertEquals("test", s);

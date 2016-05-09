@@ -17,14 +17,36 @@ import java.io.PrintStream;
  * {@link IDisplay}.
  */
 public final class Repl {
-    public ICommandInvoker invoker;
-    public IEditor editor;
-    public IDisplay display;
+    private ICommandInvoker invoker;
+    private IEditor editor;
+    private IDisplay display;
 
+    /**
+     * @param in
+     *            The {@link InputStream} from which to read user input
+     * @param out
+     *            The {@link PrintStream} to write results to.
+     * @param err
+     *            The {@link PrintStream} to write errors to.
+     * @throws IOException
+     *             when an IO error occurs.
+     */
     public Repl(InputStream in, PrintStream out, PrintStream err) throws IOException {
         this(new SpoofaxCommandInvoker(), in, out, err);
     }
 
+    /**
+     * @param invoker
+     *            The {@link ICommandInvoker} for executing user input.
+     * @param in
+     *            The {@link InputStream} from which to read user input
+     * @param out
+     *            The {@link PrintStream} to write results to.
+     * @param err
+     *            The {@link PrintStream} to write errors to.
+     * @throws IOException
+     *             when an IO error occurs.
+     */
     public Repl(ICommandInvoker invoker, InputStream in, OutputStream out, OutputStream err)
         throws IOException {
         this.invoker = invoker;
@@ -36,15 +58,21 @@ public final class Repl {
         setCommands();
     }
 
-    public void setCommands() {
+    private void setCommands() {
         SpoofaxCommandFactory fact = new SpoofaxCommandFactory(invoker);
         fact.createEvaluationCommand(display::displayError, display::displayResult);
     }
 
-    public String coloredFg(Color c, String s) {
+    private String coloredFg(Color c, String s) {
         return Ansi.ansi().fg(c).a(s).reset().toString();
     }
 
+    /**
+     * Run the Repl, asking for input and sending it for execution.
+     *
+     * @throws IOException
+     *             when an IO error occurs.
+     */
     public void run() throws IOException {
         System.out.println(Ansi.ansi().a("Welcome to the ").bold().a("Spoofax").reset().a(" REPL"));
         String input;
@@ -57,7 +85,10 @@ public final class Repl {
     }
 
     /**
+     * @param args
+     *            Unused.
      * @throws IOException
+     *             when an IO error occurs.
      */
     public static void main(String[] args) throws IOException {
         new Repl(System.in, System.out, System.err).run();

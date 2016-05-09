@@ -23,7 +23,9 @@ public interface ICommandInvoker {
      * {@code ""} as description.
      * 
      * @param commandName
+     *            The name to which the command is bound.
      * @param c
+     *            The {@link IReplCommand} to be bound to {@code commandName}.
      */
     default void addCommand(String commandName, IReplCommand c) {
         addCommand(commandName, "", c);
@@ -33,7 +35,8 @@ public interface ICommandInvoker {
      * Set the command to be executed for evaluation. This command is executed when the input string
      * does not start with {@link #commandPrefix()}.
      *
-     * @param eval The {@link IEvaluationCommand} to be executed for evaluation.
+     * @param eval
+     *            The {@link IEvaluationCommand} to be executed for evaluation.
      */
     void setEvaluationCommand(IEvaluationCommand eval);
 
@@ -71,8 +74,9 @@ public interface ICommandInvoker {
      *         argument
      */
     default String ensureNoPrefix(String optionallyPrefixedCommandName) {
-        if (optionallyPrefixedCommandName.startsWith(commandPrefix()))
+        if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {
             return optionallyPrefixedCommandName.substring(commandPrefix().length());
+        }
         // No prefix found, so just return the argument.
         return optionallyPrefixedCommandName;
     }
@@ -85,7 +89,8 @@ public interface ICommandInvoker {
      */
     default void execute(String optionallyPrefixedCommandName) {
         if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {
-            commandFromName(optionallyPrefixedCommandName.substring(commandPrefix().length())).execute();
+            commandFromName(optionallyPrefixedCommandName.substring(commandPrefix().length()))
+                .execute();
             return;
         }
         evaluationCommand().evaluate(optionallyPrefixedCommandName);

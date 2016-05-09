@@ -17,6 +17,7 @@ public interface IEditor {
      * 
      * @return The input typed in by the user.
      * @throws IOException
+     *             when an IO error occurs.
      */
     String getInput() throws IOException;
 
@@ -24,6 +25,7 @@ public interface IEditor {
      * Set the completion service to be used when hitting TAB.
      * 
      * @param completionService
+     *            The {@link ICompletionService} for providing completion.
      */
     void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService);
 

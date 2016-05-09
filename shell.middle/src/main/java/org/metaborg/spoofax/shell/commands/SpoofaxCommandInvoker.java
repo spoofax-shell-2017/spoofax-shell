@@ -1,7 +1,10 @@
 package org.metaborg.spoofax.shell.commands;
 
+/**
+ * Default implementation of an {@link ICommandInvoker}.
+ */
 public class SpoofaxCommandInvoker implements ICommandInvoker {
-    public IEvaluationCommand eval;
+    private IEvaluationCommand eval;
 
     @Override
     public void addCommand(String commandName, String description, IReplCommand c) {
