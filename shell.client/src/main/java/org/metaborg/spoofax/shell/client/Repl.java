@@ -21,6 +21,7 @@ public final class Repl {
     private ICommandInvoker invoker;
     private IEditor editor;
     private IDisplay display;
+    private boolean running;
 
     /**
      * @param in
@@ -62,6 +63,7 @@ public final class Repl {
     private void setCommands() {
         SpoofaxCommandFactory fact = new SpoofaxCommandFactory(invoker);
         fact.createEvaluationCommand(display::displayError, display::displayResult);
+        invoker.addCommand("exit", "Exit the REPL session.", () -> running = false);
     }
 
     private String coloredFg(Color c, String s) {
@@ -77,7 +79,9 @@ public final class Repl {
     public void run() throws IOException {
         System.out.println(Ansi.ansi().a("Welcome to the ").bold().a("Spoofax").reset().a(" REPL"));
         String input;
-        while (!(input = editor.getInput()).trim().equals("exit")) {
+        running = true;
+        while (running) {
+            input = editor.getInput().trim();
             if (input.length() == 0) {
                 continue;
             }
