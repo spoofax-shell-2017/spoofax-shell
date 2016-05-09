@@ -1,5 +1,7 @@
 package org.metaborg.spoofax.shell.commands;
 
+import java.util.Arrays;
+
 /**
  * An interface for binding and executing {@link IReplCommand}s.
  */
@@ -14,7 +16,8 @@ public interface ICommandInvoker {
      * @param commandName
      *            The name of an {@link IReplCommand}.
      * @return The {@link IReplCommand} bound to {@code commandName}.
-     * @throws CommandNotFoundException when the command could not be found.
+     * @throws CommandNotFoundException
+     *             when the command could not be found.
      */
     IReplCommand commandFromName(String commandName) throws CommandNotFoundException;
 
@@ -45,14 +48,18 @@ public interface ICommandInvoker {
      *
      * @param optionallyPrefixedCommandName
      *            The name of the {@link IReplCommand} to be executed.
-     * @throws CommandNotFoundException when the command could not be found.
+     * @throws CommandNotFoundException
+     *             when the command could not be found.
      */
     default void execute(String optionallyPrefixedCommandName) throws CommandNotFoundException {
         if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {
-            commandFromName(optionallyPrefixedCommandName.substring(commandPrefix().length()))
-                .execute();
-            return;
+            String[] split = optionallyPrefixedCommandName.split("\\s+", 2);
+            String commandName = split[0].substring(commandPrefix().length());
+            String[] argument =
+                split.length > 1 ? Arrays.copyOfRange(split, 1, split.length) : new String[0];
+            commandFromName(commandName).execute(argument);
+        } else {
+            evaluationCommand().execute(optionallyPrefixedCommandName);
         }
-        evaluationCommand().execute(optionallyPrefixedCommandName);
     }
 }

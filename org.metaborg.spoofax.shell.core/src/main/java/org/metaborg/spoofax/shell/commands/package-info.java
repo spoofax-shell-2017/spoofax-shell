@@ -1,5 +1,5 @@
 /**
- * Contains the logic for parsing, analyzing and evaluating expressions using Spoofax,
- * or executing commands which are common across frontends such as an exit command.
+ * Contains the logic for executing expressions using the core, or executing commands which are
+ * common accross frontends.
  */
 package org.metaborg.spoofax.shell.commands;

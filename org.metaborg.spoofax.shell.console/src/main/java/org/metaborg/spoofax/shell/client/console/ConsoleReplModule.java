@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.metaborg.core.context.IContext;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.Repl;
@@ -15,9 +16,19 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 /**
- * Bindings for the console repl.
+ * Bindings for the console REPL.
  */
 public class ConsoleReplModule extends ReplModule {
+
+    /**
+     * Instantiates a new ConsoleReplModule.
+     *
+     * @param context
+     *            The {@link IContext} in which the REPL operates.
+     */
+    public ConsoleReplModule(IContext context) {
+        super(context);
+    }
 
     private void configureUserInterface() {
         bind(JLine2InputHistory.class).to(JLine2PersistentInputHistory.class);

@@ -16,7 +16,7 @@ public class SpoofaxCommandInvoker implements ICommandInvoker {
      * @param commands
      *            The commands, with their command names as key (without prefix).
      * @param eval
-     *            The {@link SpoofaxEvaluationCommand} used for evaluation when no command prefix
+     *            The {@link SpoofaxCommand} used for evaluation when no command prefix
      *            was given.
      */
     @Inject
