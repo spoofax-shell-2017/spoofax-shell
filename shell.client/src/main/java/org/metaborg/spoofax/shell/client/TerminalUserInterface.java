@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,8 +52,12 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         reader.setExpandEvents(false);
         reader.setHandleUserInterrupt(true);
         reader.setBellEnabled(true);
-        this.out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out)));
-        this.err = new PrintWriter(new BufferedWriter(new OutputStreamWriter(err)));
+        this.out =
+            new PrintWriter(new BufferedWriter(new OutputStreamWriter(out,
+                                                                      Charset.forName("UTF-8"))));
+        this.err =
+            new PrintWriter(new BufferedWriter(new OutputStreamWriter(err,
+                                                                      Charset.forName("UTF-8"))));
         setPrompt(">>> ");
         setContinuationPrompt("... ");
         lines = new ArrayList<>();
@@ -60,7 +65,9 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     /**
      * Save this line as the end of the multi-line input.
-     * @param lastLine the line to save.
+     *
+     * @param lastLine
+     *            the line to save.
      */
     protected void saveLine(String lastLine) {
         lines.add(lastLine);

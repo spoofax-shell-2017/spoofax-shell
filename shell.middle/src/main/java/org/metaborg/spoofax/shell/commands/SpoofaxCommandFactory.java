@@ -10,7 +10,9 @@ public class SpoofaxCommandFactory implements ICommandFactory {
 
     /**
      * Construct a new {@link SpoofaxCommandFactory}.
-     * @param invoker The {@link ICommandInvoker} to add the created commands to.
+     *
+     * @param invoker
+     *            The {@link ICommandInvoker} to add the created commands to.
      */
     public SpoofaxCommandFactory(ICommandInvoker invoker) {
         this.invoker = invoker;
