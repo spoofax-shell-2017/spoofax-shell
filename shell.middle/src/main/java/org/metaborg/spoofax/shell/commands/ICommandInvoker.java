@@ -49,15 +49,17 @@ public interface ICommandInvoker {
      * @param commandName
      *            The name of an {@link IReplCommand}.
      * @return The description of what the {@link IReplCommand} bound to {@code commandName} does.
+     * @throws CommandNotFoundException when the command could not be found.
      */
-    String commandDescriptionFromName(String commandName);
+    String commandDescriptionFromName(String commandName) throws CommandNotFoundException;
 
     /**
      * @param commandName
      *            The name of an {@link IReplCommand}.
-     * @return The {@link IReplCommand} bound to {@code commandName}
+     * @return The {@link IReplCommand} bound to {@code commandName}.
+     * @throws CommandNotFoundException when the command could not be found.
      */
-    IReplCommand commandFromName(String commandName);
+    IReplCommand commandFromName(String commandName) throws CommandNotFoundException;
 
     /**
      * @return The prefix of the {@link IReplCommand}s. The {@link IReplCommand}s are stored without
@@ -86,8 +88,9 @@ public interface ICommandInvoker {
      *
      * @param optionallyPrefixedCommandName
      *            The name of the {@link IReplCommand} to be executed.
+     * @throws CommandNotFoundException when the command could not be found.
      */
-    default void execute(String optionallyPrefixedCommandName) {
+    default void execute(String optionallyPrefixedCommandName) throws CommandNotFoundException {
         if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {
             commandFromName(optionallyPrefixedCommandName.substring(commandPrefix().length()))
                 .execute();

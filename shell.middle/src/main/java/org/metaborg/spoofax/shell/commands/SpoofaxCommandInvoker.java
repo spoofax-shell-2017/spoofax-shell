@@ -1,13 +1,32 @@
 package org.metaborg.spoofax.shell.commands;
 
+import java.util.HashMap;
+
 /**
  * Default implementation of an {@link ICommandInvoker}.
  */
 public class SpoofaxCommandInvoker implements ICommandInvoker {
+    private HashMap<String, IReplCommand> commands;
+    private HashMap<String, String> descriptions;
     private IEvaluationCommand eval;
+
+    /**
+     * Initializes data structure for storing the commands and descriptions.
+     */
+    public SpoofaxCommandInvoker() {
+        commands = new HashMap<>();
+        descriptions = new HashMap<>();
+    }
+
+    @Override
+    public void addCommand(String commandName, IReplCommand c) {
+        commands.put(commandName, c);
+    }
 
     @Override
     public void addCommand(String commandName, String description, IReplCommand c) {
+        addCommand(commandName, c);
+        descriptions.put(commandName, description);
     }
 
     @Override
@@ -20,14 +39,22 @@ public class SpoofaxCommandInvoker implements ICommandInvoker {
         return eval;
     }
 
-    @Override
-    public String commandDescriptionFromName(String commandName) {
-        return null;
+    private void ensureCommandExists(String commandName) throws CommandNotFoundException {
+        if (!commands.containsKey(commandName)) {
+            throw new CommandNotFoundException(commandName);
+        }
     }
 
     @Override
-    public IReplCommand commandFromName(String commandName) {
-        return null;
+    public String commandDescriptionFromName(String commandName) throws CommandNotFoundException {
+        ensureCommandExists(commandName);
+        return descriptions.getOrDefault(commandName, "");
+    }
+
+    @Override
+    public IReplCommand commandFromName(String commandName) throws CommandNotFoundException {
+        ensureCommandExists(commandName);
+        return commands.get(commandName);
     }
 
     @Override

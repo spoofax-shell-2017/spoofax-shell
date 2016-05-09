@@ -2,6 +2,7 @@ package org.metaborg.spoofax.shell.client;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
+import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.metaborg.spoofax.shell.commands.SpoofaxCommandFactory;
 import org.metaborg.spoofax.shell.commands.SpoofaxCommandInvoker;
@@ -80,7 +81,11 @@ public final class Repl {
             if (input.length() == 0) {
                 continue;
             }
-            invoker.execute(input);
+            try {
+                invoker.execute(input);
+            } catch (CommandNotFoundException e) {
+                display.displayError(e.getMessage());
+            }
         }
     }
 
