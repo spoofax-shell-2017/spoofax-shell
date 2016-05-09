@@ -1,41 +1,33 @@
 package org.metaborg.spoofax.shell.commands;
 
-import java.util.HashMap;
+import java.util.Map;
+
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 /**
  * Default implementation of an {@link ICommandInvoker}.
  */
 public class SpoofaxCommandInvoker implements ICommandInvoker {
-    private HashMap<String, IReplCommand> commands;
-    private HashMap<String, String> descriptions;
-    private IEvaluationCommand eval;
+    private Map<String, IReplCommand> commands;
+    private IReplCommand eval;
 
     /**
-     * Initializes data structure for storing the commands and descriptions.
+     * @param commands
+     *            The commands, with their command names as key (without prefix).
+     * @param eval
+     *            The {@link SpoofaxEvaluationCommand} used for evaluation when no command prefix
+     *            was given.
      */
-    public SpoofaxCommandInvoker() {
-        commands = new HashMap<>();
-        descriptions = new HashMap<>();
-    }
-
-    @Override
-    public void addCommand(String commandName, IReplCommand c) {
-        commands.put(commandName, c);
-    }
-
-    @Override
-    public void addCommand(String commandName, String description, IReplCommand c) {
-        addCommand(commandName, c);
-        descriptions.put(commandName, description);
-    }
-
-    @Override
-    public void setEvaluationCommand(IEvaluationCommand eval) {
+    @Inject
+    SpoofaxCommandInvoker(Map<String, IReplCommand> commands,
+                          @Named("EvalCommand") IReplCommand eval) {
+        this.commands = commands;
         this.eval = eval;
     }
 
     @Override
-    public IEvaluationCommand evaluationCommand() {
+    public IReplCommand evaluationCommand() {
         return eval;
     }
 
@@ -43,12 +35,6 @@ public class SpoofaxCommandInvoker implements ICommandInvoker {
         if (!commands.containsKey(commandName)) {
             throw new CommandNotFoundException(commandName);
         }
-    }
-
-    @Override
-    public String commandDescriptionFromName(String commandName) throws CommandNotFoundException {
-        ensureCommandExists(commandName);
-        return descriptions.getOrDefault(commandName, "");
     }
 
     @Override

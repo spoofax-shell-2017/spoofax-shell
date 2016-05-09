@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
-import org.metaborg.spoofax.shell.commands.IEvaluationCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 /**
@@ -44,15 +43,6 @@ public class ICommandInvokerTest implements ICommandInvoker {
         execute("test");
     }
 
-    @Override
-    public void addCommand(String commandName, String description, IReplCommand c) {
-    }
-
-    @Override
-    public String commandDescriptionFromName(String commandName) {
-        return null;
-    }
-
     /**
      * Called from {@link #testExecutesCommandWithoutPrefix()}.
      *
@@ -64,7 +54,17 @@ public class ICommandInvokerTest implements ICommandInvoker {
     public IReplCommand commandFromName(String commandName) {
         assertEquals("test", commandName);
         // Does nothing on execution.
-        return () -> {
+        return new IReplCommand() {
+
+            @Override
+            public void execute(String... args) {
+                // dummy
+            }
+
+            @Override
+            public String description() {
+                return "dummy";
+            }
         };
     }
 
@@ -73,16 +73,23 @@ public class ICommandInvokerTest implements ICommandInvoker {
         return "PREFIX/";
     }
 
-    @Override
-    public void setEvaluationCommand(IEvaluationCommand eval) {
-    }
-
     /**
      * Called from {@link #testExecutesEvaluationCommand()}.
      */
     @Override
-    public IEvaluationCommand evaluationCommand() {
-        return (s) -> assertEquals("test", s);
+    public IReplCommand evaluationCommand() {
+        return new IReplCommand() {
+
+            @Override
+            public void execute(String... args) {
+                assertEquals("test", args[0]);
+            }
+
+            @Override
+            public String description() {
+                return "dummy";
+            }
+        };
     }
 
 }

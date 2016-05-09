@@ -6,52 +6,9 @@ package org.metaborg.spoofax.shell.commands;
 public interface ICommandInvoker {
 
     /**
-     * Add an {@link IReplCommand} to be executed when {@code commandName} is given, under the given
-     * description.
-     *
-     * @param commandName
-     *            The name to which the command is bound.
-     * @param description
-     *            Description of what the command does.
-     * @param c
-     *            The {@link IReplCommand} to be bound to {@code commandName}.
-     */
-    void addCommand(String commandName, String description, IReplCommand c);
-
-    /**
-     * Same as {@link #addCommand(String, String, IReplCommand)}, with the empty {@link String}
-     * {@code ""} as description.
-     *
-     * @param commandName
-     *            The name to which the command is bound.
-     * @param c
-     *            The {@link IReplCommand} to be bound to {@code commandName}.
-     */
-    default void addCommand(String commandName, IReplCommand c) {
-        addCommand(commandName, "", c);
-    }
-
-    /**
-     * Set the command to be executed for evaluation. This command is executed when the input string
-     * does not start with {@link #commandPrefix()}.
-     *
-     * @param eval
-     *            The {@link IEvaluationCommand} to be executed for evaluation.
-     */
-    void setEvaluationCommand(IEvaluationCommand eval);
-
-    /**
      * @return The command executed for evaluation.
      */
-    IEvaluationCommand evaluationCommand();
-
-    /**
-     * @param commandName
-     *            The name of an {@link IReplCommand}.
-     * @return The description of what the {@link IReplCommand} bound to {@code commandName} does.
-     * @throws CommandNotFoundException when the command could not be found.
-     */
-    String commandDescriptionFromName(String commandName) throws CommandNotFoundException;
+    IReplCommand evaluationCommand();
 
     /**
      * @param commandName
@@ -96,6 +53,6 @@ public interface ICommandInvoker {
                 .execute();
             return;
         }
-        evaluationCommand().evaluate(optionallyPrefixedCommandName);
+        evaluationCommand().execute(optionallyPrefixedCommandName);
     }
 }
