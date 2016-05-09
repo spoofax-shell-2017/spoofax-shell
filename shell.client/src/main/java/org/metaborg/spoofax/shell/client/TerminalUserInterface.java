@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -12,8 +13,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import jline.console.ConsoleReader;
 
@@ -29,14 +35,6 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     private PrintWriter err;
 
     /**
-     * @throws IOException
-     *             when an IO error occurs.
-     */
-    public TerminalUserInterface() throws IOException {
-        this(System.in, System.out, System.err);
-    }
-
-    /**
      * @param in
      *            The {@link InputStream} from which to read user input.
      * @param out
@@ -46,7 +44,8 @@ public class TerminalUserInterface implements IEditor, IDisplay {
      * @throws IOException
      *             when an IO error occurs.
      */
-    public TerminalUserInterface(InputStream in, OutputStream out, OutputStream err)
+    @Inject
+    public TerminalUserInterface(@Named("in") InputStream in, @Named("out") OutputStream out, @Named("err") OutputStream err)
         throws IOException {
         reader = new ConsoleReader(in, out);
         reader.setExpandEvents(false);
@@ -58,9 +57,15 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         this.err =
             new PrintWriter(new BufferedWriter(new OutputStreamWriter(err,
                                                                       Charset.forName("UTF-8"))));
-        setPrompt(">>> ");
-        setContinuationPrompt("... ");
+
+        setPrompt(coloredFg(Color.RED, "[In ]: "));
+        setContinuationPrompt("[...]: ");
+
         lines = new ArrayList<>();
+    }
+
+    private String coloredFg(Color c, String s) {
+        return Ansi.ansi().fg(c).a(s).reset().toString();
     }
 
     /**
@@ -73,22 +78,13 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         lines.add(lastLine);
     }
 
-    /**
-     * Set the prompt to display.
-     *
-     * @param promptString
-     *            The prompt string.
-     */
+    // -------------- IEditor --------------
+    @Override
     public void setPrompt(String promptString) {
         prompt = promptString;
     }
 
-    /**
-     * Set the prompt to display when in multi-line mode.
-     *
-     * @param promptString
-     *            The prompt string.
-     */
+    @Override
     public void setContinuationPrompt(String promptString) {
         continuationPrompt = promptString;
     }
@@ -127,6 +123,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         // @formatter:on
     }
 
+    // -------------- IDisplay --------------
     @Override
     public void displayResult(String s) {
         out.println(s);

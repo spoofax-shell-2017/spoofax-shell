@@ -36,4 +36,20 @@ public interface IEditor {
      */
     List<String> history();
 
+    /**
+     * Set the prompt to display.
+     *
+     * @param promptString
+     *            The prompt string.
+     */
+	void setPrompt(String promptString);
+
+    /**
+     * Set the prompt to display when in multi-line mode.
+     *
+     * @param promptString
+     *            The prompt string.
+     */
+	void setContinuationPrompt(String promptString);
+
 }
