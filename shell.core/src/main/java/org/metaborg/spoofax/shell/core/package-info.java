@@ -1,4 +1,4 @@
 /**
- * The core of the shell contains the logic for evaluating a given expression in some language.
+ * The core logic of the shell.
  */
 package org.metaborg.spoofax.shell.core;
