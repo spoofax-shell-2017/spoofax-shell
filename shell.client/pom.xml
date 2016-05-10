@@ -19,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>org.metaborg.spoofax</groupId>
-            <artifactId>shell.middle</artifactId>
+            <artifactId>shell.core</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.middle;
+package org.metaborg.spoofax.shell.core;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
