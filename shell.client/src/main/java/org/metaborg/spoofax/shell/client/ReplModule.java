@@ -37,7 +37,7 @@ public class ReplModule extends AbstractModule {
         bind(new TypeLiteral<Consumer<String>>() { }).annotatedWith(Names.named("onSuccess"))
             .to(OnEvalSuccessHook.class).in(Singleton.class);
         bind(new TypeLiteral<Consumer<String>>() { }).annotatedWith(Names.named("onError"))
-            .toInstance(s -> { });
+            .to(OnEvalErrorHook.class).in(Singleton.class);
         bind(IReplCommand.class).annotatedWith(Names.named("EvalCommand"))
             .to(SpoofaxEvaluationCommand.class).in(Singleton.class);
         bind(ICommandInvoker.class).to(SpoofaxCommandInvoker.class);

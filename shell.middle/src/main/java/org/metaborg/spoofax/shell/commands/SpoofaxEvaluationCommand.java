@@ -46,5 +46,6 @@ public class SpoofaxEvaluationCommand implements IReplCommand {
      */
     public void execute(String... args) {
         onSuccess.accept("Hai, good job.");
+        onError.accept("Oh no..");
     }
 }

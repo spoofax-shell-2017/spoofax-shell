@@ -45,8 +45,8 @@ public class TerminalUserInterface implements IEditor, IDisplay {
      *             when an IO error occurs.
      */
     @Inject
-    public TerminalUserInterface(@Named("in") InputStream in, @Named("out") OutputStream out, @Named("err") OutputStream err)
-        throws IOException {
+    public TerminalUserInterface(@Named("in") InputStream in, @Named("out") OutputStream out,
+        @Named("err") OutputStream err) throws IOException {
         reader = new ConsoleReader(in, out);
         reader.setExpandEvents(false);
         reader.setHandleUserInterrupt(true);
