@@ -9,7 +9,6 @@ import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.SpoofaxCommandInvoker;
-import org.metaborg.spoofax.shell.commands.SpoofaxEvaluationCommand;
 import org.metaborg.spoofax.shell.commands.StyledText;
 import org.metaborg.spoofax.shell.core.CoreModule;
 
@@ -28,8 +27,6 @@ public class ReplModule extends CoreModule {
                 MapBinder.newMapBinder(binder(), String.class, IReplCommand.class);
         commandBinder.addBinding("exit").to(Repl.ExitCommand.class).in(Singleton.class);
 
-        bind(IReplCommand.class).annotatedWith(Names.named("EvalCommand"))
-            .to(SpoofaxEvaluationCommand.class).in(Singleton.class);
         bind(ICommandInvoker.class).to(SpoofaxCommandInvoker.class);
     }
 

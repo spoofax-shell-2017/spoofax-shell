@@ -130,7 +130,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     @Override
     public void displayError(StyledText s) {
         err.println(ansi(s));
-        out.flush();
+        err.flush();
     }
 
     private String ansi(StyledText text) {

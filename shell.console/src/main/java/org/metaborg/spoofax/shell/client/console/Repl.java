@@ -47,7 +47,7 @@ public final class Repl {
         this.display = display;
         this.invoker = invoker;
 
-        this.editor.setPrompt(new StyledText(Color.RED, "[In ]: "));
+        this.editor.setPrompt(new StyledText(Color.GREEN, "[In ]: "));
         this.editor.setContinuationPrompt(new StyledText("[...]: "));
     }
 
@@ -59,7 +59,8 @@ public final class Repl {
      */
     public void run() throws IOException {
         StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
-                                   .append("Spoofax").append(Color.BLUE, " REPL");
+                .append(Color.GREEN, "Spoofax")
+                .append(Color.BLUE, " REPL");
         display.displayResult(message);
 
         String input;

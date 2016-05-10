@@ -14,13 +14,23 @@ import org.spoofax.terms.StrategoString;
 import com.google.common.collect.Lists;
 
 /**
- * Represents source code styled by Spoofax.
+ * Represents a styled text containing several styled strings,
+ * each represented by a {@link IRegionStyle}.
  */
 public class StyledText {
     private List<IRegionStyle<String>> source;
 
     /**
-     * Create source code styled by Spoofax.
+     * Create a styled text from a string with no style.
+     * @param text the text
+     */
+    public StyledText(String text) {
+        this.source = Lists.newArrayList();
+        this.append(text);
+    }
+
+    /**
+     * Create a styled text from a colored string.
      * @param color the color
      * @param text the text
      */
@@ -30,24 +40,26 @@ public class StyledText {
     }
 
     /**
-     * Create source code styled by Spoofax.
+     * Create a styled text from a string with a style.
+     * @param style the style
      * @param text the text
      */
-    public StyledText(String text) {
-        this(null, text);
+    public StyledText(Style style, String text) {
+        this.source = Lists.newArrayList();
+        this.append(style, text);
     }
 
     /**
-     * Create source code styled by Spoofax.
-     * @param sourceRegions the source
+     * Create a styled text from a list of styled Stratego terms.
+     * @param sourceRegions the list of styled terms
      */
     public StyledText(Iterable<IRegionStyle<StrategoString>> sourceRegions) {
         this.source = Lists.newArrayList();
-        sourceRegions.iterator().forEachRemaining(e ->
-                this.append(e.region(), e.style(), e.fragment().stringValue()));
+        sourceRegions.forEach(e -> this.append(e.region(), e.style(), e.fragment().stringValue()));
     }
 
     /**
+     * Return all the styled strings in this text.
      * @return the source
      */
     public List<IRegionStyle<String>> getSource() {
@@ -55,7 +67,7 @@ public class StyledText {
     }
 
     /**
-     * Append to this styled source.
+     * Append a string with a region and a style to this styled text.
      * @param region the region
      * @param style the style
      * @param text the text
@@ -67,17 +79,16 @@ public class StyledText {
     }
 
     /**
-     * Append to this styled source.
-     * @param style the style
+     * Append a string with no style to this styled text.
      * @param text the text
      * @return this
      */
-    public StyledText append(IStyle style, String text) {
-        return this.append(null, style, text);
+    public StyledText append(String text) {
+        return this.append(null, null, text);
     }
 
     /**
-     * Append to this source region.
+     * Append a colored string to this styled text.
      * @param color the color
      * @param text the text
      * @return this
@@ -87,12 +98,13 @@ public class StyledText {
     }
 
     /**
-     * Append to this source region.
+     * Append a string with an arbitrary style to this styled text.
+     * @param style the style
      * @param text the text
      * @return this
      */
-    public StyledText append(String text) {
-        return this.append(null, null, text);
+    public StyledText append(IStyle style, String text) {
+        return this.append(null, style, text);
     }
 
     @Override
