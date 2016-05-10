@@ -17,8 +17,12 @@
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>org.metaborg.spoofax</groupId>
+            <artifactId>shell.core</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
         <!-- From here on, all plugins are inherited from the parent project. -->
-
         <!-- Test dependencies. -->
         <dependency>
             <groupId>junit</groupId>

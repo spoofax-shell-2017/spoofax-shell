@@ -73,7 +73,10 @@
             <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
         </module>
         <module name="IllegalInstantiation"/>
-        <module name="InnerAssignment"/>
+        <module name="InnerAssignment">
+            <property name="severity" value="ignore"/>
+            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+        </module>
         <module name="MagicNumber"/>
         <module name="MissingSwitchDefault"/>
         <module name="SimplifyBooleanExpression"/>
@@ -114,7 +117,6 @@
         <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
     </module>
     <module name="RegexpSingleline">
-        <property name="severity" value="ignore"/>
         <property name="format" value="\s+$"/>
         <property name="message" value="Line has trailing spaces."/>
         <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
