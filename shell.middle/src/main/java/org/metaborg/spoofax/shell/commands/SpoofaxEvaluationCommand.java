@@ -16,15 +16,15 @@ public class SpoofaxEvaluationCommand implements IReplCommand {
     private Consumer<String> onError;
 
     /**
-     * Create an {@link IEvaluationCommand}.
+     * Create an {@link SpoofaxEvaluationCommand}.
      *
      * TODO: Create more specific interfaces for the hooks, which can accept more parameters. The
      * parameters that are needed are currently unknown.
      *
      * @param onSuccess
-     *            Called upon success by the created {@link IEvaluationCommand}.
+     *            Called upon success by the created {@link SpoofaxEvaluationCommand}.
      * @param onError
-     *            Called upon an error by the created {@link IEvaluationCommand}.
+     *            Called upon an error by the created {@link SpoofaxEvaluationCommand}.
      */
     @Inject
     SpoofaxEvaluationCommand(@Named("onSuccess") Consumer<String> onSuccess,
