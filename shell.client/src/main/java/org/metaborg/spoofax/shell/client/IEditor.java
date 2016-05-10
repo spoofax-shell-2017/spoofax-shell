@@ -30,7 +30,7 @@ public interface IEditor {
     void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService);
 
     /**
-     * TODO: Consider replacing List<String> with a History type?
+     * TODO: Consider replacing a {@link List} of {@link String}s with a History type?
      *
      * @return the history of evaluated expressions, from recent to old.
      */
