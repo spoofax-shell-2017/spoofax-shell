@@ -35,7 +35,7 @@ public class ReplModule extends AbstractModule {
         bind(OutputStream.class).annotatedWith(Names.named("err")).toInstance(System.err);
 
         bind(new TypeLiteral<Consumer<String>>() { }).annotatedWith(Names.named("onSuccess"))
-            .to(Repl.OnEvalSuccessHook.class).in(Singleton.class);
+            .to(OnEvalSuccessHook.class).in(Singleton.class);
         bind(new TypeLiteral<Consumer<String>>() { }).annotatedWith(Names.named("onError"))
             .toInstance(s -> { });
         bind(IReplCommand.class).annotatedWith(Names.named("EvalCommand"))

@@ -10,8 +10,7 @@ import org.metaborg.spoofax.shell.commands.IReplCommand;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-
-import java.util.function.Consumer;
+import com.google.inject.Provider;
 
 /**
  * Interactive REPL (Read-Eval-Print Loop) which reads an expression or command typed in by the user
@@ -75,15 +74,15 @@ public final class Repl {
      * Exit the Repl.
      */
     static class ExitCommand implements IReplCommand {
-        private Repl repl;
+        private Provider<Repl> replProvider;
 
         /**
-         * @param repl
-         *            The Repl instance.
+         * @param replProvider
+         *            Provides the Repl instance.
          */
         @Inject
-        ExitCommand(Repl repl) {
-            this.repl = repl;
+        ExitCommand(Provider<Repl> replProvider) {
+            this.replProvider = replProvider;
         }
 
         @Override
@@ -93,28 +92,7 @@ public final class Repl {
 
         @Override
         public void execute(String... args) {
-            repl.running = false;
-        }
-    }
-
-    /**
-     * Called upon success of an evaluation command.
-     */
-    static class OnEvalSuccessHook implements Consumer<String> {
-        private Repl repl;
-
-        /**
-         * @param repl
-         *            The Repl instance.
-         */
-        @Inject
-        OnEvalSuccessHook(Repl repl) {
-            this.repl = repl;
-        }
-
-        @Override
-        public void accept(String s) {
-            repl.display.displayResult(s);
+            replProvider.get().running = false;
         }
     }
 
