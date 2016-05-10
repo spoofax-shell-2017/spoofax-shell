@@ -29,7 +29,7 @@ public interface IDisplay {
     }
 
     /**
-     * Display a result string with no style.
+     * Display an error string with no style.
      * @param s The string to be displayed.
      */
     default void displayError(String s) {

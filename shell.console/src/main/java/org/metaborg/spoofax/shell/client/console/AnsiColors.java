@@ -3,43 +3,44 @@ package org.metaborg.spoofax.shell.client.console;
 import java.awt.Color;
 import java.util.Arrays;
 
+import org.fusesource.jansi.Ansi;
+
 /**
  * Represents a list of possible ansi colors and maps them to Java colors.
  */
 public enum AnsiColors {
-    BLACK(0, Color.BLACK),
-    RED(1, Color.RED),
-    GREEN(2, Color.GREEN),
-    YELLOW(3, Color.YELLOW),
-    BLUE(4, Color.BLUE),
-    MAGENTA(5, Color.MAGENTA),
-    CYAN(6, Color.CYAN),
-    WHITE(7, Color.WHITE);
+    BLACK(Ansi.Color.BLACK, Color.BLACK),
+    RED(Ansi.Color.RED, Color.RED),
+    GREEN(Ansi.Color.GREEN, Color.GREEN),
+    YELLOW(Ansi.Color.YELLOW, Color.YELLOW),
+    BLUE(Ansi.Color.BLUE, Color.BLUE),
+    MAGENTA(Ansi.Color.MAGENTA, Color.MAGENTA),
+    CYAN(Ansi.Color.CYAN, Color.CYAN),
+    WHITE(Ansi.Color.WHITE, Color.WHITE);
 
-    private int idx;
+    private Ansi.Color ansiColor;
     private Color color;
 
     /**
-     * Construct all colors.
-     * @param idx the ansi index
-     * @param color the color
+     * Construct all ansi color to color mappings.
+     * @param ansiColor the ansi color
+     * @param color the java color
      */
-    AnsiColors(int idx, Color color) {
-        this.idx = idx;
+    AnsiColors(Ansi.Color ansiColor, Color color) {
+        this.ansiColor = ansiColor;
         this.color = color;
     }
 
     /**
-     * Find the ansi color idx corresponding to a java color.
+     * Find the ansi color most corresponding to a java color.
      * @param color the java color
-     * @return an ansi color idx
+     * @return the ansi color
      */
-    public static int findClosest(Color color) {
+    public static Ansi.Color findClosest(Color color) {
         return Arrays.stream(AnsiColors.values())
-            .sorted((a, b) -> Integer.compare(colorDiff(a.color, color), colorDiff(b.color, color)))
-            .findFirst()
+            .min((a, b) -> Integer.compare(colorDiff(a.color, color), colorDiff(b.color, color)))
             .get()
-            .idx;
+            .ansiColor;
     }
 
     private static int colorDiff(Color a, Color b) {
