@@ -28,7 +28,7 @@ public interface ICommandInvoker {
      * Ensure that the given parameter is returned without the {@link #commandPrefix()}.
      *
      * @param optionallyPrefixedCommandName
-     *            And optionally prefixed command name.
+     *            An optionally prefixed command name.
      * @return The command name without prefix if found. Otherwise just the same String as the
      *         argument
      */

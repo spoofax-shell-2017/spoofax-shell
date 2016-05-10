@@ -133,6 +133,6 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     @Override
     public void displayError(String s) {
         err.println(s);
-        out.flush();
+        err.flush();
     }
 }
