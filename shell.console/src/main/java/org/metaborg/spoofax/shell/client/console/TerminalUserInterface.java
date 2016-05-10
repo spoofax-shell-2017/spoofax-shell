@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client;
+package org.metaborg.spoofax.shell.client.console;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -17,6 +17,8 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IEditor;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

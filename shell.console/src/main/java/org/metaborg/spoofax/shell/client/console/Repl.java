@@ -1,8 +1,10 @@
-package org.metaborg.spoofax.shell.client;
+package org.metaborg.spoofax.shell.client.console;
 
 import java.io.IOException;
 
 import org.fusesource.jansi.Ansi;
+import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.metaborg.spoofax.shell.commands.IReplCommand;

@@ -1,9 +1,11 @@
-package org.metaborg.spoofax.shell.client;
+package org.metaborg.spoofax.shell.client.console;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Consumer;
 
+import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.SpoofaxCommandInvoker;
