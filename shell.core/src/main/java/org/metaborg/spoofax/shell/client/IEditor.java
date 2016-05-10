@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.shell.commands.StyledText;
 
 /**
  * An {@link IEditor} is where expressions in some language can be typed. It takes care of the
@@ -42,14 +43,14 @@ public interface IEditor {
      * @param promptString
      *            The prompt string.
      */
-	void setPrompt(String promptString);
+	void setPrompt(StyledText promptString);
 
     /**
      * Set the prompt to display when in multi-line mode.
      *
-     * @param promptString
+     * @param styledText
      *            The prompt string.
      */
-	void setContinuationPrompt(String promptString);
+	void setContinuationPrompt(StyledText styledText);
 
 }

@@ -12,8 +12,8 @@ public class SpoofaxEvaluationCommand implements IReplCommand {
     private static final String DESCRIPTION = "Given an expression, evaluate it and show the result"
                                               + " of it when it succeeded, otherwise show the"
                                               + " error.";
-    private Consumer<String> onSuccess;
-    private Consumer<String> onError;
+    private Consumer<StyledText> onSuccess;
+    private Consumer<StyledText> onError;
 
     /**
      * Create an {@link SpoofaxEvaluationCommand}.
@@ -27,8 +27,8 @@ public class SpoofaxEvaluationCommand implements IReplCommand {
      *            Called upon an error by the created {@link SpoofaxEvaluationCommand}.
      */
     @Inject
-    SpoofaxEvaluationCommand(@Named("onSuccess") Consumer<String> onSuccess,
-                             @Named("onError") Consumer<String> onError) {
+    SpoofaxEvaluationCommand(@Named("onSuccess") Consumer<StyledText> onSuccess,
+                             @Named("onError") Consumer<StyledText> onError) {
         this.onSuccess = onSuccess;
         this.onError = onError;
     }
@@ -44,8 +44,9 @@ public class SpoofaxEvaluationCommand implements IReplCommand {
      * @param args
      *            The String to be parsed and executed.
      */
+    @Override
     public void execute(String... args) {
-        onSuccess.accept("Hai, good job.");
-        onError.accept("Oh no..");
+        onSuccess.accept(new StyledText("Hai, good job."));
+        onError.accept(new StyledText("Oh no.."));
     }
 }

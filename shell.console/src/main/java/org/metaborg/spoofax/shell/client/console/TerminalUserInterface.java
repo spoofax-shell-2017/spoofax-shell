@@ -19,6 +19,7 @@ import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
+import org.metaborg.spoofax.shell.commands.StyledText;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -30,8 +31,8 @@ import jline.console.ConsoleReader;
  */
 public class TerminalUserInterface implements IEditor, IDisplay {
     private ConsoleReader reader;
-    private String prompt;
-    private String continuationPrompt;
+    private StyledText prompt;
+    private StyledText continuationPrompt;
     private ArrayList<String> lines;
     private PrintWriter out;
     private PrintWriter err;
@@ -60,14 +61,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
             new PrintWriter(new BufferedWriter(new OutputStreamWriter(err,
                                                                       Charset.forName("UTF-8"))));
 
-        setPrompt(coloredFg(Color.RED, "[In ]: "));
-        setContinuationPrompt("[...]: ");
-
         lines = new ArrayList<>();
-    }
-
-    private String coloredFg(Color c, String s) {
-        return Ansi.ansi().fg(c).a(s).reset().toString();
     }
 
     /**
@@ -82,12 +76,12 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     // -------------- IEditor --------------
     @Override
-    public void setPrompt(String promptString) {
+    public void setPrompt(StyledText promptString) {
         prompt = promptString;
     }
 
     @Override
-    public void setContinuationPrompt(String promptString) {
+    public void setContinuationPrompt(StyledText promptString) {
         continuationPrompt = promptString;
     }
 
@@ -102,11 +96,11 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     public String getInput() throws IOException {
         String input;
         String lastLine;
-        reader.setPrompt(prompt);
+        reader.setPrompt(ansi(prompt));
         // While the input is not empty, keep asking.
         while ((lastLine = reader.readLine()) != null && lastLine.trim().length() > 0) {
             reader.flush();
-            reader.setPrompt(continuationPrompt);
+            reader.setPrompt(ansi(continuationPrompt));
             saveLine(lastLine);
         }
         // Concat the strings with newlines inbetween
@@ -127,14 +121,28 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     // -------------- IDisplay --------------
     @Override
-    public void displayResult(String s) {
-        out.println(s);
+    public void displayResult(StyledText s) {
+        out.println(ansi(s));
         out.flush();
     }
 
     @Override
-    public void displayError(String s) {
+    public void displayError(StyledText s) {
         err.println(s);
         err.flush();
+    }
+
+    private String ansi(StyledText text) {
+        Ansi ansi = Ansi.ansi();
+        text.getSource().stream()
+        .forEach(e -> {
+            if (e.style() != null && e.style().color() != null) {
+                int idx = AnsiColors.findClosest(e.style().color());
+                Color color = Ansi.Color.values()[idx];
+                ansi.fg(color);
+            }
+            ansi.a(e.fragment()).reset();
+        });
+        return ansi.toString();
     }
 }
