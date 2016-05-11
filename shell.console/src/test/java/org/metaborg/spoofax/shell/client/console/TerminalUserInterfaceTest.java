@@ -1,6 +1,7 @@
 package org.metaborg.spoofax.shell.client.console;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
@@ -27,6 +28,7 @@ public class TerminalUserInterfaceTest {
     private TerminalUserInterface ui;
     private static final String PROMPT = "<TEST>";
     private static final String CONT_PROMPT = ".TEST.";
+    private static final char C_D = '\04';
     private static final char ESC = '\033';
     private static final String ARROW_UP = ESC + "[A";
     private static final String ARROW_DOWN = ESC + "[B";
@@ -64,6 +66,33 @@ public class TerminalUserInterfaceTest {
         ui = injector.getInstance(TerminalUserInterface.class);
         ui.setPrompt(PROMPT);
         ui.setContinuationPrompt(CONT_PROMPT);
+    }
+
+    /**
+     * Test whether entering CTRL + D returns null for input.
+     */
+    @Test
+    public void testCtrlD() {
+        try {
+            setUp(String.valueOf(C_D));
+            assertNull(ui.getInput());
+        } catch (IOException e) {
+            fail("Should not happen");
+        }
+    }
+
+    /**
+     * Test whether entering CTRL + D returns null for input when entered on the second line.
+     */
+    @Test
+    public void testCtrlDEnteredOnSecondLine() {
+        try {
+            setUp(/* >>> */"asdf" + ENTER
+            /* ... */ + C_D);
+            assertNull(ui.getInput());
+        } catch (IOException e) {
+            fail("Should not happen");
+        }
     }
 
     /**
