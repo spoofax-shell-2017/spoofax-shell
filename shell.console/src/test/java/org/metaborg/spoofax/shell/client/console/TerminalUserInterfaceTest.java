@@ -12,6 +12,7 @@ import java.io.OutputStream;
 
 import org.junit.Test;
 import org.metaborg.spoofax.shell.client.console.TerminalUserInterface;
+import org.metaborg.spoofax.shell.commands.StyledText;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -53,8 +54,8 @@ public class TerminalUserInterfaceTest {
 
         Injector injector = Guice.createInjector(new UserInputSimulationModule(in, out));
         ui = injector.getInstance(TerminalUserInterface.class);
-        ui.setPrompt(PROMPT);
-        ui.setContinuationPrompt(CONT_PROMPT);
+        ui.setPrompt(new StyledText(PROMPT));
+        ui.setContinuationPrompt(new StyledText(CONT_PROMPT));
     }
 
     /**
