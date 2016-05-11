@@ -34,8 +34,7 @@
     </dependencyManagement>
 
     <modules>
-        <module>shell.client</module>
-        <module>shell.middle</module>
+        <module>shell.console</module>
         <module>shell.core</module>
     </modules>
 
