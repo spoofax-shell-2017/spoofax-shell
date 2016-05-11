@@ -39,6 +39,8 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     private PrintWriter err;
 
     /**
+     * @param reader
+     *            The jline2 {@link ConsoleReader} used to get input.
      * @param in
      *            The {@link InputStream} from which to read user input.
      * @param out
@@ -49,9 +51,9 @@ public class TerminalUserInterface implements IEditor, IDisplay {
      *             when an IO error occurs.
      */
     @Inject
-    public TerminalUserInterface(@Named("in") InputStream in, @Named("out") OutputStream out,
-        @Named("err") OutputStream err) throws IOException {
-        reader = new ConsoleReader(in, out);
+    public TerminalUserInterface(ConsoleReader reader, @Named("in") InputStream in,
+        @Named("out") OutputStream out, @Named("err") OutputStream err) throws IOException {
+        this.reader = reader;
         reader.setExpandEvents(false);
         reader.setHandleUserInterrupt(true);
         reader.setBellEnabled(true);
