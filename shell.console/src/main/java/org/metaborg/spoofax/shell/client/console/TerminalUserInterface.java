@@ -110,7 +110,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
             saveLine(lastLine);
         }
         // Concat the strings with newlines inbetween
-        input = lines.stream().collect(Collectors.joining("\n"));
+        input = lastLine == null ? null : lines.stream().collect(Collectors.joining("\n"));
         // Clear the lines for next input.
         lines.clear();
         return input;
