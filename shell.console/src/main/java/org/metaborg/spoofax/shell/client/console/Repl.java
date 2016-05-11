@@ -1,13 +1,14 @@
 package org.metaborg.spoofax.shell.client.console;
 
+import java.awt.Color;
 import java.io.IOException;
 
-import org.fusesource.jansi.Ansi;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
+import org.metaborg.spoofax.shell.commands.StyledText;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -45,6 +46,9 @@ public final class Repl {
         this.editor = editor;
         this.display = display;
         this.invoker = invoker;
+
+        this.editor.setPrompt(new StyledText(Color.GREEN, "[In ]: "));
+        this.editor.setContinuationPrompt(new StyledText("[...]: "));
     }
 
     /**
@@ -54,8 +58,10 @@ public final class Repl {
      *             when an IO error occurs.
      */
     public void run() throws IOException {
-        display.displayResult(Ansi.ansi().a("Welcome to the ").bold().a("Spoofax").reset()
-            .a(" REPL").toString());
+        StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
+                .append(Color.GREEN, "Spoofax")
+                .append(Color.BLUE, " REPL");
+        display.displayResult(message);
 
         String input;
         running = true;

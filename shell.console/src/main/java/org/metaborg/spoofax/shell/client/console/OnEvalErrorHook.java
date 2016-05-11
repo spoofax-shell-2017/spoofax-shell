@@ -3,13 +3,14 @@ package org.metaborg.spoofax.shell.client.console;
 import java.util.function.Consumer;
 
 import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.commands.StyledText;
 
 import com.google.inject.Inject;
 
 /**
  * Called upon success of an evaluation command.
  */
-public class OnEvalErrorHook implements Consumer<String> {
+public class OnEvalErrorHook implements Consumer<StyledText> {
 
     private IDisplay display;
 
@@ -22,7 +23,7 @@ public class OnEvalErrorHook implements Consumer<String> {
     }
 
     @Override
-    public void accept(String s) {
+    public void accept(StyledText s) {
         display.displayError(s);
     }
 }
