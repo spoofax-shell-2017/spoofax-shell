@@ -28,7 +28,9 @@ public class TerminalUserInterfaceTest {
     private TerminalUserInterface ui;
     private static final String PROMPT = "<TEST>";
     private static final String CONT_PROMPT = ".TEST.";
-    private static final char C_D = '\04';
+    private static final char C_A = '\001';
+    private static final char C_D = '\004';
+    private static final char C_E = '\005';
     private static final char ESC = '\033';
     private static final String ARROW_UP = ESC + "[A";
     private static final String ARROW_DOWN = ESC + "[B";
@@ -90,6 +92,21 @@ public class TerminalUserInterfaceTest {
             setUp(/* >>> */"asdf" + ENTER
             /* ... */ + C_D);
             assertNull(ui.getInput());
+        } catch (IOException e) {
+            fail("Should not happen");
+        }
+    }
+
+    /**
+     * Test keyboard shortcuts (CTRL + A, CTRL + E).
+     */
+    @Test
+    public void testKeyboardShortcuts() {
+        try {
+            setUp(/* >>> */"asdf" + C_A + "qwerty" + C_E + "hjkl" + ENTER
+            /* ... */ + "sdf" + C_A + 'a' + ENTER
+            /* ... */ + ENTER);
+            assertEquals("qwertyasdfhjkl\nasdf", ui.getInput());
         } catch (IOException e) {
             fail("Should not happen");
         }
