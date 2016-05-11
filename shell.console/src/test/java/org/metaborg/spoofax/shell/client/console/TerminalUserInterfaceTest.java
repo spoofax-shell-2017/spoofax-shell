@@ -13,12 +13,9 @@ import java.io.OutputStream;
 import org.junit.Test;
 import org.metaborg.spoofax.shell.client.console.TerminalUserInterface;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.name.Names;
 
-import jline.TerminalSupport;
 import jline.console.ConsoleReader;
 
 /**
@@ -29,12 +26,12 @@ public class TerminalUserInterfaceTest {
     private static final String PROMPT = "<TEST>";
     private static final String CONT_PROMPT = ".TEST.";
     private static final char C_A = '\001';
-    private static final char C_D = '\004';
+    public static final char C_D = '\004';
     private static final char C_E = '\005';
     private static final char ESC = '\033';
     private static final String ARROW_UP = ESC + "[A";
     private static final String ARROW_DOWN = ESC + "[B";
-    private static final char ENTER = '\r';
+    public static final char ENTER = '\r';
     private static final String ASDF_QWERTY = /* >>> */ "asdf" + ENTER
     /* ... */ + ENTER
     /* >>> */ + "qwerty" + ENTER
@@ -54,17 +51,7 @@ public class TerminalUserInterfaceTest {
         in = new ByteArrayInputStream(inputString.getBytes("UTF-8"));
         out = new ByteArrayOutputStream();
 
-        ConsoleReader reader = new ConsoleReader(in, out, new TerminalSupport(true) {
-        });
-        Injector injector = Guice.createInjector(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(ConsoleReader.class).toInstance(reader);
-                bind(InputStream.class).annotatedWith(Names.named("in")).toInstance(in);
-                bind(OutputStream.class).annotatedWith(Names.named("out")).toInstance(out);
-                bind(OutputStream.class).annotatedWith(Names.named("err")).toInstance(out);
-            }
-        });
+        Injector injector = Guice.createInjector(new UserInputSimulationModule(in, out));
         ui = injector.getInstance(TerminalUserInterface.class);
         ui.setPrompt(PROMPT);
         ui.setContinuationPrompt(CONT_PROMPT);

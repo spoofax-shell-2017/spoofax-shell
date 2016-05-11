@@ -65,7 +65,7 @@ public final class Repl {
 
         String input;
         running = true;
-        while ((input = editor.getInput()) != null && running) {
+        while (running && (input = editor.getInput()) != null) {
             input = input.trim();
             if (input.length() == 0) {
                 continue;
