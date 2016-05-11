@@ -47,7 +47,7 @@ public class TerminalUserInterfaceTest {
      *             When an IO error occurs upon construction of the {@link ConsoleReader}.
      */
     public void setUp(String inputString) throws IOException {
-        in = new ByteArrayInputStream(inputString.getBytes());
+        in = new ByteArrayInputStream(inputString.getBytes("UTF-8"));
         out = new ByteArrayOutputStream();
 
         ConsoleReader reader = new ConsoleReader(in, out, new TerminalSupport(true) {
@@ -93,7 +93,7 @@ public class TerminalUserInterfaceTest {
             /* ... */ + ENTER);
             assertEquals("asdf\nqwerty", ui.getInput());
             assertEquals(PROMPT + "asdf\n" + CONT_PROMPT + "qwerty\n" + CONT_PROMPT + '\n',
-                         out.toString());
+                         out.toString("UTF-8"));
         } catch (IOException e) {
             fail("Should not happen");
         }
