@@ -13,6 +13,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.RETURNS_MOCKS;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,7 +48,7 @@ public class ReplTest {
     }
 
     /**
-     * Create initial injector, later to be overwritten by {@link #createRepl(String, Module...)}.
+     * Create initial injector, can be overridden later on by {@link #createInjector(Module...)}.
      *
      * @param inputString
      *            The simulated user input.
@@ -65,10 +67,8 @@ public class ReplTest {
      *
      * @param overrides
      *            Module overrides w.r.t. ReplModule.
-     * @throws IOException
-     *             When an IO error occurs upon construction of the {@link ConsoleReader}.
      */
-    public void createRepl(Module... overrides) throws IOException {
+    public void createRepl(Module... overrides) {
         createInjector(overrides);
         repl = injector.getInstance(Repl.class);
     }
