@@ -67,6 +67,39 @@ public class TerminalUserInterfaceTest {
     }
 
     /**
+     * Test whether interleaving lines with "ENTER", and then accepting the lines with double
+     * "ENTER", returns input that spans multiple lines.
+     */
+    @Test
+    public void testMultilineInput() {
+        try {
+            setUp(/* >>> */ "asdf" + ENTER
+            /* ... */ + "qwerty" + ENTER
+            /* ... */ + ENTER);
+            assertEquals("asdf\nqwerty", ui.getInput());
+        } catch (IOException e) {
+            fail("Should not happen");
+        }
+    }
+
+    /**
+     * Test whether the continuation prompt is shown when entering multiline input.
+     */
+    @Test
+    public void testContinuationPromptShown() {
+        try {
+            setUp(/* >>> */ "asdf" + ENTER
+            /* ... */ + "qwerty" + ENTER
+            /* ... */ + ENTER);
+            assertEquals("asdf\nqwerty", ui.getInput());
+            assertEquals(PROMPT + "asdf\n" + CONT_PROMPT + "qwerty\n" + CONT_PROMPT + '\n',
+                         out.toString());
+        } catch (IOException e) {
+            fail("Should not happen");
+        }
+    }
+
+    /**
      * Test whether an up-arrow causes the input to be the previously entered input.
      */
     @Test
