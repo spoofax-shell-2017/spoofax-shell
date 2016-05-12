@@ -14,8 +14,6 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
-import jline.console.ConsoleReader;
-
 /**
  * Bindings for the console repl.
  */
@@ -29,6 +27,9 @@ public class ConsoleReplModule extends ReplModule {
         bind(InputStream.class).annotatedWith(Names.named("in")).toInstance(System.in);
         bind(OutputStream.class).annotatedWith(Names.named("out")).toInstance(System.out);
         bind(OutputStream.class).annotatedWith(Names.named("err")).toInstance(System.err);
+
+        bindConstant().annotatedWith(Names.named("historyPath"))
+            .to(System.getProperty("user.dir") + "/.spoofax-shell_history");
     }
 
     @Override
@@ -54,9 +55,9 @@ public class ConsoleReplModule extends ReplModule {
      */
     @Provides
     @Singleton
-    protected ConsoleReader provideConsoleReader(@Named("in") InputStream in,
-                                                 @Named("out") OutputStream out)
-                                                     throws IOException {
-        return new ConsoleReader(in, out);
+    protected jline.console.ConsoleReader provideConsoleReader(@Named("in") InputStream in,
+                                                               @Named("out") OutputStream out)
+                                                                   throws IOException {
+        return new jline.console.ConsoleReader(in, out);
     }
 }

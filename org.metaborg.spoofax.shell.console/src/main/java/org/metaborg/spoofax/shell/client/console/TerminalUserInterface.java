@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.client.console;
 import static org.metaborg.spoofax.shell.client.console.AnsiColors.findClosest;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -25,6 +26,8 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import jline.console.ConsoleReader;
+import jline.console.history.FileHistory;
+import jline.console.history.History;
 
 /**
  * A terminal UI which is both an {@link IEditor} and an {@link IDisplay}.
@@ -44,16 +47,22 @@ public class TerminalUserInterface implements IEditor, IDisplay {
      *            The {@link PrintStream} to write results to.
      * @param err
      *            The {@link PrintStream} to write errors to.
+     * @param path
+     *            The file path to write the history to.
      * @throws IOException
      *             when an IO error occurs.
      */
     @Inject
     public TerminalUserInterface(ConsoleReader reader, @Named("out") OutputStream out,
-                                 @Named("err") OutputStream err) throws IOException {
+                                 @Named("err") OutputStream err, @Named("historyPath") String path)
+                                     throws IOException {
         this.reader = reader;
         reader.setExpandEvents(false);
         reader.setHandleUserInterrupt(true);
         reader.setBellEnabled(true);
+        File file = new File(path);
+        History hist = new FileHistory(file);
+        reader.setHistory(hist);
         this.out =
             new PrintWriter(new BufferedWriter(new OutputStreamWriter(out,
                                                                       Charset.forName("UTF-8"))));
