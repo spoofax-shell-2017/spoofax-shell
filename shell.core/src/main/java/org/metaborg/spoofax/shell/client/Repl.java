@@ -37,6 +37,7 @@ public class Repl {
         this.display = display;
         this.invoker = invoker;
 
+        // TODO: this does not really belong here.
         this.editor.setPrompt(new StyledText(Color.GREEN, "[In ]: "));
         this.editor.setContinuationPrompt(new StyledText("[...]: "));
     }
