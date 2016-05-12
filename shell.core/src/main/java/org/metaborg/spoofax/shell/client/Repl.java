@@ -1,18 +1,14 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client;
 
 import java.awt.Color;
 import java.io.IOException;
 
-import org.metaborg.spoofax.shell.client.IDisplay;
-import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.StyledText;
 
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Provider;
 
 /**
@@ -20,13 +16,7 @@ import com.google.inject.Provider;
  * via an {@link IEditor}, executes them with a {@link ICommandInvoker} and prints it to an
  * {@link IDisplay}.
  */
-public final class Repl {
-    private static Injector injector;
-
-    static {
-        injector = Guice.createInjector(new ReplModule());
-    }
-
+public class Repl {
     private ICommandInvoker invoker;
     private IEditor editor;
     private IDisplay display;
@@ -58,11 +48,6 @@ public final class Repl {
      *             when an IO error occurs.
      */
     public void run() throws IOException {
-        StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
-                .append(Color.GREEN, "Spoofax")
-                .append(Color.BLUE, " REPL");
-        display.displayResult(message);
-
         String input;
         running = true;
         while (running && (input = editor.getInput()) != null) {
@@ -102,15 +87,5 @@ public final class Repl {
         public void execute(String... args) {
             replProvider.get().running = false;
         }
-    }
-
-    /**
-     * @param args
-     *            Unused.
-     * @throws IOException
-     *             when an IO error occurs.
-     */
-    public static void main(String[] args) throws IOException {
-        injector.getInstance(Repl.class).run();
     }
 }

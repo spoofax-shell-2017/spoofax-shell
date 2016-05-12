@@ -1,8 +1,7 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client;
 
 import java.util.function.Consumer;
 
-import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.commands.StyledText;
 
 import com.google.inject.Inject;

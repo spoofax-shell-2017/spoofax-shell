@@ -1,8 +1,7 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client;
 
 import java.util.function.Consumer;
 
-import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.commands.StyledText;
 
 import com.google.inject.Inject;
@@ -10,7 +9,7 @@ import com.google.inject.Inject;
 /**
  * Called upon success of an evaluation command.
  */
-class OnEvalSuccessHook implements Consumer<StyledText> {
+public class OnEvalSuccessHook implements Consumer<StyledText> {
     private IDisplay display;
 
     /**

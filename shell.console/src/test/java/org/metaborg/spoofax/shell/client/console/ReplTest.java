@@ -1,29 +1,27 @@
 package org.metaborg.spoofax.shell.client.console;
 
 import static org.junit.Assert.fail;
-
 import static org.metaborg.spoofax.shell.client.console.TerminalUserInterfaceTest.C_D;
 import static org.metaborg.spoofax.shell.client.console.TerminalUserInterfaceTest.ENTER;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
 import org.metaborg.spoofax.shell.client.IEditor;
-import org.metaborg.spoofax.shell.client.console.Repl;
-import org.metaborg.spoofax.shell.client.console.Repl.ExitCommand;
+import org.metaborg.spoofax.shell.client.Repl;
+import org.metaborg.spoofax.shell.client.ReplModule;
 import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.mockito.Mockito;
@@ -59,7 +57,7 @@ public class ReplTest {
         in = new ByteArrayInputStream(inputString.getBytes("UTF-8"));
         out = new ByteArrayOutputStream();
 
-        injector = Guice.createInjector(new ReplModule());
+        injector = Guice.createInjector(new ConsoleReplModule());
     }
 
     /**

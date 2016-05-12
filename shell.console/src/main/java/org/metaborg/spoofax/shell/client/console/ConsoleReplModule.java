@@ -3,37 +3,23 @@ package org.metaborg.spoofax.shell.client.console;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.function.Consumer;
 
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
-import org.metaborg.spoofax.shell.commands.IReplCommand;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommandInvoker;
-import org.metaborg.spoofax.shell.commands.StyledText;
-import org.metaborg.spoofax.shell.core.CoreModule;
+import org.metaborg.spoofax.shell.client.Repl;
+import org.metaborg.spoofax.shell.client.ReplModule;
 
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.TypeLiteral;
-import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 import jline.console.ConsoleReader;
 
 /**
- * Bindings for Repl.
+ * Bindings for the console repl.
  */
-public class ReplModule extends CoreModule {
-
-    private void configureCommands() {
-        MapBinder<String, IReplCommand> commandBinder =
-                MapBinder.newMapBinder(binder(), String.class, IReplCommand.class);
-        commandBinder.addBinding("exit").to(Repl.ExitCommand.class).in(Singleton.class);
-
-        bind(ICommandInvoker.class).to(SpoofaxCommandInvoker.class);
-    }
+public class ConsoleReplModule extends ReplModule {
 
     private void configureUserInterface() {
         bind(TerminalUserInterface.class).in(Singleton.class);
@@ -43,18 +29,12 @@ public class ReplModule extends CoreModule {
         bind(InputStream.class).annotatedWith(Names.named("in")).toInstance(System.in);
         bind(OutputStream.class).annotatedWith(Names.named("out")).toInstance(System.out);
         bind(OutputStream.class).annotatedWith(Names.named("err")).toInstance(System.err);
-
-        bind(new TypeLiteral<Consumer<StyledText>>() { }).annotatedWith(Names.named("onSuccess"))
-                .to(OnEvalSuccessHook.class).in(Singleton.class);
-        bind(new TypeLiteral<Consumer<StyledText>>() { }).annotatedWith(Names.named("onError"))
-                .to(OnEvalErrorHook.class).in(Singleton.class);
     }
 
     @Override
     protected void configure() {
         super.configure();
 
-        configureCommands();
         configureUserInterface();
 
         bind(Repl.class).in(Singleton.class);
