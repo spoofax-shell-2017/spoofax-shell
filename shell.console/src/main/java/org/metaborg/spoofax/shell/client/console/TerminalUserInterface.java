@@ -4,7 +4,6 @@ import static org.metaborg.spoofax.shell.client.console.AnsiColors.findClosest;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -39,8 +38,8 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     private PrintWriter err;
 
     /**
-     * @param in
-     *            The {@link InputStream} from which to read user input.
+     * @param reader
+     *            The jline2 {@link ConsoleReader} used to get input.
      * @param out
      *            The {@link PrintStream} to write results to.
      * @param err
@@ -49,9 +48,9 @@ public class TerminalUserInterface implements IEditor, IDisplay {
      *             when an IO error occurs.
      */
     @Inject
-    public TerminalUserInterface(@Named("in") InputStream in, @Named("out") OutputStream out,
-        @Named("err") OutputStream err) throws IOException {
-        reader = new ConsoleReader(in, out);
+    public TerminalUserInterface(ConsoleReader reader, @Named("out") OutputStream out,
+                                 @Named("err") OutputStream err) throws IOException {
+        this.reader = reader;
         reader.setExpandEvents(false);
         reader.setHandleUserInterrupt(true);
         reader.setBellEnabled(true);
