@@ -32,9 +32,9 @@ public class ReplModule extends CoreModule {
         configureCommands();
 
         // @formatter:off
-        bind(new TypeLiteral<Consumer<StyledText>>() {}).annotatedWith(Names.named("onSuccess"))
+        bind(new TypeLiteral<Consumer<StyledText>>() { }).annotatedWith(Names.named("onSuccess"))
                 .to(OnEvalSuccessHook.class).in(Singleton.class);
-        bind(new TypeLiteral<Consumer<StyledText>>() {}).annotatedWith(Names.named("onError"))
+        bind(new TypeLiteral<Consumer<StyledText>>() { }).annotatedWith(Names.named("onError"))
                 .to(OnEvalErrorHook.class).in(Singleton.class);
         // @formatter:on
     }
