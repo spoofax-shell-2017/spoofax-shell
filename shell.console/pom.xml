@@ -12,7 +12,7 @@
     <parent>
         <artifactId>shell</artifactId>
         <groupId>org.metaborg.spoofax</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.0.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.metaborg.spoofax</groupId>
             <artifactId>shell.core</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>jline</groupId>

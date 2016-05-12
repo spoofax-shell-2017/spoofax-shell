@@ -12,7 +12,7 @@
     <parent>
         <artifactId>shell</artifactId>
         <groupId>org.metaborg.spoofax</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.0.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -36,6 +36,14 @@
     <build>
         <plugins>
             <!-- From here on, all plugins are inherited from the parent project. -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
