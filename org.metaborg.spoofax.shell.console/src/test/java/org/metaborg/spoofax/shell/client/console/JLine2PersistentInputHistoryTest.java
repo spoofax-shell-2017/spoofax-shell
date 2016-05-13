@@ -12,7 +12,6 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.metaborg.util.test.Assert2.assertEmpty;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -80,16 +79,17 @@ public class JLine2PersistentInputHistoryTest extends JLine2InputHistoryTest {
         try {
             assertThat(hist.allEntries(), hasItems("asdf", "fdsa"));
 
-            // Now load entries from disk. The file is empty, so allEntries should be empty.
+            // Now load entries from disk. The file is empty, so allEntries should still have all
+            // in-memory contents as before.
             systemUnderTest().loadFromDisk();
-            assertEmpty(hist.allEntries());
+            assertThat(hist.allEntries(), hasItems("asdf", "fdsa"));
 
             hist.append("qwerty");
             hist.append("hjkl");
 
             // Persist to disk, check the file contents.
             systemUnderTest().persistToDisk();
-            assertEquals("qwerty\nhjkl\n", Files.toString(tempHistory, Charsets.UTF_8));
+            assertEquals("asdf\nfdsa\nqwerty\nhjkl\n", Files.toString(tempHistory, Charsets.UTF_8));
 
             // Load it back and check that the entries are there.
             systemUnderTest().loadFromDisk();

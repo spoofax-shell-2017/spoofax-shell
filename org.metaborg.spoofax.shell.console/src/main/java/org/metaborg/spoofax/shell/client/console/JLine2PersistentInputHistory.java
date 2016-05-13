@@ -61,11 +61,10 @@ public class JLine2PersistentInputHistory extends JLine2InputHistory {
         jline.console.history.FileHistory newDelegate =
             new jline.console.history.FileHistory(histFile);
 
-        // Have to clear so that I can add all the old entries in front again...
-        // newDelegate.clear();
-        // delegate().forEach(e -> newDelegate.add(e.value().toString()));
-        // newDelegate.load(histFile);
+        // Add the in-memory entries too.
+        delegate().forEach(e -> newDelegate.add(e.value().toString()));
 
+        // Set the new delegate to be used.
         reader.setHistory(newDelegate);
         delegateFileHist = Optional.of(newDelegate);
     }
