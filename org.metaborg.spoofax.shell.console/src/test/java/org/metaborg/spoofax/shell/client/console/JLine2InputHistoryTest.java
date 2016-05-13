@@ -49,7 +49,8 @@ public class JLine2InputHistoryTest {
      * @param inputString
      *            The simulated user input.
      * @throws IOException
-     *             When an IO error occurs upon construction of the {@link ConsoleReader}.
+     *             When an IO error occurs upon construction of the
+     *             {@link jline.console.ConsoleReader ConsoleReader}.
      */
     public void setUp(String inputString) throws IOException {
         in = new ByteArrayInputStream(inputString.getBytes("UTF-8"));
@@ -166,10 +167,8 @@ public class JLine2InputHistoryTest {
     }
 
     /**
-     * Tests the following methods:
-     * <li>{@link JLine2InputHistory#allEntries()}</li>
-     * <li>{@link JLine2InputHistory#entries(int)}</li>
-     * <li>{@link JLine2InputHistory#entries(int, int)}</li>.
+     * Tests the following methods: {@link JLine2InputHistory#allEntries()} ,
+     * {@link JLine2InputHistory#entries(int)} , {@link JLine2InputHistory#entries(int, int)}.
      */
     @Test
     public final void testEntries() {
