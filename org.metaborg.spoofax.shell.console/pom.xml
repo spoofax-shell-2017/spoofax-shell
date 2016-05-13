@@ -18,7 +18,7 @@
         <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.shell.core</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>jline</groupId>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.shell.core</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>${parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
