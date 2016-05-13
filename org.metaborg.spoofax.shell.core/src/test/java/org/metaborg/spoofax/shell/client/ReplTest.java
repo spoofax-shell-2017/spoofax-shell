@@ -117,7 +117,7 @@ public class ReplTest {
     }
 
     /**
-     * Tests the {@link ExitCommand}.
+     * Tests the {@link Repl.ExitCommand}.
      */
     @Test
     public void testExitCommand() {
