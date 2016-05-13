@@ -4,41 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>shell.console</artifactId>
-    <name>Console Client</name>
-    <description>Spoofax Shell console client</description>
+    <artifactId>org.metaborg.spoofax.shell.core</artifactId>
+    <name>Core library</name>
+    <description>Spoofax Shell core library</description>
     <packaging>jar</packaging>
 
     <parent>
-        <artifactId>shell</artifactId>
-        <groupId>org.metaborg.spoofax</groupId>
+        <groupId>org.metaborg</groupId>
+        <artifactId>org.metaborg.spoofax.shell</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
     <dependencies>
-        <dependency>
-            <groupId>org.metaborg.spoofax</groupId>
-            <artifactId>shell.core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
-            <version>2.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-            <version>1.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.metaborg.spoofax</groupId>
-            <artifactId>shell.core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
         <!-- From here on, all plugins are inherited from the parent project. -->
         <dependency>
             <groupId>org.metaborg</groupId>
@@ -57,30 +35,22 @@
 
     <build>
         <plugins>
+            <!-- From here on, all plugins are inherited from the parent project. -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.metaborg.spoofax.shell.client.console.Repl</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-jar-plugin</artifactId>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>test-jar</goal>
+                    </goals>
+                </execution>
+            </executions>
             </plugin>
-            <!-- From here on, all plugins are inherited from the parent project. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.metaborg.spoofax</groupId>
-    <artifactId>shell</artifactId>
+    <groupId>org.metaborg</groupId>
+    <artifactId>org.metaborg.spoofax.shell</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -34,8 +34,8 @@
     </dependencyManagement>
 
     <modules>
-        <module>shell.console</module>
-        <module>shell.core</module>
+        <module>org.metaborg.spoofax.shell.console</module>
+        <module>org.metaborg.spoofax.shell.core</module>
     </modules>
 
     <properties>
