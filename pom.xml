@@ -74,7 +74,6 @@
                                 !org.xml*,
                                 org.spoofax*,
                                 org.metaborg*,
-                                org.strategoxt.*,
                                 org.apache.tools.ant,
                                 *;provider=metaborg;mandatory:=provider
                             </Import-Package>
