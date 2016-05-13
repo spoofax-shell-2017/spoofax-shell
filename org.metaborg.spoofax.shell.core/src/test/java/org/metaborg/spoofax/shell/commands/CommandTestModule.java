@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.core;
+package org.metaborg.spoofax.shell.commands;
 
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 
