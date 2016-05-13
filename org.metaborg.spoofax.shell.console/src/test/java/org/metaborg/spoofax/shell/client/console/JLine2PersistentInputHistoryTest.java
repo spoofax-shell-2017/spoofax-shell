@@ -1,6 +1,5 @@
 package org.metaborg.spoofax.shell.client.console;
 
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertThat;
@@ -10,6 +9,7 @@ import static org.metaborg.spoofax.shell.client.console.TerminalUserInterfaceTes
 import java.io.File;
 import java.io.IOException;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -77,12 +77,12 @@ public class JLine2PersistentInputHistoryTest extends JLine2InputHistoryTest {
     @Test
     public void testPersistentHistory() {
         try {
-            assertThat(hist.allEntries(), hasItems("asdf", "fdsa"));
+            assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa"));
 
             // Now load entries from disk. The file is empty, so allEntries should still have all
             // in-memory contents as before.
             systemUnderTest().loadFromDisk();
-            assertThat(hist.allEntries(), hasItems("asdf", "fdsa"));
+            assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa"));
 
             hist.append("qwerty");
             hist.append("hjkl");
@@ -93,7 +93,7 @@ public class JLine2PersistentInputHistoryTest extends JLine2InputHistoryTest {
 
             // Load it back and check that the entries are there.
             systemUnderTest().loadFromDisk();
-            assertThat(hist.allEntries(), hasItems("qwerty", "hjkl"));
+            assertThat(hist.allEntries(), CoreMatchers.hasItems("qwerty", "hjkl"));
         } catch (IOException e) {
             fail("Should not happen");
         }

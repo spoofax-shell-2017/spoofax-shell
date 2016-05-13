@@ -97,7 +97,6 @@ public class AnalyzeCommandTest {
      * Test parsing and writing to a temp file once.
      * @throws IOException when the file could not be opened
      * @throws MetaborgException when analyzing fails
-     * @throws AnalyzeException when the file contains invalid syntax
      */
     @Test(expected = MetaborgException.class)
     public void testAnalyzeOnce() throws IOException, MetaborgException {

@@ -1,6 +1,5 @@
 package org.metaborg.spoofax.shell.client.console;
 
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -13,6 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Supplier;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.metaborg.spoofax.shell.core.StyledText;
 import org.mockito.Mockito;
@@ -174,23 +174,25 @@ public class JLine2InputHistoryTest {
     public final void testEntries() {
         try {
             setUp("asdf" + ENTER + "fdsa" + ENTER + "qwerty" + ENTER + "uiop" + ENTER);
-            assertThat(hist.allEntries(), hasItems("asdf", "fdsa", "qwerty", "uiop"));
+            assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa", "qwerty", "uiop"));
             // From index is inclusive.
-            assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX), hasItems("fdsa", "qwerty", "uiop"));
+            assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX),
+                       CoreMatchers.hasItems("fdsa", "qwerty", "uiop"));
             // To index is exclusive.
             assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX, HIST_ENTRIES_TO_INDEX),
-                       hasItems("fdsa", "qwerty"));
+                       CoreMatchers.hasItems("fdsa", "qwerty"));
             assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX, HIST_ENTRIES_TO_INDEX - 1),
-                       hasItems("fdsa"));
+                       CoreMatchers.hasItems("fdsa"));
 
             // Add a new entry from our own interface.
             hist.append("hjkl");
-            assertThat(hist.allEntries(), hasItems("asdf", "fdsa", "qwerty", "uiop", "hjkl"));
+            assertThat(hist.allEntries(),
+                       CoreMatchers.hasItems("asdf", "fdsa", "qwerty", "uiop", "hjkl"));
             assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX),
-                       hasItems("fdsa", "qwerty", "uiop", "hjkl"));
+                       CoreMatchers.hasItems("fdsa", "qwerty", "uiop", "hjkl"));
             // This one should not have changed.
             assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX, HIST_ENTRIES_TO_INDEX),
-                       hasItems("fdsa", "qwerty"));
+                       CoreMatchers.hasItems("fdsa", "qwerty"));
         } catch (IOException e) {
             fail("Should not happen");
         }
