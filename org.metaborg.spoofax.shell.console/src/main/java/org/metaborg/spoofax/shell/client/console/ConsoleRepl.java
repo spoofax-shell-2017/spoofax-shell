@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.IOException;
 
 import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.Repl;
 import org.metaborg.spoofax.shell.core.StyledText;
 
@@ -33,9 +34,17 @@ public final class ConsoleRepl {
      *             When an IO error occurs during execution.
      */
     public static void main(String[] args) throws IOException {
+        IEditor editor = injector.getInstance(IEditor.class);
+        IDisplay display = injector.getInstance(IDisplay.class);
+        Repl repl = injector.getInstance(Repl.class);
         StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
             .append(Color.GREEN, "Spoofax").append(Color.BLUE, " REPL");
-        injector.getInstance(IDisplay.class).displayResult(message);
-        injector.getInstance(Repl.class).run();
+
+        editor.history().loadFromDisk();
+        display.displayResult(message);
+
+        repl.run();
+
+        editor.history().persistToDisk();
     }
 }

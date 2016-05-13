@@ -1,7 +1,6 @@
 package org.metaborg.spoofax.shell.client;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
@@ -31,11 +30,9 @@ public interface IEditor {
     void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService);
 
     /**
-     * TODO: Consider replacing a {@link List} of {@link String}s with a History type?
-     *
-     * @return the history of evaluated expressions, from recent to old.
+     * @return The history of evaluated expressions, oldest entries first.
      */
-    List<String> history();
+    IInputHistory history();
 
     /**
      * Set the prompt to display.

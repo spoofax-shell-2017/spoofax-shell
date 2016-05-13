@@ -20,6 +20,8 @@ import com.google.inject.name.Names;
 public class ConsoleReplModule extends ReplModule {
 
     private void configureUserInterface() {
+        bind(JLine2InputHistory.class).to(JLine2PersistentInputHistory.class);
+
         bind(TerminalUserInterface.class).in(Singleton.class);
         bind(IEditor.class).to(TerminalUserInterface.class);
         bind(IDisplay.class).to(TerminalUserInterface.class);
@@ -29,7 +31,7 @@ public class ConsoleReplModule extends ReplModule {
         bind(OutputStream.class).annotatedWith(Names.named("err")).toInstance(System.err);
 
         bindConstant().annotatedWith(Names.named("historyPath"))
-            .to(System.getProperty("user.dir") + "/.spoofax-shell_history");
+            .to(System.getProperty("user.home") + "/.spoofax_history");
     }
 
     @Override
@@ -49,7 +51,7 @@ public class ConsoleReplModule extends ReplModule {
      *            The {@link InputStream}.
      * @param out
      *            The {@link OutputStream}.
-     * @return a {@link ConsoleReader} with the given streams.
+     * @return a {@link jline.console.ConsoleReader} with the given streams.
      * @throws IOException
      *             When an IO error occurs upon construction.
      */
