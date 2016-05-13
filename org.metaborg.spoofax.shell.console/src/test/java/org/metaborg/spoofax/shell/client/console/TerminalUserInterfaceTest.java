@@ -24,8 +24,8 @@ import jline.console.ConsoleReader;
  */
 public class TerminalUserInterfaceTest {
     private TerminalUserInterface ui;
-    private static final String PROMPT = "<TEST>";
-    private static final String CONT_PROMPT = ".TEST.";
+    public static final String PROMPT = "<TEST>";
+    public static final String CONT_PROMPT = ".TEST.";
     private static final char C_A = '\001';
     public static final char C_D = '\004';
     private static final char C_E = '\005';
@@ -180,5 +180,4 @@ public class TerminalUserInterfaceTest {
             fail("Should not happen");
         }
     }
-
 }
