@@ -1,16 +1,17 @@
 package org.metaborg.spoofax.shell.client.console;
 
-import static org.mockito.Mockito.RETURNS_MOCKS;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.mock;
 import static org.metaborg.spoofax.shell.client.console.TerminalUserInterfaceTest.C_D;
 import static org.metaborg.spoofax.shell.client.console.TerminalUserInterfaceTest.ENTER;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import org.metaborg.core.context.IContext;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.MockModule;
 import org.metaborg.spoofax.shell.client.Repl;
@@ -29,7 +30,7 @@ public class ConsoleReplTest extends ReplTest {
 
     @Override
     protected ReplModule replModule() {
-        return new ConsoleReplModule();
+        return new ConsoleReplModule(mock(IContext.class, RETURNS_MOCKS));
     }
 
     /**
