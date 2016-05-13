@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
-import org.metaborg.spoofax.shell.commands.StyledText;
+import org.metaborg.spoofax.shell.core.StyledText;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

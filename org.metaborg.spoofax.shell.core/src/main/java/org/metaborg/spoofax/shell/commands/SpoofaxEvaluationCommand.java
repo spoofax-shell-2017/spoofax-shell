@@ -2,6 +2,8 @@ package org.metaborg.spoofax.shell.commands;
 
 import java.util.function.Consumer;
 
+import org.metaborg.spoofax.shell.core.StyledText;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 

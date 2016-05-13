@@ -3,8 +3,8 @@ package org.metaborg.spoofax.shell.client;
 import java.util.function.Consumer;
 
 import org.metaborg.spoofax.shell.commands.IReplCommand;
-import org.metaborg.spoofax.shell.commands.StyledText;
 import org.metaborg.spoofax.shell.core.CoreModule;
+import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.hooks.OnEvalErrorHook;
 import org.metaborg.spoofax.shell.hooks.OnEvalSuccessHook;
 

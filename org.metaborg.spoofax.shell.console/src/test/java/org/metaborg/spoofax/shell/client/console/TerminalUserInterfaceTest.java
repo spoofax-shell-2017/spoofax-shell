@@ -12,7 +12,7 @@ import java.io.OutputStream;
 
 import org.junit.Test;
 import org.metaborg.spoofax.shell.client.console.TerminalUserInterface;
-import org.metaborg.spoofax.shell.commands.StyledText;
+import org.metaborg.spoofax.shell.core.StyledText;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.commands.StyledText;
+import org.metaborg.spoofax.shell.core.StyledText;
 
 /**
  * An {@link IEditor} is where expressions in some language can be typed. It takes care of the

@@ -3,7 +3,7 @@ package org.metaborg.spoofax.shell.hooks;
 import java.util.function.Consumer;
 
 import org.metaborg.spoofax.shell.client.IDisplay;
-import org.metaborg.spoofax.shell.commands.StyledText;
+import org.metaborg.spoofax.shell.core.StyledText;
 
 import com.google.inject.Inject;
 

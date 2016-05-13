@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.Repl;
-import org.metaborg.spoofax.shell.commands.StyledText;
+import org.metaborg.spoofax.shell.core.StyledText;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

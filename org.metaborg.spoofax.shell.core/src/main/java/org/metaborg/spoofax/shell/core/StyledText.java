@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.core;
 
 import java.awt.Color;
 import java.util.List;
