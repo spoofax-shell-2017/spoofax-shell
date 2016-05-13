@@ -100,17 +100,6 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- Add the generated MANIFEST.MF to the resulting JAR file. -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.6</version>
-                    <configuration>
-                        <archive>
-                            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-                        </archive>
-                    </configuration>
-                </plugin>
                 <!-- Compile Java 8 sources -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

@@ -32,6 +32,7 @@
             <artifactId>jansi</artifactId>
             <version>1.12</version>
         </dependency>
+        <!-- Test dependencies. -->
         <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.shell.core</artifactId>
