@@ -64,7 +64,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.metaborg.spoofax.shell.client.console.Repl</mainClass>
+                            <mainClass>org.metaborg.spoofax.shell.client.console.ConsoleRepl</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
