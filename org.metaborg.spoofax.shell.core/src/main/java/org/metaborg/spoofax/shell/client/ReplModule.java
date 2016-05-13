@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import org.metaborg.core.context.IContext;
 import org.metaborg.spoofax.shell.commands.AnalyzeCommand;
-import org.metaborg.spoofax.shell.commands.EvaluateCommand;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.ParseCommand;
@@ -45,10 +44,8 @@ public class ReplModule extends CoreModule {
         commandBinder.addBinding("help").to(HelpCommand.class).in(Singleton.class);
         commandBinder.addBinding("parse").to(ParseCommand.class).in(Singleton.class);
         commandBinder.addBinding("analyze").to(AnalyzeCommand.class).in(Singleton.class);
+        // FIXME: partially rewrite commandinvoker so eval becomes part of the hashmap
         // commandBinder.addBinding("eval").to(EvaluateCommand.class).in(Singleton.class);
-        // FIXME: DIRTY HACK
-        bind(IReplCommand.class).annotatedWith(Names.named("EvalCommand")).to(EvaluateCommand.class)
-            .in(Singleton.class);
     }
 
     @Override

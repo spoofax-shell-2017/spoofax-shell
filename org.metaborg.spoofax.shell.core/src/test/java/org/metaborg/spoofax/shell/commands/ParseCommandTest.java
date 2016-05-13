@@ -1,12 +1,14 @@
 package org.metaborg.spoofax.shell.commands;
 
+import static com.google.inject.Guice.createInjector;
 import static org.junit.Assert.assertEquals;
+//import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.function.Consumer;
 
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
@@ -17,28 +19,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
-import org.metaborg.core.language.ILanguageComponent;
-import org.metaborg.core.language.ILanguageDiscoveryRequest;
-import org.metaborg.core.language.ILanguageDiscoveryService;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.core.language.LanguageUtils;
-import org.metaborg.core.resource.IResourceService;
-import org.metaborg.core.syntax.ParseException;
+import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.core.CoreModule;
-import org.metaborg.spoofax.shell.core.StyledText;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.inject.Guice;
+import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
 import com.google.inject.util.Modules;
 
 /**
@@ -52,12 +47,11 @@ public class ParseCommandTest {
     private Module testModule;
     private Module mockModule;
 
-    private ILanguageDiscoveryService langService;
-    private IResourceService resourceService;
     private ITermFactoryService termService;
 
     @Mock private IContext context;
     @Mock private ISpoofaxSyntaxService syntaxService;
+    @Mock private ISpoofaxParseUnit parseUnit;
 
     @Mock private FileObject sourceFile;
     @Mock private FileName sourceName;
@@ -71,36 +65,26 @@ public class ParseCommandTest {
      */
     @Before
     public void setup() throws FileSystemException, MetaborgException {
-        testModule = Modules.override(new CoreModule()).with(m -> {
-            m.bind(IContext.class).toInstance(context);
-            m.bind(new TypeLiteral<Consumer<StyledText>>() { })
-                .annotatedWith(Names.named("onSuccess"))
-                .toInstance((s) -> { });
-            m.bind(new TypeLiteral<Consumer<StyledText>>() { })
-                .annotatedWith(Names.named("onError"))
-                .toInstance((s) -> { });
-        });
-        mockModule = Modules.override(testModule).with(m -> {
-            m.bind(ISpoofaxSyntaxService.class).toInstance(syntaxService);
-        });
+        testModule = Modules.override(new CoreModule()).with(new TestCommandModule());
+        mockModule = Modules.override(testModule)
+                .with(e -> {
+                    e.bind(ISpoofaxSyntaxService.class)
+                     .toInstance(syntaxService);
+                    e.bind(IContext.class)
+                     .toInstance(context);
+                });
 
-        Injector injector = Guice.createInjector(testModule);
-        resourceService = injector.getInstance(IResourceService.class);
-        langService = injector.getInstance(ILanguageDiscoveryService.class);
+        Injector injector = createInjector(testModule);
         termService = injector.getInstance(ITermFactoryService.class);
+        ILanguageImpl lang = injector.getProvider(ILanguageImpl.class).get();
 
-        Mockito.when(context.language()).thenReturn(lang());
+        Mockito.when(syntaxService.parse(any())).thenReturn(parseUnit);
+        Mockito.when(parseUnit.messages()).thenReturn(Lists.<IMessage>newArrayList());
+
+        Mockito.when(context.language()).thenReturn(lang);
         Mockito.when(sourceFile.getContent()).thenReturn(sourceContent);
         Mockito.when(sourceContent.getOutputStream()).thenReturn(output);
         Mockito.when(sourceFile.getName()).thenReturn(sourceName);
-    }
-
-    private ILanguageImpl lang() throws MetaborgException {
-        FileObject cpresolve = resourceService.resolve("res:paplj.full");
-        FileObject resolve = resourceService.resolve("zip:" + cpresolve + "!/");
-        final Iterable<ILanguageDiscoveryRequest> requests = langService.request(resolve);
-        final Iterable<ILanguageComponent> components = langService.discover(requests);
-        return LanguageUtils.active(LanguageUtils.toImpls(components));
     }
 
     /**
@@ -108,18 +92,18 @@ public class ParseCommandTest {
      */
     @Test
     public void testDescription() {
-        ParseCommand instance = Guice.createInjector(mockModule).getInstance(ParseCommand.class);
+        ParseCommand instance = createInjector(mockModule).getInstance(ParseCommand.class);
         assertNotNull(instance.description());
     }
 
     /**
      * Test parsing and writing to a temp file once.
      * @throws IOException when the file could not be opened
-     * @throws ParseException when the file contains invalid syntax
+     * @throws MetaborgException when the file contains invalid syntax
      */
-    @Test
-    public void testParseOnce() throws IOException, ParseException {
-        ParseCommand instance = Guice.createInjector(mockModule).getInstance(ParseCommand.class);
+    @Test(expected = MetaborgException.class)
+    public void testParseOnce() throws IOException, MetaborgException {
+        ParseCommand instance = createInjector(mockModule).getInstance(ParseCommand.class);
         instance.parse("test", sourceFile);
         Mockito.verify(output, Mockito.times(1)).write("test".getBytes(Charset.forName("UTF-8")));
     }
@@ -127,12 +111,11 @@ public class ParseCommandTest {
     /**
      * Test parsing and writing to a temp file twice.
      * @throws IOException when the file could not be opened
-     * @throws ParseException when the file contains invalid syntax
+     * @throws MetaborgException when the file contains invalid syntax
      */
-    @Test
-    public void testParseTwice() throws IOException, ParseException {
-        ParseCommand instance = Guice.createInjector(mockModule).getInstance(ParseCommand.class);
-        instance.parse("test", sourceFile);
+    @Test(expected = MetaborgException.class)
+    public void testParseTwice() throws IOException, MetaborgException {
+        ParseCommand instance = createInjector(mockModule).getInstance(ParseCommand.class);
         instance.parse("test", sourceFile);
         Mockito.verify(output, Mockito.times(2)).write("test".getBytes(Charset.forName("UTF-8")));
     }
@@ -144,7 +127,7 @@ public class ParseCommandTest {
      */
     @Test
     public void testParseAst() throws IOException, MetaborgException {
-        ParseCommand instance = Guice.createInjector(testModule).getInstance(ParseCommand.class);
+        ParseCommand instance = createInjector(testModule).getInstance(ParseCommand.class);
         ITermFactory tf = termService.get(context.language());
         IStrategoAppl term = tf.makeAppl(
             tf.makeConstructor("Program", PAPLJPROGRAMARITY),
@@ -162,7 +145,7 @@ public class ParseCommandTest {
      */
     @Test
     public void testParsePartialAst() throws IOException, MetaborgException {
-        ParseCommand instance = Guice.createInjector(testModule).getInstance(ParseCommand.class);
+        ParseCommand instance = createInjector(testModule).getInstance(ParseCommand.class);
         ITermFactory tf = termService.get(context.language());
         IStrategoAppl term = tf.makeAppl(
             tf.makeConstructor("Program", PAPLJPROGRAMARITY),

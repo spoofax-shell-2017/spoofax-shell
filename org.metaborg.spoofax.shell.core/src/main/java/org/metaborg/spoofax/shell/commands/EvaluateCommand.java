@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.commands;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.FacetContribution;
 import org.metaborg.spoofax.core.stratego.IStrategoRuntimeService;
@@ -47,12 +48,14 @@ public class EvaluateCommand extends SpoofaxCommand {
      * Interprets a program using a {@link HybridInterpreter}.
      * Delegates parsing to the {@link ParseCommand} and analyzing to the {@link AnalyzeCommand}.
      * @param source the source of the program
+     * @param sourceFile the file containing the source of the progra
      * @return an {@link IStrategoTerm}
      * @throws MetaborgException when parsing, analyzing or interpreting fails
      * @throws IOException when creating a temp file fails
      */
-    public IStrategoTerm interp(String source) throws IOException, MetaborgException {
-        return this.interp(analyzeCommand.analyze(source));
+    public IStrategoTerm interp(String source, FileObject sourceFile)
+            throws IOException, MetaborgException {
+        return this.interp(analyzeCommand.analyze(source, sourceFile));
     }
 
     /**
@@ -91,9 +94,11 @@ public class EvaluateCommand extends SpoofaxCommand {
     @Override
     public void execute(String... args) {
         try {
-            this.onSuccess.accept(new StyledText(common.toString(this.interp(args[0]))));
+            FileObject tempFile = this.context.location().resolveFile("tmp.src");
+            IStrategoTerm term = this.interp(args[0], tempFile);
+
+            this.onSuccess.accept(new StyledText(common.toString(term)));
         } catch (IOException | MetaborgException e) {
-            e.printStackTrace();
             this.onError.accept(new StyledText(e.getMessage()));
         }
     }

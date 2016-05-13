@@ -3,11 +3,14 @@ package org.metaborg.spoofax.shell.commands;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
+import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.core.StyledText;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -43,12 +46,16 @@ public class AnalyzeCommand extends SpoofaxCommand {
      * Analyzes a program using the {@link ISpoofaxAnalysisService}.
      * Delegates parsing to the {@link ParseCommand}.
      * @param source the source of the program
+     * @param sourceFile the file containing the source of the program
      * @return an {@link ISpoofaxAnalyzeUnit}
      * @throws MetaborgException when parsing or analyzing fails
      * @throws IOException when creating a temp file fails
      */
-    public ISpoofaxAnalyzeUnit analyze(String source) throws IOException, MetaborgException {
-        return this.analyze(parseCommand.parse(source));
+    public ISpoofaxAnalyzeUnit analyze(String source, FileObject sourceFile)
+            throws MetaborgException, IOException {
+        ISpoofaxParseUnit parse = parseCommand.parse(source, sourceFile);
+        ISpoofaxAnalyzeUnit analyze = this.analyze(parse);
+        return analyze;
     }
 
     /**
@@ -58,7 +65,9 @@ public class AnalyzeCommand extends SpoofaxCommand {
      * @throws MetaborgException when analyzing fails
      */
     public ISpoofaxAnalyzeUnit analyze(ISpoofaxParseUnit parseUnit) throws MetaborgException {
-        ISpoofaxAnalyzeUnit analyzeUnit = analysisService.analyze(parseUnit, this.context).result();
+        ISpoofaxAnalyzeResult analyzeResult = analysisService.analyze(parseUnit, this.context);
+        ISpoofaxAnalyzeUnit analyzeUnit = analyzeResult.result();
+
         StringBuilder builder = new StringBuilder();
         analyzeUnit.messages().forEach(builder::append);
 
@@ -71,7 +80,10 @@ public class AnalyzeCommand extends SpoofaxCommand {
     @Override
     public void execute(String... args) {
         try {
-            this.onSuccess.accept(new StyledText(common.toString(this.analyze(args[0]).ast())));
+            FileObject tempFile = this.context.location().resolveFile("tmp.src");
+            IStrategoTerm term = this.analyze(args[0], tempFile).ast();
+
+            this.onSuccess.accept(new StyledText(common.toString(term)));
         } catch (IOException | MetaborgException e) {
             this.onError.accept(new StyledText(e.getMessage()));
         }
