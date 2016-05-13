@@ -10,9 +10,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.fusesource.jansi.Ansi;
 import org.metaborg.core.completion.ICompletionService;
@@ -36,6 +34,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     private ArrayList<String> lines;
     private PrintWriter out;
     private PrintWriter err;
+    private JLine2InputHistory hist;
 
     /**
      * @param reader
@@ -44,13 +43,17 @@ public class TerminalUserInterface implements IEditor, IDisplay {
      *            The {@link PrintStream} to write results to.
      * @param err
      *            The {@link PrintStream} to write errors to.
+     * @param hist
+     *            The input history adapter for jline2.
      * @throws IOException
      *             when an IO error occurs.
      */
     @Inject
     public TerminalUserInterface(ConsoleReader reader, @Named("out") OutputStream out,
-                                 @Named("err") OutputStream err) throws IOException {
+                                 @Named("err") OutputStream err, JLine2InputHistory hist)
+                                     throws IOException {
         this.reader = reader;
+        this.hist = hist;
         reader.setExpandEvents(false);
         reader.setHandleUserInterrupt(true);
         reader.setBellEnabled(true);
@@ -103,7 +106,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
             reader.setPrompt(ansi(continuationPrompt));
             saveLine(lastLine);
         }
-        // Concat the strings with newlines inbetween
+        // Concatenate the strings with newlines in between.
         input = lastLine == null ? null : lines.stream().collect(Collectors.joining("\n"));
         // Clear the lines for next input.
         lines.clear();
@@ -111,12 +114,8 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     }
 
     @Override
-    public List<String> history() {
-        // @formatter:off
-        return StreamSupport.stream(reader.getHistory().spliterator(), false)
-                            .map(entry -> entry.value().toString())
-                            .collect(Collectors.toList());
-        // @formatter:on
+    public JLine2InputHistory history() {
+        return hist;
     }
 
     // -------------- IDisplay --------------
