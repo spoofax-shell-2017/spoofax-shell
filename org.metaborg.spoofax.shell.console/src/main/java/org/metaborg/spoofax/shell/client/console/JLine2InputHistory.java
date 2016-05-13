@@ -13,7 +13,7 @@ import com.google.inject.Inject;
  */
 public class JLine2InputHistory implements IInputHistory {
     protected jline.console.ConsoleReader reader;
-    private jline.console.history.MemoryHistory delegateHist;
+    private final jline.console.history.MemoryHistory delegateHist;
 
     /**
      * @param reader
@@ -23,8 +23,8 @@ public class JLine2InputHistory implements IInputHistory {
      *            The jline2 history implementation that will be delegated to.
      */
     @Inject
-    JLine2InputHistory(jline.console.ConsoleReader reader,
-                       jline.console.history.MemoryHistory delegateHist) {
+    JLine2InputHistory(final jline.console.ConsoleReader reader,
+                       final jline.console.history.MemoryHistory delegateHist) {
         this.reader = reader;
         this.delegateHist = delegateHist;
         reader.setHistory(delegateHist);

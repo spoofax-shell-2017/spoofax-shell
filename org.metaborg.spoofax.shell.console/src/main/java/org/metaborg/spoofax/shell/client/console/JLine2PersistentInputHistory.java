@@ -18,7 +18,7 @@ import com.google.inject.name.Named;
  * again using {@link #persistToDisk()}.
  */
 public class JLine2PersistentInputHistory extends JLine2InputHistory {
-    private String filePath;
+    private final String filePath;
     private Optional<jline.console.history.FileHistory> delegateFileHist;
 
     /**
@@ -57,7 +57,7 @@ public class JLine2PersistentInputHistory extends JLine2InputHistory {
 
     @Override
     public void loadFromDisk() throws IOException {
-        File histFile = new File(filePath);
+        final File histFile = new File(filePath);
         jline.console.history.FileHistory newDelegate =
             new jline.console.history.FileHistory(histFile);
 
