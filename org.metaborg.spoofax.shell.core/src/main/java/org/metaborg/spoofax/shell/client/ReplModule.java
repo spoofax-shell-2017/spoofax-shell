@@ -21,7 +21,8 @@ import com.google.inject.name.Names;
  * Client library bindings.
  */
 public class ReplModule extends CoreModule {
-    private IContext context;
+    private final IContext context;
+    protected MapBinder<String, IReplCommand> commandBinder;
 
     /**
      * Instantiates a new ReplModule.
@@ -29,11 +30,9 @@ public class ReplModule extends CoreModule {
      * @param context
      *            The {@link IContext} in which the REPL operates.
      */
-    public ReplModule(final IContext context) {
+    public ReplModule(IContext context) {
         this.context = context;
     }
-
-    protected MapBinder<String, IReplCommand> commandBinder;
 
     /**
      * Binds the default commands.

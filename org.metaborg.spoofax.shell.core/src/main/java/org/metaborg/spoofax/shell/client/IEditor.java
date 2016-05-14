@@ -17,7 +17,7 @@ public interface IEditor {
      *
      * @return The input typed in by the user.
      * @throws IOException
-     *             when an IO error occurs.
+     *             When an IO error occurs.
      */
     String getInput() throws IOException;
 
@@ -40,14 +40,14 @@ public interface IEditor {
      * @param promptString
      *            The prompt string.
      */
-	void setPrompt(StyledText promptString);
+    void setPrompt(StyledText promptString);
 
     /**
-     * Set the prompt to display when in multi-line mode.
+     * Set the prompt to display when in multiline mode.
      *
      * @param styledText
      *            The prompt string.
      */
-	void setContinuationPrompt(StyledText styledText);
+    void setContinuationPrompt(StyledText styledText);
 
 }

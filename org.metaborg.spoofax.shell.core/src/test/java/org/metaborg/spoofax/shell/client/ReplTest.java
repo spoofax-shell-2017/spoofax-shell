@@ -25,7 +25,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 
 /**
- * Tests the Repl by simulating user input.
+ * Tests the REPL by simulating user input.
  */
 public class ReplTest {
     protected ICommandInvoker invokerMock;
@@ -63,7 +63,7 @@ public class ReplTest {
     }
 
     /**
-     * Setup the mock editor for Control D.
+     * Setup the mock editor for Control-D.
      *
      * @throws IOException
      *             When {@link IEditor#getInput()} causes IO errors (cannot happen because it is a
@@ -78,7 +78,7 @@ public class ReplTest {
     }
 
     /**
-     * Test whether the Repl exits when Ctrl + D is pressed.
+     * Test whether the REPl exits when Control-D is pressed.
      */
     @Test
     public void testCtrlDDoesExit() {
