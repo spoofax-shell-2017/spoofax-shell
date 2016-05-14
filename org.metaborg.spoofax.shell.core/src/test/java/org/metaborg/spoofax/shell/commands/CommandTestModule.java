@@ -1,7 +1,5 @@
 package org.metaborg.spoofax.shell.commands;
 
-import org.metaborg.spoofax.shell.commands.IReplCommand;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Names;
@@ -29,15 +27,15 @@ public class CommandTestModule extends AbstractModule {
         bind(IReplCommand.class).annotatedWith(Names.named("EvalCommand"))
             .toInstance(new IReplCommand() {
 
-                @Override
-                public void execute(String... args) {
-                }
+            @Override
+            public void execute(String... args) {
+            }
 
-                @Override
-                public String description() {
-                    return "dummy";
-                }
-            });
+            @Override
+            public String description() {
+                return "dummy";
+            }
+        });
     }
 
 }

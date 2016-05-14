@@ -7,7 +7,7 @@ package org.metaborg.spoofax.shell.commands;
 public interface IReplCommand {
 
     /**
-     * @return the description of this command.
+     * @return The description of this command.
      */
     String description();
 

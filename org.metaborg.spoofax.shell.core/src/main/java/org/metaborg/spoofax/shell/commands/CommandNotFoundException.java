@@ -1,14 +1,16 @@
 package org.metaborg.spoofax.shell.commands;
 
 /**
- * Thrown when a {@link IReplCommand} has not been found.
+ * Thrown when an {@link IReplCommand} could not be found.
  */
 public class CommandNotFoundException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    private String commandName;
+    private final String commandName;
 
     /**
+     * Instantiates a new CommandNotFoundException.
+     *
      * @param commandName
      *            The command name for which no {@link IReplCommand} could be found.
      */
@@ -17,7 +19,7 @@ public class CommandNotFoundException extends Exception {
     }
 
     /**
-     * @return the command name for which no {@link IReplCommand} could be found.
+     * @return The command name for which no {@link IReplCommand} could be found.
      */
     public String commandName() {
         return commandName;

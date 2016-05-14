@@ -1,5 +1,5 @@
 /**
  * Contains the logic for executing expressions using the core, or executing commands which are
- * common accross frontends.
+ * common across clients.
  */
 package org.metaborg.spoofax.shell.commands;

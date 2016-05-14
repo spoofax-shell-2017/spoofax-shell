@@ -13,11 +13,13 @@ public interface ICommandInvoker {
     IReplCommand evaluationCommand();
 
     /**
+     * Returns the command with name {@code commandName}.
+     *
      * @param commandName
      *            The name of an {@link IReplCommand}.
      * @return The {@link IReplCommand} bound to {@code commandName}.
      * @throws CommandNotFoundException
-     *             when the command could not be found.
+     *             When the command could not be found.
      */
     IReplCommand commandFromName(String commandName) throws CommandNotFoundException;
 
@@ -33,7 +35,7 @@ public interface ICommandInvoker {
      * @param optionallyPrefixedCommandName
      *            An optionally prefixed command name.
      * @return The command name without prefix if found. Otherwise just the same String as the
-     *         argument
+     *         argument.
      */
     default String ensureNoPrefix(String optionallyPrefixedCommandName) {
         if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {
@@ -49,7 +51,7 @@ public interface ICommandInvoker {
      * @param optionallyPrefixedCommandName
      *            The name of the {@link IReplCommand} to be executed.
      * @throws CommandNotFoundException
-     *             when the command could not be found.
+     *             When the command could not be found.
      */
     default void execute(String optionallyPrefixedCommandName) throws CommandNotFoundException {
         if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {

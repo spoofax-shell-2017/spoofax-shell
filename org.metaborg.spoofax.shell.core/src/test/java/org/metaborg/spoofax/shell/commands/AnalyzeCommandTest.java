@@ -60,8 +60,11 @@ public class AnalyzeCommandTest {
 
     /**
      * Set up initial Guice module and injector, inject Spoofax services and mock where needed.
-     * @throws FileSystemException when the contents of the sourceFile cannot be accessed
-     * @throws MetaborgException when parsing fails
+     *
+     * @throws FileSystemException
+     *             When the contents of the sourceFile cannot be accessed.
+     * @throws MetaborgException
+     *             When parsing fails.
      */
     @Before
     public void setup() throws FileSystemException, MetaborgException {
@@ -94,9 +97,12 @@ public class AnalyzeCommandTest {
     }
 
     /**
-     * Test parsing and writing to a temp file once.
-     * @throws IOException when the file could not be opened
-     * @throws MetaborgException when analyzing fails
+     * Test analyzing and writing to a temporary file once.
+     *
+     * @throws IOException
+     *             When the file could not be opened.
+     * @throws MetaborgException
+     *             When analyzing fails.
      */
     @Test(expected = MetaborgException.class)
     public void testAnalyzeOnce() throws IOException, MetaborgException {
@@ -106,9 +112,12 @@ public class AnalyzeCommandTest {
     }
 
     /**
-     * Test parsing and writing to a temp file twice.
-     * @throws IOException when the file could not be opened
-     * @throws MetaborgException when analyzing fails
+     * Test analyzing and writing to a temporary file twice.
+     *
+     * @throws IOException
+     *             When the file could not be opened.
+     * @throws MetaborgException
+     *             When analyzing fails.
      */
     @Test(expected = MetaborgException.class)
     public void testAnalyzeTwice() throws IOException, MetaborgException {

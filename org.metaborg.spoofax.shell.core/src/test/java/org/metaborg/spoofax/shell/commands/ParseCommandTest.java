@@ -60,8 +60,8 @@ public class ParseCommandTest {
 
     /**
      * Set up initial Guice module and injector, inject Spoofax services and mock where needed.
-     * @throws FileSystemException when the contents of the sourceFile cannot be accessed
-     * @throws MetaborgException when parsing fails
+     * @throws FileSystemException When the contents of the sourceFile cannot be accessed.
+     * @throws MetaborgException When parsing fails.
      */
     @Before
     public void setup() throws FileSystemException, MetaborgException {
@@ -97,9 +97,12 @@ public class ParseCommandTest {
     }
 
     /**
-     * Test parsing and writing to a temp file once.
-     * @throws IOException when the file could not be opened
-     * @throws MetaborgException when the file contains invalid syntax
+     * Test parsing and writing to a temporary file once.
+     *
+     * @throws IOException
+     *             When the file could not be opened.
+     * @throws MetaborgException
+     *             When the file contains invalid syntax.
      */
     @Test(expected = MetaborgException.class)
     public void testParseOnce() throws IOException, MetaborgException {
@@ -109,9 +112,12 @@ public class ParseCommandTest {
     }
 
     /**
-     * Test parsing and writing to a temp file twice.
-     * @throws IOException when the file could not be opened
-     * @throws MetaborgException when the file contains invalid syntax
+     * Test parsing and writing to a temporary file twice.
+     *
+     * @throws IOException
+     *             When the file could not be opened.
+     * @throws MetaborgException
+     *             When the file contains invalid syntax.
      */
     @Test(expected = MetaborgException.class)
     public void testParseTwice() throws IOException, MetaborgException {
@@ -121,15 +127,19 @@ public class ParseCommandTest {
     }
 
     /**
-     * Test parsing and writing to an ast, without mock temp files..
-     * @throws IOException when the file could not be opened
-     * @throws MetaborgException when the file contains invalid syntax
+     * Test parsing and writing to an AST, without mock temporary files.
+     *
+     * @throws IOException
+     *             When the temporary file could not be opened.
+     * @throws MetaborgException
+     *             When the file contains invalid syntax.
      */
     @Test
     public void testParseAst() throws IOException, MetaborgException {
         ParseCommand instance = createInjector(testModule).getInstance(ParseCommand.class);
         ITermFactory tf = termService.get(context.language());
-        IStrategoAppl term = tf.makeAppl(
+        IStrategoAppl term = tf
+            .makeAppl(
             tf.makeConstructor("Program", PAPLJPROGRAMARITY),
             tf.makeString("let"),
             tf.makeList(),
@@ -139,15 +149,19 @@ public class ParseCommandTest {
     }
 
     /**
-     * Test parsing and writing to an ast, without mock temp files..
-     * @throws IOException when the file could not be opened
-     * @throws MetaborgException when the file contains invalid syntax
+     * Test parsing and writing to an AST, without mock temporary files.
+     *
+     * @throws IOException
+     *             When the file could not be opened.
+     * @throws MetaborgException
+     *             When the file contains invalid syntax.
      */
     @Test
     public void testParsePartialAst() throws IOException, MetaborgException {
         ParseCommand instance = createInjector(testModule).getInstance(ParseCommand.class);
         ITermFactory tf = termService.get(context.language());
-        IStrategoAppl term = tf.makeAppl(
+        IStrategoAppl term =
+            tf.makeAppl(
             tf.makeConstructor("Program", PAPLJPROGRAMARITY),
             tf.makeString(""),
             tf.makeList(
