@@ -74,7 +74,7 @@ public class JLine2InputHistoryTest {
             // Override ConsoleReplModule to use JLine2InputHistory, instead of the persistent
             // version.
             b.bind(JLine2InputHistory.class);
-            // Bind jline's MemoryHistory so that we can test the adapter.
+            // Bind JLine's MemoryHistory so that we can test the adapter.
             b.bind(jline.console.history.MemoryHistory.class).toInstance(theDelegate);
         };
     }
@@ -92,7 +92,7 @@ public class JLine2InputHistoryTest {
      * entered through simulated input.
      */
     @Test
-    public final void testGet() {
+    public void testGet() {
         try {
             setUp("asdf" + ENTER + "fdsa" + ENTER);
             Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
@@ -112,7 +112,7 @@ public class JLine2InputHistoryTest {
      * entry that was previously out of bound should now return the newly added entry.
      */
     @Test
-    public final void testAppend() {
+    public void testAppend() {
         try {
             setUp("asdf" + ENTER + "fdsa" + ENTER);
             Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
@@ -137,7 +137,7 @@ public class JLine2InputHistoryTest {
      * interface.
      */
     @Test
-    public final void testGetMostRecent() {
+    public void testGetMostRecent() {
         try {
             setUp("asdf" + ENTER + "fdsa" + ENTER);
             Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
@@ -154,7 +154,7 @@ public class JLine2InputHistoryTest {
      * reported correctly after appending a new entry via our own adapter interface.
      */
     @Test
-    public final void testSize() {
+    public void testSize() {
         try {
             setUp("asdf" + ENTER + "fdsa" + ENTER);
             Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
@@ -168,10 +168,10 @@ public class JLine2InputHistoryTest {
 
     /**
      * Tests the following methods: {@link JLine2InputHistory#allEntries()} ,
-     * {@link JLine2InputHistory#entries(int)} , {@link JLine2InputHistory#entries(int, int)}.
+     * {@link JLine2InputHistory#entries(int)}, {@link JLine2InputHistory#entries(int, int)}.
      */
     @Test
-    public final void testEntries() {
+    public void testEntries() {
         try {
             setUp("asdf" + ENTER + "fdsa" + ENTER + "qwerty" + ENTER + "uiop" + ENTER);
             assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa", "qwerty", "uiop"));

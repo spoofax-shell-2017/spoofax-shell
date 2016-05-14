@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.junit.Test;
-import org.metaborg.spoofax.shell.client.console.TerminalUserInterface;
 import org.metaborg.spoofax.shell.core.StyledText;
 
 import com.google.inject.Guice;
@@ -23,7 +22,6 @@ import jline.console.ConsoleReader;
  * Tests the {@link TerminalUserInterface} by simulating user input.
  */
 public class TerminalUserInterfaceTest {
-    private TerminalUserInterface ui;
     public static final String PROMPT = "<TEST>";
     public static final String CONT_PROMPT = ".TEST.";
     private static final char C_A = '\001';
@@ -37,6 +35,7 @@ public class TerminalUserInterfaceTest {
     /* ... */ + ENTER
     /* >>> */ + "qwerty" + ENTER
     /* ... */ + ENTER;
+    private TerminalUserInterface ui;
     private ByteArrayInputStream in;
     private ByteArrayOutputStream out;
 

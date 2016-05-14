@@ -11,13 +11,12 @@ import jline.TerminalSupport;
 import jline.console.ConsoleReader;
 
 /**
- * Binds a ConsoleReader so that it can be used to simulate user input.
+ * Binds a {@link ConsoleReader} so that it can be used to simulate user input.
  */
 public class UserInputSimulationModule extends AbstractModule {
-
-    private InputStream in;
-    private OutputStream out;
-    private ConsoleReader reader;
+    private final InputStream in;
+    private final OutputStream out;
+    private final ConsoleReader reader;
 
     /**
      * @param in

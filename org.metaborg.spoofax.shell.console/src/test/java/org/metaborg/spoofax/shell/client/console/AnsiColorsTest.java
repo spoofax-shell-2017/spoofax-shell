@@ -12,22 +12,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.metaborg.spoofax.shell.client.console.AnsiColors;
 
 /**
- * Test cases for the java color to ansi color mapping.
+ * Test cases for the Java color to ANSI color mapping.
  */
 @RunWith(Parameterized.class)
 public class AnsiColorsTest {
     public static final int OFFSET = 5;
 
-    private Ansi.Color expected;
-    private Color input;
-    private Color inputoffset;
+    private final Ansi.Color expected;
+    private final Color input;
+    private final Color inputoffset;
 
     /**
-     * Creates input for parameterized ansi color test cases.
-     * @return an array of parameterized input
+     * Creates input for parameterized ANSI color test cases.
+     *
+     * @return An array of parameterized input
      */
     @Parameters
     public static Collection<Object[]> data() {
@@ -44,12 +44,18 @@ public class AnsiColorsTest {
     }
 
     /**
-     * Instantiates a parameterized instance for the ansi color test.
-     * @param expected the expected ansi color
-     * @param input the java color
-     * @param r test offset for red
-     * @param g test offset for green
-     * @param b test offset for blue
+     * Instantiates a parameterized instance for the ANSI color test.
+     *
+     * @param expected
+     *            The expected ANSI color
+     * @param input
+     *            The Java color
+     * @param r
+     *            Test offset for red
+     * @param g
+     *            Test offset for green
+     * @param b
+     *            Test offset for blue
      */
     public AnsiColorsTest(Ansi.Color expected, Color input, int r, int g, int b) {
         this.expected = expected;
