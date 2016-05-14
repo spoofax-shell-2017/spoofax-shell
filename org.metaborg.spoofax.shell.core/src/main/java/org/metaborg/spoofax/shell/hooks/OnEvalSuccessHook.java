@@ -11,13 +11,16 @@ import com.google.inject.Inject;
  * Called upon success of an evaluation command.
  */
 public class OnEvalSuccessHook implements Consumer<StyledText> {
-    private IDisplay display;
+    private final IDisplay display;
 
     /**
-     * @param display The {@link IDisplay} to show the result on.
+     * Instantiates a new OnEvalSuccessHook.
+     *
+     * @param display
+     *            The {@link IDisplay} to show the result on.
      */
     @Inject
-    OnEvalSuccessHook(IDisplay display) {
+    public OnEvalSuccessHook(IDisplay display) {
         this.display = display;
     }
 
