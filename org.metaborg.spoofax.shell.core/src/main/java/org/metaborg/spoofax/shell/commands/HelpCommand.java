@@ -17,12 +17,14 @@ import com.google.inject.name.Named;
  * Shows descriptions of all commands, or one command if given.
  */
 public class HelpCommand implements IReplCommand {
-    private Map<String, IReplCommand> commands;
-    private Provider<ICommandInvoker> provider;
-    private Consumer<StyledText> successHook;
-    private Consumer<StyledText> errorHook;
+    private final Map<String, IReplCommand> commands;
+    private final Provider<ICommandInvoker> provider;
+    private final Consumer<StyledText> successHook;
+    private final Consumer<StyledText> errorHook;
 
     /**
+     * Instantiates a new HelpCommand.
+     *
      * @param commands
      *            The commands map, which contains all names too.
      * @param commandInvokerProvider

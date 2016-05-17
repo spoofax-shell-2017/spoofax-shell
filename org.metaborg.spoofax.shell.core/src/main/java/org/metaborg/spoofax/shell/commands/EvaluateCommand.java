@@ -34,8 +34,8 @@ public class EvaluateCommand extends SpoofaxCommand {
      * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
      */
     @Inject
-    public EvaluateCommand(@Named("onSuccess") final Consumer<StyledText> onSuccess,
-                           @Named("onError") final Consumer<StyledText> onError) {
+    public EvaluateCommand(@Named("onSuccess") Consumer<StyledText> onSuccess,
+                           @Named("onError") Consumer<StyledText> onError) {
         super(onSuccess, onError);
     }
 
@@ -45,13 +45,18 @@ public class EvaluateCommand extends SpoofaxCommand {
     }
 
     /**
-     * Interprets a program using a {@link HybridInterpreter}.
-     * Delegates parsing to the {@link ParseCommand} and analyzing to the {@link AnalyzeCommand}.
-     * @param source the source of the program
-     * @param sourceFile the file containing the source of the progra
-     * @return an {@link IStrategoTerm}
-     * @throws MetaborgException when parsing, analyzing or interpreting fails
-     * @throws IOException when creating a temp file fails
+     * Interprets a program using a {@link HybridInterpreter}. Delegates parsing to the
+     * {@link ParseCommand} and analyzing to the {@link AnalyzeCommand}.
+     *
+     * @param source
+     *            The source of the program.
+     * @param sourceFile
+     *            The temporary file containing the source of the program.
+     * @return An {@link IStrategoTerm}.
+     * @throws MetaborgException
+     *             When parsing, analyzing or interpreting fails.
+     * @throws IOException
+     *             When writing to the temporary file fails.
      */
     public IStrategoTerm interp(String source, FileObject sourceFile)
             throws IOException, MetaborgException {
@@ -59,38 +64,39 @@ public class EvaluateCommand extends SpoofaxCommand {
     }
 
     /**
-     * Interprets a program using a {@link HybridInterpreter}.
-     * Delegates analyzing to the {@link AnalyzeCommand}.
-     * @param parseUnit a {@link ParseCommand} result
-     * @return an {@link IStrategoTerm}
-     * @throws MetaborgException when parsing, analyzing or interpreting fails
-     * @throws IOException when creating a temp file fails
+     * Interprets a program using a {@link HybridInterpreter}. Delegates analyzing to the
+     * {@link AnalyzeCommand}.
+     *
+     * @param parseUnit
+     *            A {@link ParseCommand} result.
+     * @return An {@link IStrategoTerm}.
+     * @throws MetaborgException
+     *             When analyzing or interpreting fails
      */
-    public IStrategoTerm interp(ISpoofaxParseUnit parseUnit) throws IOException, MetaborgException {
+    public IStrategoTerm interp(ISpoofaxParseUnit parseUnit) throws MetaborgException {
         return this.interp(analyzeCommand.analyze(parseUnit));
     }
 
     /**
      * Interprets a program using a {@link HybridInterpreter}.
-     * @param analyzeUnit a {@link AnalyzeCommand} result
-     * @return an {@link IStrategoTerm}
-     * @throws MetaborgException when parsing, analyzing or interpreting fails
+     *
+     * @param analyzeUnit
+     *            An {@link AnalyzeCommand} result.
+     * @return An {@link IStrategoTerm}.
+     * @throws MetaborgException
+     *             When interpreting fails.
      */
     public IStrategoTerm interp(ISpoofaxAnalyzeUnit analyzeUnit) throws MetaborgException {
-        final FacetContribution<StrategoRuntimeFacet> runContrib = this.context.language()
+        FacetContribution<StrategoRuntimeFacet> runContrib = this.context.language()
                 .facetContribution(StrategoRuntimeFacet.class);
         if (runContrib == null) {
             throw new MetaborgException("Cannot retrieve the runtime facet");
         }
-        final HybridInterpreter interpreter = runtimeService.runtime(
-                runContrib.contributor, this.context);
+        HybridInterpreter interpreter =
+            runtimeService.runtime(runContrib.contributor, this.context);
         return common.invoke(interpreter, analyzeUnit.ast(), "runstrat");
     }
 
-    /**
-     * Evaluates {@code args}.
-     * @param args The expression(s) to evaluate.
-     */
     @Override
     public void execute(String... args) {
         try {

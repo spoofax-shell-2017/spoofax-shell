@@ -48,6 +48,7 @@ public class JLine2PersistentInputHistory extends JLine2InputHistory {
      *         from disk, the {@link jline.console.history.MemoryHistory MemoryHistory} delegate is
      *         used instead.
      */
+    @Override
     protected jline.console.history.History delegate() {
         // orElse does not work on a subtype, but it does if you put flatMap in between.
         return delegateFileHist
@@ -57,7 +58,7 @@ public class JLine2PersistentInputHistory extends JLine2InputHistory {
 
     @Override
     public void loadFromDisk() throws IOException {
-        final File histFile = new File(filePath);
+        File histFile = new File(filePath);
         jline.console.history.FileHistory newDelegate =
             new jline.console.history.FileHistory(histFile);
 

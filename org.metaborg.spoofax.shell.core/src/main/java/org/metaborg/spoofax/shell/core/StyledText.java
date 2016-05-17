@@ -14,15 +14,17 @@ import org.spoofax.terms.StrategoString;
 import com.google.common.collect.Lists;
 
 /**
- * Represents a styled text containing several styled strings,
- * each represented by a {@link IRegionStyle}.
+ * Represents a styled text containing several styled strings, each represented by an
+ * {@link IRegionStyle}.
  */
 public class StyledText {
-    private List<IRegionStyle<String>> source;
+    private final List<IRegionStyle<String>> source;
 
     /**
      * Create a styled text from a string with no style.
-     * @param text the text
+     *
+     * @param text
+     *            The unstyled text.
      */
     public StyledText(String text) {
         this.source = Lists.newArrayList();
@@ -31,8 +33,11 @@ public class StyledText {
 
     /**
      * Create a styled text from a colored string.
-     * @param color the color
-     * @param text the text
+     *
+     * @param color
+     *            The color to apply.
+     * @param text
+     *            The unstyled text.
      */
     public StyledText(Color color, String text) {
         this.source = Lists.newArrayList();
@@ -41,8 +46,11 @@ public class StyledText {
 
     /**
      * Create a styled text from a string with a style.
-     * @param style the style
-     * @param text the text
+     *
+     * @param style
+     *            the style
+     * @param text
+     *            The unstyled text.
      */
     public StyledText(Style style, String text) {
         this.source = Lists.newArrayList();
@@ -51,7 +59,9 @@ public class StyledText {
 
     /**
      * Create a styled text from a list of styled Stratego terms.
-     * @param sourceRegions the list of styled terms
+     *
+     * @param sourceRegions
+     *            The list of styled Stratego terms.
      */
     public StyledText(Iterable<IRegionStyle<StrategoString>> sourceRegions) {
         this.source = Lists.newArrayList();
@@ -60,7 +70,8 @@ public class StyledText {
 
     /**
      * Return all the styled strings in this text.
-     * @return the source
+     *
+     * @return All the styled strings in this text.
      */
     public List<IRegionStyle<String>> getSource() {
         return source;
@@ -68,10 +79,14 @@ public class StyledText {
 
     /**
      * Append a string with a region and a style to this styled text.
-     * @param region the region
-     * @param style the style
-     * @param text the text
-     * @return this
+     *
+     * @param region
+     *            The region to style.
+     * @param style
+     *            The style to apply.
+     * @param text
+     *            The unstyled text.
+     * @return The styled text.
      */
     public StyledText append(ISourceRegion region, IStyle style, String text) {
         this.source.add(new RegionStyle<String>(region, style, text));
@@ -80,8 +95,10 @@ public class StyledText {
 
     /**
      * Append a string with no style to this styled text.
-     * @param text the text
-     * @return this
+     *
+     * @param text
+     *            The unstyled text.
+     * @return The styled text.
      */
     public StyledText append(String text) {
         return this.append(null, null, text);
@@ -89,9 +106,12 @@ public class StyledText {
 
     /**
      * Append a colored string to this styled text.
-     * @param color the color
-     * @param text the text
-     * @return this
+     *
+     * @param color
+     *            The color to apply.
+     * @param text
+     *            The unstyled text.
+     * @return The styled text.
      */
     public StyledText append(Color color, String text) {
         return this.append(null, new Style(color, null, false, false, false), text);
@@ -99,9 +119,12 @@ public class StyledText {
 
     /**
      * Append a string with an arbitrary style to this styled text.
-     * @param style the style
-     * @param text the text
-     * @return this
+     *
+     * @param style
+     *            The style to apply.
+     * @param text
+     *            The unstyled text.
+     * @return The styled text.
      */
     public StyledText append(IStyle style, String text) {
         return this.append(null, style, text);

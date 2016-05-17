@@ -27,46 +27,59 @@ import com.google.inject.name.Names;
  */
 public class TestCommandModule extends AbstractModule {
     /**
-     * Creates a project to be used for testing commands.
-     * @param service the {@link SimpleProjectService}
-     * @param resourceService the {@link IResourceService}
-     * @return an {@link IProject}
-     * @throws MetaborgException when the project could not be created
+     * Creates an {@link IProject} to be used for testing commands.
+     *
+     * @param service
+     *            The {@link SimpleProjectService}.
+     * @param resourceService
+     *            The {@link IResourceService}.
+     * @return An {@link IProject}.
+     * @throws MetaborgException
+     *             When the project could not be created.
      */
     @Provides
-    IProject project(SimpleProjectService service, IResourceService resourceService)
+    public IProject project(SimpleProjectService service, IResourceService resourceService)
             throws MetaborgException {
         return service.create(resourceService.resolve("tmp:"));
     }
 
     /**
-     * Creates a context to be used for testing commands.
-     * @param contService the {@link IContextService}
-     * @param project the {@link IProject}
-     * @param lang the {@link ILanguageImpl}
-     * @return an {@link IContext}
-     * @throws ContextException when the context could not be created
+     * Creates an {@link IContext} to be used for testing commands.
+     *
+     * @param contService
+     *            The {@link IContextService}.
+     * @param project
+     *            The {@link IProject}.
+     * @param lang
+     *            The {@link ILanguageImpl}.
+     * @return An {@link IContext}.
+     * @throws ContextException
+     *             When the context could not be created.
      */
     @Provides
-    IContext context(IContextService contService, IProject project, ILanguageImpl lang)
+    public IContext context(IContextService contService, IProject project, ILanguageImpl lang)
             throws ContextException {
         return contService.getTemporary(project.location(), project, lang);
     }
 
     /**
      * Provides a language implementation.
-     * @param resService the {@link IResourceService} used to load the language
-     * @param langService the {@link ILanguageDiscoveryService} used to discover facets
-     * @return the {@link ILanguageImpl}
-     * @throws MetaborgException when the language fails to load
+     *
+     * @param resService
+     *            The {@link IResourceService} used to load the language.
+     * @param langService
+     *            The {@link ILanguageDiscoveryService} used to discover facets.
+     * @return The {@link ILanguageImpl}.
+     * @throws MetaborgException
+     *             When the language fails to load.
      */
     @Provides
     public ILanguageImpl lang(IResourceService resService, ILanguageDiscoveryService langService)
             throws MetaborgException {
         FileObject cpresolve = resService.resolve("res:paplj.full");
         FileObject resolve = resService.resolve("zip:" + cpresolve + "!/");
-        final Iterable<ILanguageDiscoveryRequest> requests = langService.request(resolve);
-        final Iterable<ILanguageComponent> components = langService.discover(requests);
+        Iterable<ILanguageDiscoveryRequest> requests = langService.request(resolve);
+        Iterable<ILanguageComponent> components = langService.discover(requests);
         return LanguageUtils.active(LanguageUtils.toImpls(components));
     }
 

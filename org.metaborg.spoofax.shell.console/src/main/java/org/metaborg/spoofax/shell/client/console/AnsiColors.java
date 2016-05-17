@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.fusesource.jansi.Ansi;
 
 /**
- * Represents a list of possible ansi colors and maps them to Java colors.
+ * Represents a list of possible ANSI colors and maps them to Java colors.
  */
 public enum AnsiColors {
     BLACK(Ansi.Color.BLACK, Color.BLACK),
@@ -18,13 +18,16 @@ public enum AnsiColors {
     CYAN(Ansi.Color.CYAN, Color.CYAN),
     WHITE(Ansi.Color.WHITE, Color.WHITE);
 
-    private Ansi.Color ansiColor;
-    private Color color;
+    private final Ansi.Color ansiColor;
+    private final Color color;
 
     /**
-     * Construct all ansi color to color mappings.
-     * @param ansiColor the ansi color
-     * @param color the java color
+     * Construct all ANSI color to color mappings.
+     *
+     * @param ansiColor
+     *            The ANSI color.
+     * @param color
+     *            The Java color.
      */
     AnsiColors(Ansi.Color ansiColor, Color color) {
         this.ansiColor = ansiColor;
@@ -32,9 +35,11 @@ public enum AnsiColors {
     }
 
     /**
-     * Find the ansi color most corresponding to a java color.
-     * @param color the java color
-     * @return the ansi color
+     * Find the ANSI color most corresponding to a Java color.
+     *
+     * @param color
+     *            The Java color.
+     * @return The ANSI color.
      */
     public static Ansi.Color findClosest(Color color) {
         return Arrays.stream(AnsiColors.values())

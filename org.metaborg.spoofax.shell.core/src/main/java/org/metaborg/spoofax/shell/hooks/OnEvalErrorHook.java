@@ -11,14 +11,16 @@ import com.google.inject.Inject;
  * Called upon success of an evaluation command.
  */
 public class OnEvalErrorHook implements Consumer<StyledText> {
-
-    private IDisplay display;
+    private final IDisplay display;
 
     /**
-     * @param display The {@link IDisplay} to show the result on.
+     * Instantiates a new OnEvalErrorHook.
+     *
+     * @param display
+     *            The {@link IDisplay} to show the result on.
      */
     @Inject
-    OnEvalErrorHook(IDisplay display) {
+    public OnEvalErrorHook(IDisplay display) {
         this.display = display;
     }
 

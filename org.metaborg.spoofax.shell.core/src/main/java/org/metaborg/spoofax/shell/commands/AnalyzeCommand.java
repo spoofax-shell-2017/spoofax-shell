@@ -32,8 +32,8 @@ public class AnalyzeCommand extends SpoofaxCommand {
      * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
      */
     @Inject
-    public AnalyzeCommand(@Named("onSuccess") final Consumer<StyledText> onSuccess,
-                          @Named("onError") final Consumer<StyledText> onError) {
+    public AnalyzeCommand(@Named("onSuccess") Consumer<StyledText> onSuccess,
+                          @Named("onError") Consumer<StyledText> onError) {
         super(onSuccess, onError);
     }
 
@@ -43,35 +43,41 @@ public class AnalyzeCommand extends SpoofaxCommand {
     }
 
     /**
-     * Analyzes a program using the {@link ISpoofaxAnalysisService}.
-     * Delegates parsing to the {@link ParseCommand}.
-     * @param source the source of the program
-     * @param sourceFile the file containing the source of the program
-     * @return an {@link ISpoofaxAnalyzeUnit}
-     * @throws MetaborgException when parsing or analyzing fails
-     * @throws IOException when creating a temp file fails
+     * Analyzes a program using the {@link ISpoofaxAnalysisService}. Delegates parsing to the
+     * {@link ParseCommand}.
+     *
+     * @param source
+     *            The source of the program.
+     * @param sourceFile
+     *            The temporary file containing the source of the program.
+     * @return An {@link ISpoofaxAnalyzeUnit}.
+     * @throws MetaborgException
+     *             When parsing or analyzing fails.
+     * @throws IOException
+     *             When writing to the temporary file fails.
      */
     public ISpoofaxAnalyzeUnit analyze(String source, FileObject sourceFile)
             throws MetaborgException, IOException {
         ISpoofaxParseUnit parse = parseCommand.parse(source, sourceFile);
-        ISpoofaxAnalyzeUnit analyze = this.analyze(parse);
-        return analyze;
+        return this.analyze(parse);
     }
 
     /**
      * Analyzes a program using the {@link ISpoofaxAnalysisService}.
-     * @param parseUnit a {@link ParseCommand} result
-     * @return an {@link ISpoofaxAnalyzeUnit}
-     * @throws MetaborgException when analyzing fails
+     *
+     * @param parseUnit
+     *            A {@link ParseCommand} result.
+     * @return An {@link ISpoofaxAnalyzeUnit}.
+     * @throws MetaborgException
+     *             When analyzing fails.
      */
     public ISpoofaxAnalyzeUnit analyze(ISpoofaxParseUnit parseUnit) throws MetaborgException {
         ISpoofaxAnalyzeResult analyzeResult = analysisService.analyze(parseUnit, this.context);
         ISpoofaxAnalyzeUnit analyzeUnit = analyzeResult.result();
 
-        StringBuilder builder = new StringBuilder();
-        analyzeUnit.messages().forEach(builder::append);
-
         if (!analyzeUnit.valid()) {
+            StringBuilder builder = new StringBuilder();
+            analyzeUnit.messages().forEach(builder::append);
             throw new MetaborgException(builder.toString());
         }
         return analyzeUnit;

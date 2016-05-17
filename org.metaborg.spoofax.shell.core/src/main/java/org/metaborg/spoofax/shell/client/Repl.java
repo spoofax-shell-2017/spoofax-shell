@@ -17,13 +17,15 @@ import com.google.inject.Provider;
  * {@link IDisplay}.
  */
 public class Repl {
-    private ICommandInvoker invoker;
-    private IEditor editor;
-    private IDisplay display;
+    private final ICommandInvoker invoker;
+    private final IEditor editor;
+    private final IDisplay display;
 
     private boolean running;
 
     /**
+     * Instantiates a new REPL.
+     *
      * @param editor
      *            The {@link IEditor} for receiving input.
      * @param display
@@ -32,7 +34,7 @@ public class Repl {
      *            The {@link ICommandInvoker} for executing user input.
      */
     @Inject
-    Repl(IEditor editor, IDisplay display, ICommandInvoker invoker) {
+    public Repl(IEditor editor, IDisplay display, ICommandInvoker invoker) {
         this.editor = editor;
         this.display = display;
         this.invoker = invoker;
@@ -43,10 +45,10 @@ public class Repl {
     }
 
     /**
-     * Run the Repl, asking for input and sending it for execution.
+     * Run the REPL, asking for input and sending it for execution.
      *
      * @throws IOException
-     *             when an IO error occurs.
+     *             When an IO error occurs.
      */
     public void run() throws IOException {
         String input;
@@ -65,14 +67,16 @@ public class Repl {
     }
 
     /**
-     * Exit the Repl.
+     * Exit the REPL.
      */
     static class ExitCommand implements IReplCommand {
-        private Provider<Repl> replProvider;
+        private final Provider<Repl> replProvider;
 
         /**
+         * Instantiates a new ExitCommand.
+         *
          * @param replProvider
-         *            Provides the Repl instance.
+         *            Provides the REPL instance.
          */
         @Inject
         ExitCommand(Provider<Repl> replProvider) {

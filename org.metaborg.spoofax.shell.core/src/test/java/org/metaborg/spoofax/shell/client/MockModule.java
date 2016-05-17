@@ -1,6 +1,5 @@
 package org.metaborg.spoofax.shell.client;
 
-import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 
 import com.google.inject.AbstractModule;
@@ -9,19 +8,24 @@ import com.google.inject.AbstractModule;
  * Allows for injecting mock {@link ICommandInvoker}s, for spying/verifying.
  */
 public class MockModule extends AbstractModule {
-    private ICommandInvoker invokerMock;
-    private IEditor editorMock;
-    private IDisplay displayMock;
+    private final ICommandInvoker invokerMock;
+    private final IEditor editorMock;
+    private final IDisplay displayMock;
 
     /**
+     * Instantiates a new MockModule with a {@code null} @{link IEditor} and a {@code null}
+     * {@link IDisplay}.
+     *
      * @param invokerMock
      *            The mock {@link ICommandInvoker}.
      */
     public MockModule(ICommandInvoker invokerMock) {
-        this(invokerMock, null);
+        this(invokerMock, null, null);
     }
 
     /**
+     * Instantiates a new MockModule with a {@code null} {@link IDisplay}.
+     *
      * @param invokerMock
      *            The mock {@link ICommandInvoker}.
      * @param editorMock
@@ -32,6 +36,8 @@ public class MockModule extends AbstractModule {
     }
 
     /**
+     * Instantiates a new MockModule with a {@code null} {@link ICommandInvoker}.
+     *
      * @param editorMock
      *            The mock {@link IEditor}.
      * @param displayMock
@@ -42,6 +48,8 @@ public class MockModule extends AbstractModule {
     }
 
     /**
+     * Instantiates a new MockModule.
+     *
      * @param invokerMock
      *            The mock {@link ICommandInvoker}.
      * @param editorMock

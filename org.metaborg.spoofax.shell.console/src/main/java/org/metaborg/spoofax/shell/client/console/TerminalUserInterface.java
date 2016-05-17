@@ -28,25 +28,25 @@ import jline.console.ConsoleReader;
  * A terminal UI which is both an {@link IEditor} and an {@link IDisplay}.
  */
 public class TerminalUserInterface implements IEditor, IDisplay {
-    private ConsoleReader reader;
+    private final ConsoleReader reader;
+    private final ArrayList<String> lines;
+    private final PrintWriter out;
+    private final PrintWriter err;
+    private final JLine2InputHistory hist;
     private StyledText prompt;
     private StyledText continuationPrompt;
-    private ArrayList<String> lines;
-    private PrintWriter out;
-    private PrintWriter err;
-    private JLine2InputHistory hist;
 
     /**
      * @param reader
-     *            The jline2 {@link ConsoleReader} used to get input.
+     *            The JLine2 {@link ConsoleReader} used to get input.
      * @param out
      *            The {@link PrintStream} to write results to.
      * @param err
      *            The {@link PrintStream} to write errors to.
      * @param hist
-     *            The input history adapter for jline2.
+     *            The input history adapter for JLine2.
      * @throws IOException
-     *             when an IO error occurs.
+     *             When an IO error occurs.
      */
     @Inject
     public TerminalUserInterface(ConsoleReader reader, @Named("out") OutputStream out,
@@ -68,10 +68,10 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     }
 
     /**
-     * Save this line as the end of the multi-line input.
+     * Save this line as the end of the multiline input.
      *
      * @param lastLine
-     *            the line to save.
+     *            The line to save.
      */
     protected void saveLine(String lastLine) {
         lines.add(lastLine);

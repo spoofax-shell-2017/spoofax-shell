@@ -9,15 +9,16 @@ import com.google.inject.name.Named;
  * Default implementation of an {@link ICommandInvoker}.
  */
 public class SpoofaxCommandInvoker implements ICommandInvoker {
-    private Map<String, IReplCommand> commands;
-    private IReplCommand eval;
+    private final Map<String, IReplCommand> commands;
+    private final IReplCommand eval;
 
     /**
+     * Instantiates a new SpoofaxCommandInvoker.
+     *
      * @param commands
      *            The commands, with their command names as key (without prefix).
      * @param eval
-     *            The {@link SpoofaxCommand} used for evaluation when no command prefix
-     *            was given.
+     *            The {@link SpoofaxCommand} used for evaluation when no command prefix was given.
      */
     @Inject
     SpoofaxCommandInvoker(Map<String, IReplCommand> commands,

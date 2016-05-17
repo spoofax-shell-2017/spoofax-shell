@@ -34,8 +34,8 @@ public class ParseCommand extends SpoofaxCommand {
      * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
      */
     @Inject
-    public ParseCommand(@Named("onSuccess") final Consumer<StyledText> onSuccess,
-                        @Named("onError") final Consumer<StyledText> onError) {
+    public ParseCommand(@Named("onSuccess") Consumer<StyledText> onSuccess,
+                        @Named("onError") Consumer<StyledText> onError) {
         super(onSuccess, onError);
     }
 
@@ -46,11 +46,16 @@ public class ParseCommand extends SpoofaxCommand {
 
     /**
      * Parses a program using the {@link ISpoofaxSyntaxService}.
-     * @param source the source of the program
-     * @param sourceFile the file containing the source of the program
-     * @return an {@link ISpoofaxParseUnit}
-     * @throws MetaborgException when parsing fails
-     * @throws IOException when creating a temp file fails
+     *
+     * @param source
+     *            The source of the program.
+     * @param sourceFile
+     *            The temporary file containing the source of the program.
+     * @return An {@link ISpoofaxParseUnit}.
+     * @throws MetaborgException
+     *             When parsing fails.
+     * @throws IOException
+     *             When writing to the temporary file fails
      */
     public ISpoofaxParseUnit parse(String source, FileObject sourceFile)
             throws IOException, MetaborgException {
@@ -58,18 +63,18 @@ public class ParseCommand extends SpoofaxCommand {
         os.write(source.getBytes(Charset.forName("UTF-8")));
         os.close();
 
-        final ISpoofaxInputUnit inputUnit = unitService.inputUnit(sourceFile, source,
+        ISpoofaxInputUnit inputUnit = unitService.inputUnit(sourceFile, source,
                 this.context.language(), null);
 
         ISpoofaxParseUnit parseUnit = this.syntaxService.parse(inputUnit);
         if (!parseUnit.valid()) {
-            throw new MetaborgException("Resulting parse unit invalid.");
+            throw new MetaborgException("The resulting parse unit is invalid.");
         }
         return parseUnit;
     }
 
     @Override
-    public void execute(final String... args) {
+    public void execute(String... args) {
         try {
             FileObject tempFile = this.context.location().resolveFile("tmp.src");
             IStrategoTerm term = this.parse(args[0], tempFile).ast();

@@ -62,7 +62,7 @@ public class ConsoleReplModule extends ReplModule {
      *            The {@link InputStream}.
      * @param out
      *            The {@link OutputStream}.
-     * @return a {@link jline.console.ConsoleReader} with the given streams.
+     * @return A {@link jline.console.ConsoleReader} with the given streams.
      * @throws IOException
      *             When an IO error occurs upon construction.
      */

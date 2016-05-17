@@ -3,9 +3,6 @@ package org.metaborg.spoofax.shell.commands;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
-import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 /**
  * Tests default method implementations of {@link ICommandInvoker}.
@@ -26,7 +23,9 @@ public class ICommandInvokerTest implements ICommandInvoker {
     /**
      * Test whether the command gets executed without a prefix. See {@link #commandFromName(String)}
      * for the assertion.
-     * @throws CommandNotFoundException cannot occur.
+     *
+     * @throws CommandNotFoundException
+     *             Cannot occur.
      */
     @Test
     public void testExecutesCommandWithoutPrefix() throws CommandNotFoundException {
@@ -36,7 +35,9 @@ public class ICommandInvokerTest implements ICommandInvoker {
     /**
      * Test whether the command gets evaluated, because it does not begin with
      * {@link #commandPrefix()}.
-     * @throws CommandNotFoundException cannot occur.
+     *
+     * @throws CommandNotFoundException
+     *             Cannot occur.
      */
     @Test
     public void testExecutesEvaluationCommand() throws CommandNotFoundException {
@@ -47,8 +48,8 @@ public class ICommandInvokerTest implements ICommandInvoker {
      * Called from {@link #testExecutesCommandWithoutPrefix()}.
      *
      * @param commandName
-     *            if correctly, without the prefix.
-     * @return an empty command.
+     *            If correctly, without the prefix.
+     * @return An empty command.
      */
     @Override
     public IReplCommand commandFromName(String commandName) {

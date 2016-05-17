@@ -28,8 +28,8 @@ public abstract class SpoofaxCommand implements IReplCommand {
      * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
      */
     @Inject
-    SpoofaxCommand(@Named("onSuccess") final Consumer<StyledText> onSuccess,
-                   @Named("onError") final Consumer<StyledText> onError) {
+    SpoofaxCommand(@Named("onSuccess") Consumer<StyledText> onSuccess,
+                   @Named("onError") Consumer<StyledText> onError) {
         this.onSuccess = onSuccess;
         this.onError = onError;
     }
@@ -41,7 +41,9 @@ public abstract class SpoofaxCommand implements IReplCommand {
 
     /**
      * Executes a command.
-     * @param args the command arguments
+     *
+     * @param args
+     *            The command's arguments.
      */
     @Override
     public abstract void execute(String... args);
