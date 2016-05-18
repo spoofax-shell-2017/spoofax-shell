@@ -57,6 +57,27 @@
             <artifactId>org.strategoxt.strj</artifactId>
             <version>${metaborg-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.metaborg.meta.interpreter.framework</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.metaborg.meta.lang.dynsem.interpreter</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.truffle</groupId>
+            <artifactId>truffle-api</artifactId>
+            <version>0.11</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.truffle</groupId>
+            <artifactId>truffle-dsl-processor</artifactId>
+            <version>0.11</version>
+        </dependency>
 
         <!-- From here on, all dependencies are inherited. -->
         <dependency>
@@ -89,7 +110,7 @@
             <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
-        
+
         <!-- From here on, all test dependencies are inherited. -->
         <dependency>
             <groupId>junit</groupId>

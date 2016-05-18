@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.invoker;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.commands.AnalyzeCommand;
+import org.metaborg.spoofax.shell.commands.EvaluateCommand;
 import org.metaborg.spoofax.shell.commands.ParseCommand;
 import org.metaborg.spoofax.shell.commands.TransformCommand;
 
@@ -36,4 +37,13 @@ public interface ICommandFactory {
      * @return        an {@link TransformCommand}
      */
     TransformCommand createTransform(IProject project, ILanguageImpl lang, boolean analyzed);
+
+    /**
+     * Factory method for creating an evaluation command.
+     * @param project   The associated {@link IProject}
+     * @param lang      The associated {@link ILanguageImpl}
+     * @param analyzed  Indicates whether to analyze or not
+     * @return        an {@link EvaluateCommand}
+     */
+    EvaluateCommand createEvaluate(IProject project, ILanguageImpl lang, boolean analyzed);
 }

@@ -7,6 +7,7 @@ import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
+import org.metaborg.spoofax.shell.core.EvaluateUnit;
 
 /**
  * Factory that creates {@link ISpoofaxResult}.
@@ -49,5 +50,12 @@ public interface IResultFactory {
      * @return a {@link TransformResult}
      */
     TransformResult createTransformResult(ISpoofaxTransformUnit<?> unit);
+
+    /**
+     * Create an {@link EvaluateResult} that can be passed to the Repl.
+     * @param unit the wrapped {@link EvaluateUnit}
+     * @return a {@link EvaluateResult}
+     */
+    EvaluateResult createEvaluateResult(EvaluateUnit<?> unit);
 
 }
