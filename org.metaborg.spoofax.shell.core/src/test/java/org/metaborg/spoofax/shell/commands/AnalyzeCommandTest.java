@@ -68,7 +68,7 @@ public class AnalyzeCommandTest {
      */
     @Before
     public void setup() throws FileSystemException, MetaborgException {
-        testModule = Modules.override(new ReplModule(null)).with(new TestCommandModule());
+        testModule = Modules.override(new ReplModule()).with(new TestCommandModule());
         mockModule = Modules.override(testModule)
                 .with(e -> e.bind(ISpoofaxAnalysisService.class)
                             .toInstance(analysisService));

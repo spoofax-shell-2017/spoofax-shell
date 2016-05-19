@@ -3,7 +3,6 @@ package org.metaborg.spoofax.shell.client;
 import java.util.function.Consumer;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.core.context.IContext;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.IProjectService;
 import org.metaborg.core.project.ISimpleProjectService;
@@ -35,18 +34,7 @@ import com.google.inject.name.Names;
  */
 public class ReplModule extends SpoofaxModule {
 
-    private final IContext context;
     protected MapBinder<String, IReplCommand> commandBinder;
-
-    /**
-     * Instantiates a new ReplModule.
-     *
-     * @param context
-     *            The {@link IContext} in which the REPL operates.
-     */
-    public ReplModule(IContext context) {
-        this.context = context;
-    }
 
     /**
      * Binds the default commands.

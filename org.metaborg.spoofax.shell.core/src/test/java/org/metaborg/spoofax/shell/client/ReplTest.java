@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.junit.Test;
-import org.metaborg.core.context.IContext;
 import org.metaborg.spoofax.shell.commands.ExitCommand;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -38,7 +37,7 @@ public class ReplTest {
      * @return The {@link ReplModule} for this ReplTest.
      */
     protected ReplModule replModule() {
-        return new ReplModule(mock(IContext.class, RETURNS_MOCKS));
+        return new ReplModule();
     }
 
     /**
