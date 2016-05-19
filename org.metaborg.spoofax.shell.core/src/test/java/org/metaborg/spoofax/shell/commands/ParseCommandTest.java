@@ -24,7 +24,7 @@ import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.core.CoreModule;
+import org.metaborg.spoofax.shell.client.ReplModule;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -65,7 +65,7 @@ public class ParseCommandTest {
      */
     @Before
     public void setup() throws FileSystemException, MetaborgException {
-        testModule = Modules.override(new CoreModule()).with(new TestCommandModule());
+        testModule = Modules.override(new ReplModule(null)).with(new TestCommandModule());
         mockModule = Modules.override(testModule)
                 .with(e -> {
                     e.bind(ISpoofaxSyntaxService.class)

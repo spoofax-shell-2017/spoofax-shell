@@ -77,7 +77,6 @@ public class ICommandInvokerTest implements ICommandInvoker {
     /**
      * Called from {@link #testExecutesEvaluationCommand()}.
      */
-    @Override
     public IReplCommand evaluationCommand() {
         return new IReplCommand() {
 

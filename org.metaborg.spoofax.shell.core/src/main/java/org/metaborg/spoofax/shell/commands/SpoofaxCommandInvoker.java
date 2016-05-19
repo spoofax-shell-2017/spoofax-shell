@@ -3,44 +3,29 @@ package org.metaborg.spoofax.shell.commands;
 import java.util.Map;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 /**
  * Default implementation of an {@link ICommandInvoker}.
  */
 public class SpoofaxCommandInvoker implements ICommandInvoker {
     private final Map<String, IReplCommand> commands;
-    private final IReplCommand eval;
 
     /**
      * Instantiates a new SpoofaxCommandInvoker.
      *
      * @param commands
      *            The commands, with their command names as key (without prefix).
-     * @param eval
-     *            The {@link SpoofaxCommand} used for evaluation when no command prefix was given.
      */
     @Inject
-    SpoofaxCommandInvoker(Map<String, IReplCommand> commands,
-                          @Named("EvalCommand") IReplCommand eval) {
+    SpoofaxCommandInvoker(Map<String, IReplCommand> commands) {
         this.commands = commands;
-        this.eval = eval;
-    }
-
-    @Override
-    public IReplCommand evaluationCommand() {
-        return eval;
-    }
-
-    private void ensureCommandExists(String commandName) throws CommandNotFoundException {
-        if (!commands.containsKey(commandName)) {
-            throw new CommandNotFoundException(commandName);
-        }
     }
 
     @Override
     public IReplCommand commandFromName(String commandName) throws CommandNotFoundException {
-        ensureCommandExists(commandName);
+        if (!commands.containsKey(commandName)) {
+            throw new CommandNotFoundException(commandName);
+        }
         return commands.get(commandName);
     }
 

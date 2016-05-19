@@ -8,11 +8,6 @@ import java.util.Arrays;
 public interface ICommandInvoker {
 
     /**
-     * @return The command executed for evaluation.
-     */
-    IReplCommand evaluationCommand();
-
-    /**
      * Returns the command with name {@code commandName}.
      *
      * @param commandName
@@ -61,7 +56,8 @@ public interface ICommandInvoker {
                 split.length > 1 ? Arrays.copyOfRange(split, 1, split.length) : new String[0];
             commandFromName(commandName).execute(argument);
         } else {
-            evaluationCommand().execute(optionallyPrefixedCommandName);
+            // FIXME: create sensible way to set default
+            commandFromName("eval").execute(optionallyPrefixedCommandName);
         }
     }
 }

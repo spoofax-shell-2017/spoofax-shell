@@ -23,7 +23,7 @@ import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 //import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.shell.core.CoreModule;
+import org.metaborg.spoofax.shell.client.ReplModule;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -68,7 +68,7 @@ public class AnalyzeCommandTest {
      */
     @Before
     public void setup() throws FileSystemException, MetaborgException {
-        testModule = Modules.override(new CoreModule()).with(new TestCommandModule());
+        testModule = Modules.override(new ReplModule(null)).with(new TestCommandModule());
         mockModule = Modules.override(testModule)
                 .with(e -> e.bind(ISpoofaxAnalysisService.class)
                             .toInstance(analysisService));
