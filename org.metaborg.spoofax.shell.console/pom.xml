@@ -69,6 +69,12 @@
         </dependency>
 
         <!-- Test dependencies. -->
+        <dependency> <!-- Must be in the top since Mockito embeds its own hamcrest copy. -->
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.shell.core</artifactId>
@@ -80,12 +86,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>1.10.19</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <version>1.3</version>
             <scope>test</scope>
         </dependency>
 
