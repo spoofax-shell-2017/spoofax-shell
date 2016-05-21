@@ -99,123 +99,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Create a standalone, executable release. -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <configuration>
-                        <archive>
-                            <manifest>
-                                <mainClass>org.metaborg.spoofax.shell.client.console.ConsoleRepl</mainClass>
-                            </manifest>
-                        </archive>
-                        <descriptorRefs>
-                            <descriptorRef>jar-with-dependencies</descriptorRef>
-                        </descriptorRefs>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>make-assembly</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>single</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- Compile Java 8 sources. -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                    </configuration>
-                </plugin>
-                <!-- Checkstyle -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.17</version>
-                    <dependencies>
-                        <!-- Update Checkstyle to version 6.18 at runtime -->
-                        <dependency>
-                            <groupId>com.puppycrawl.tools</groupId>
-                            <artifactId>checkstyle</artifactId>
-                            <version>6.18</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <configLocation>../checkstyle.xml</configLocation>
-                        <failOnViolation>true</failOnViolation>
-                        <logViolationsToConsole>true</logViolationsToConsole>
-                        <violationSeverity>warning</violationSeverity>
-                        <consoleOutput>false</consoleOutput>
-                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>verify-style</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- PMD -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-pmd-plugin</artifactId>
-                    <version>3.6</version>
-                    <!-- Using the latest version here breaks the reporting. -->
-                    <!-- dependencies>
-                        <dependency>
-                            <groupId>net.sourceforge.pmd</groupId>
-                            <artifactId>pmd-java</artifactId>
-                            <version>5.4.0</version>
-                        </dependency>
-                    </dependencies-->
-                    <configuration>
-                        <verbose>true</verbose>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>pmd-check</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>cpd-check</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>cpd-check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- FindBugs -->
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>3.0.3</version>
-                    <configuration>
-                        <includeTests>true</includeTests>
-                        <!-- See: http://stackoverflow.com/questions/29594445/cobertura-maven-plugin-conflicts-with-findbugs -->
-                        <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>findbugs-check</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
                 <!-- Site dependencies for deploying to git scm. Using pluginManagement for this is
                 a hack, please refer to https://jira.codehaus.org/browse/MNG-2173 -->
                 <plugin>
@@ -247,6 +130,125 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <!-- Create a standalone, executable release. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.metaborg.spoofax.shell.client.console.ConsoleRepl</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Compile Java 8 sources. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <!-- Checkstyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <dependencies>
+                    <!-- Update Checkstyle to version 6.18 at runtime -->
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>6.18</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>../checkstyle.xml</configLocation>
+                    <failOnViolation>true</failOnViolation>
+                    <logViolationsToConsole>true</logViolationsToConsole>
+                    <violationSeverity>warning</violationSeverity>
+                    <consoleOutput>false</consoleOutput>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>verify-style</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- PMD -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.6</version>
+                <!-- Using the latest version here breaks the reporting. -->
+                <!-- dependencies>
+                    <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-java</artifactId>
+                        <version>5.4.0</version>
+                    </dependency>
+                </dependencies-->
+                <configuration>
+                    <verbose>true</verbose>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pmd-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>cpd-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>cpd-check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- FindBugs -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.3</version>
+                <configuration>
+                    <includeTests>true</includeTests>
+                    <!-- See: http://stackoverflow.com/questions/29594445/cobertura-maven-plugin-conflicts-with-findbugs -->
+                    <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>findbugs-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <reporting>
