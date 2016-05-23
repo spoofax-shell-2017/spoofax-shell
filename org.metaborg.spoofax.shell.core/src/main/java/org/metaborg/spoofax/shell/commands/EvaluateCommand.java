@@ -29,16 +29,17 @@ import com.google.inject.name.Named;
 public class EvaluateCommand extends SpoofaxCommand {
     private static final String DESCRIPTION = "Evaluate an expression";
 
-    @Inject
     private IContextService contextService;
-    @Inject
     private IStrategoRuntimeService runtimeService;
+
     @Inject
     private AnalyzeCommand analyzeCommand;
 
     /**
      * Instantiate an {@link EvaluateCommand}.
      * @param common    The {@link IStrategoCommon} service.
+     * @param contextService The {@link IContextService}.
+     * @param runtimeService The {@link IStrategoRuntimeService}.
      * @param onSuccess Called upon success by the created {@link SpoofaxCommand}.
      * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
      * @param project   The project in which this command should operate.
@@ -46,11 +47,15 @@ public class EvaluateCommand extends SpoofaxCommand {
      */
     @Inject
     public EvaluateCommand(IStrategoCommon common,
+                           IContextService contextService,
+                           IStrategoRuntimeService runtimeService,
                            @Named("onSuccess") Consumer<StyledText> onSuccess,
                            @Named("onError") Consumer<StyledText> onError,
                            @Assisted IProject project,
                            @Assisted ILanguageImpl lang) {
         super(common, onSuccess, onError, project, lang);
+        this.contextService = contextService;
+        this.runtimeService = runtimeService;
     }
 
     @Override

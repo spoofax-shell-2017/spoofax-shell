@@ -65,6 +65,7 @@ public class LanguageCommandTest {
      */
     @Before
     public void setup() throws FileSystemException, ParseException {
+        when(invoker.getCommandFactory()).thenReturn(commandFactory);
     }
 
     /**
@@ -74,8 +75,7 @@ public class LanguageCommandTest {
     public void testDescription() {
         LanguageCommand langCommand = new LanguageCommand(common,
                                                           langDiscoveryService, resourceService,
-                                                          commandFactory, invoker,
-                                                          onSuccess, onError, project);
+                                                          invoker, onSuccess, onError, project);
         assertThat(langCommand.description(), isA(String.class));
     }
 
@@ -87,8 +87,7 @@ public class LanguageCommandTest {
     public void testLoadLanguage() throws MetaborgException {
         LanguageCommand langCommand = new LanguageCommand(common,
                                                           langDiscoveryService, resourceService,
-                                                          commandFactory, invoker,
-                                                          onSuccess, onError, project);
+                                                          invoker, onSuccess, onError, project);
         langCommand.execute("res:paplj.full");
     }
 

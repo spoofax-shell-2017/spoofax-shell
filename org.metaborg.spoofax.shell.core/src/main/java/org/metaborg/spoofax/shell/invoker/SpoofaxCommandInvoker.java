@@ -11,17 +11,20 @@ import com.google.inject.Inject;
  * Default implementation of an {@link ICommandInvoker}.
  */
 public class SpoofaxCommandInvoker implements ICommandInvoker {
+    private final ICommandFactory factory;
     private final Map<String, IReplCommand> defaults;
     private final Map<String, IReplCommand> commands;
 
     /**
      * Instantiates a new SpoofaxCommandInvoker.
      *
+     * @param factory an {@link ICommandFactory}
      * @param defaults
      *            The commands, with their command names as key (without prefix).
      */
     @Inject
-    public SpoofaxCommandInvoker(Map<String, IReplCommand> defaults) {
+    public SpoofaxCommandInvoker(ICommandFactory factory, Map<String, IReplCommand> defaults) {
+        this.factory = factory;
         this.defaults = defaults;
         this.commands = Maps.newConcurrentMap();
         this.resetCommands();
@@ -48,6 +51,11 @@ public class SpoofaxCommandInvoker implements ICommandInvoker {
     @Override
     public Map<String, IReplCommand> getCommands() {
         return commands;
+    }
+
+    @Override
+    public ICommandFactory getCommandFactory() {
+        return factory;
     }
 
     @Override

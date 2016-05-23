@@ -2,6 +2,7 @@ package org.metaborg.spoofax.shell.client;
 
 import java.util.function.Consumer;
 
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.IProjectService;
@@ -22,6 +23,7 @@ import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
 
+import com.google.common.io.Files;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
@@ -86,6 +88,7 @@ public class ReplModule extends SpoofaxModule {
     protected IProject project(IResourceService resourceService,
                                ISimpleProjectService projectService)
             throws MetaborgException {
-        return projectService.create(resourceService.resolve("tmp:"));
+        FileObject resolve = resourceService.resolve(Files.createTempDir());
+        return projectService.create(resolve);
     }
 }

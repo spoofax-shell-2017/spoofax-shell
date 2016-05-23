@@ -12,6 +12,7 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
+import org.metaborg.spoofax.core.analysis.AnalysisFacet;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
@@ -27,31 +28,29 @@ public class LanguageCommand extends SpoofaxCommand {
 
     private ILanguageDiscoveryService langDiscoveryService;
     private IResourceService resourceService;
-
-    private ICommandFactory commandFactory;
     private ICommandInvoker invoker;
 
     /**
-     * Instantiate a {@link LanguageCommand}.
+     * Instantiate a {@link LanguageCommand}. Loads all commands applicable to a lanugage.
      * @param common    The {@link IStrategoCommon} service.
+     * @param langDiscoveryService the {@link ILanguageDiscoveryService}
+     * @param resourceService      the {@link IResourceService}
+     * @param invoker   the {@link ICommandInvoker}
      * @param onSuccess called when a language was loaded successfully
-     * @param onError called when loading a language has failed
+     * @param onError   called when loading a language has failed
+     * @param project   the associated {@link IProject}
      */
-    // FIXME: might consider storing strategoterms in a result class, removing common here.
     @Inject
-    public LanguageCommand(IStrategoCommon common,
+    public LanguageCommand(IStrategoCommon common, // FIXME: consider storing terms in result class
                            ILanguageDiscoveryService langDiscoveryService,
                            IResourceService resourceService,
-                           ICommandFactory commandFactory,
                            ICommandInvoker invoker,
                            @Named("onSuccess") Consumer<StyledText> onSuccess,
                            @Named("onError") Consumer<StyledText> onError,
-                           IProject project) {
+                           IProject project) { // FIXME: don't use the hardcoded @Provides
         super(common, onSuccess, onError, project, null);
         this.langDiscoveryService = langDiscoveryService;
         this.resourceService = resourceService;
-
-        this.commandFactory = commandFactory;
         this.invoker = invoker;
     }
 
@@ -79,8 +78,12 @@ public class LanguageCommand extends SpoofaxCommand {
             }
 
             invoker.resetCommands();
+            ICommandFactory commandFactory = invoker.getCommandFactory();
             invoker.addCommand("parse", commandFactory.createParse(project, lang));
-            invoker.addCommand("analyze", commandFactory.createAnalyze(project, lang));
+            invoker.addCommand("eval", commandFactory.createEvaluate(project, lang));
+            if (lang.hasFacet(AnalysisFacet.class)) {
+                invoker.addCommand("analyze", commandFactory.createAnalyze(project, lang));
+            }
 
             onSuccess.accept(new StyledText("Loaded language " + lang));
         } catch (MetaborgException e) {
