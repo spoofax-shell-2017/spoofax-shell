@@ -11,7 +11,6 @@ import org.metaborg.core.project.SimpleProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.resource.ResourceService;
 import org.metaborg.spoofax.core.SpoofaxModule;
-import org.metaborg.spoofax.shell.commands.EvaluateCommand;
 import org.metaborg.spoofax.shell.commands.ExitCommand;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
@@ -46,10 +45,6 @@ public class ReplModule extends SpoofaxModule {
         commandBinder.addBinding("exit").to(ExitCommand.class).in(Singleton.class);
         commandBinder.addBinding("help").to(HelpCommand.class).in(Singleton.class);
         commandBinder.addBinding("load").to(LanguageCommand.class).in(Singleton.class);
-        // FIXME: partially rewrite commandinvoker so eval becomes part of the hashmap
-        // commandBinder.addBinding("eval").to(EvaluateCommand.class).in(Singleton.class);
-        bind(IReplCommand.class).annotatedWith(Names.named("EvalCommand"))
-            .to(EvaluateCommand.class).in(Singleton.class);
 
         bind(ICommandInvoker.class).to(SpoofaxCommandInvoker.class);
     }
