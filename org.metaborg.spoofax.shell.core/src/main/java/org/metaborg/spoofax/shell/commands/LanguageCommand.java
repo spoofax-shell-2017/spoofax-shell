@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.analysis.AnalyzerFacet;
 import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageDiscoveryRequest;
 import org.metaborg.core.language.ILanguageDiscoveryService;
@@ -12,7 +13,6 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
-import org.metaborg.spoofax.core.analysis.AnalysisFacet;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
@@ -92,7 +92,7 @@ public class LanguageCommand extends SpoofaxCommand {
             ICommandFactory commandFactory = invoker.getCommandFactory();
             invoker.addCommand("parse", commandFactory.createParse(project, lang));
             invoker.addCommand("eval", commandFactory.createEvaluate(project, lang));
-            if (lang.hasFacet(AnalysisFacet.class)) {
+            if (lang.hasFacet(AnalyzerFacet.class)) {
                 invoker.addCommand("analyze", commandFactory.createAnalyze(project, lang));
                 invoker.addCommand("transform", commandFactory.createTransform(project, lang));
             } // else {
