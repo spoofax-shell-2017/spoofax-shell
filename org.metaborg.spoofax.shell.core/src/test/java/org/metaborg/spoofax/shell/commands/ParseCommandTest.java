@@ -34,24 +34,17 @@ import org.mockito.runners.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ParseCommandTest {
-    @Mock
-    private IStrategoCommon common;
-    @Mock
-    private ISpoofaxSyntaxService syntaxService;
-    @Mock
-    private ISpoofaxUnitService unitService;
-    @Mock
-    private Consumer<StyledText> onSuccess;
-    @Mock
-    private Consumer<StyledText> onError;
-    @Mock
-    private IProject project;
-    @Mock
-    private ILanguageImpl lang;
+    @Mock private IStrategoCommon common;
+    @Mock private ISpoofaxSyntaxService syntaxService;
+    @Mock private ISpoofaxUnitService unitService;
+    @Mock private Consumer<StyledText> onSuccess;
+    @Mock private Consumer<StyledText> onError;
+    @Mock private IProject project;
+    @Mock private ILanguageImpl lang;
+    @Mock private ISpoofaxParseUnit parseUnit;
 
-    @Mock
-    private ISpoofaxParseUnit parseUnit;
     private FileObject sourceFile;
+    private ParseCommand parseCommand;
 
     /**
      * Set up mocks used in the test case.
@@ -61,6 +54,9 @@ public class ParseCommandTest {
     @Before
     public void setup() throws FileSystemException, ParseException {
         sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
+        parseCommand = new ParseCommand(common, syntaxService, unitService,
+                                        onSuccess, onError, project, lang);
+
         when(syntaxService.parse(any())).thenReturn(parseUnit);
         when(project.location()).thenReturn(sourceFile);
     }
@@ -70,8 +66,6 @@ public class ParseCommandTest {
      */
     @Test
     public void testDescription() {
-        ParseCommand parseCommand = new ParseCommand(common, syntaxService, unitService,
-                                                     onSuccess, onError, project, lang);
         assertThat(parseCommand.description(), isA(String.class));
     }
 
@@ -83,8 +77,6 @@ public class ParseCommandTest {
     public void testParseValid() throws MetaborgException {
         when(parseUnit.valid()).thenReturn(true);
 
-        ParseCommand parseCommand = new ParseCommand(common, syntaxService, unitService,
-                                                     onSuccess, onError, project, lang);
         ISpoofaxParseUnit actual = parseCommand.parse("test", sourceFile);
         assertEquals(actual, parseUnit);
     }
@@ -97,8 +89,6 @@ public class ParseCommandTest {
     public void testParseInvalid() throws MetaborgException {
         when(parseUnit.valid()).thenReturn(false);
 
-        ParseCommand parseCommand = new ParseCommand(common, syntaxService, unitService,
-                                                     onSuccess, onError, project, lang);
         parseCommand.parse("test", sourceFile);
     }
 
@@ -110,10 +100,7 @@ public class ParseCommandTest {
     public void testExecuteValid() throws MetaborgException {
         when(parseUnit.valid()).thenReturn(true);
 
-        ParseCommand parseCommand = new ParseCommand(common, syntaxService, unitService,
-                                                     onSuccess, onError, project, lang);
         parseCommand.execute("test");
-
         verify(onSuccess, times(1)).accept(any(StyledText.class));
         verify(onError, never()).accept(any());
     }
@@ -127,10 +114,7 @@ public class ParseCommandTest {
     public void testExecuteInvalid() throws MetaborgException, FileSystemException {
         when(parseUnit.valid()).thenReturn(false);
 
-        ParseCommand parseCommand = new ParseCommand(common, syntaxService, unitService,
-                                                     onSuccess, onError, project, lang);
         parseCommand.execute("test");
-
         verify(onSuccess, never()).accept(any());
         verify(onError, times(1)).accept(any(StyledText.class));
     }

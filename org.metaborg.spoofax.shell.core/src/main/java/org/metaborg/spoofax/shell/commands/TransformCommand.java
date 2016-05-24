@@ -21,11 +21,13 @@ import org.metaborg.core.menu.IMenuItemVisitor;
 import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.menu.Separator;
 import org.metaborg.core.project.IProject;
+import org.metaborg.spoofax.core.menu.MenuService;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
 import org.metaborg.spoofax.shell.core.StyledText;
+import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Maps;
@@ -41,32 +43,39 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
 
     private IContextService contextService;
     private ISpoofaxTransformService transformService;
-    private Map<String, ITransformAction> actions;
-
-    @Inject
     private AnalyzeCommand analyzeCommand;
+//    private ParseCommand parseCommand;
+
+    private Map<String, ITransformAction> actions;
 
     /**
      * Instantiate an {@link EvaluateCommand}.
      * @param common    The {@link IStrategoCommon} service.
      * @param contextService The {@link IContextService}.
+     * @param transformService The {@link ISpoofaxTransformService}.
+     * @param menuService The {@link MenuService} used to retrieve actions.
      * @param onSuccess Called upon success by the created {@link SpoofaxCommand}.
      * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
      * @param project   The project in which this command should operate.
      * @param lang      The language to which this command applies.
      */
     @Inject
+    // CHECKSTYLE.OFF: |
     public TransformCommand(IStrategoCommon common,
                             IContextService contextService,
                             ISpoofaxTransformService transformService,
                             IMenuService menuService,
+                            ICommandFactory commandFactory,
                             @Named("onSuccess") Consumer<StyledText> onSuccess,
                             @Named("onError") Consumer<StyledText> onError,
                             @Assisted IProject project,
                             @Assisted ILanguageImpl lang) {
+    // CHECKSTYLE.ON: |
         super(common, onSuccess, onError, project, lang);
         this.contextService = contextService;
         this.transformService = transformService;
+//        this.parseCommand = commandFactory.createParse(project, lang);
+        this.analyzeCommand = commandFactory.createAnalyze(project, lang);
 
         actions = Maps.newConcurrentMap();
         menuService.menuItems(lang).forEach(e -> e.accept(this));

@@ -59,6 +59,25 @@ public class LanguageCommand extends SpoofaxCommand {
         return "Load a language from a path.";
     }
 
+    /**
+     * Load a {@link ILanguageImpl} from a {@link FileObject}.
+     * @param langloc the {@link FileObject} containing the {@link ILanguageImpl}
+     * @return        the {@link ILanguageImpl}
+     * @throws MetaborgException when loading fails
+     */
+    public ILanguageImpl load(FileObject langloc) throws MetaborgException {
+        Iterable<ILanguageDiscoveryRequest> requests = langDiscoveryService.request(langloc);
+        Iterable<ILanguageComponent> components = langDiscoveryService.discover(requests);
+
+        Set<ILanguageImpl> implementations = LanguageUtils.toImpls(components);
+        lang = LanguageUtils.active(implementations);
+
+        if (lang == null) {
+            throw new MetaborgException("Cannot find a language implementation");
+        }
+        return lang;
+    }
+
     @Override
     public void execute(String... args) {
         try {
@@ -67,15 +86,7 @@ public class LanguageCommand extends SpoofaxCommand {
             }
 
             FileObject resolve = resourceService.resolve("zip:" + args[0] + "!/");
-            Iterable<ILanguageDiscoveryRequest> requests = langDiscoveryService.request(resolve);
-            Iterable<ILanguageComponent> components = langDiscoveryService.discover(requests);
-
-            Set<ILanguageImpl> implementations = LanguageUtils.toImpls(components);
-            lang = LanguageUtils.active(implementations);
-
-            if (lang == null) {
-                throw new MetaborgException("Cannot find a language implementation");
-            }
+            ILanguageImpl lang = load(resolve);
 
             invoker.resetCommands();
             ICommandFactory commandFactory = invoker.getCommandFactory();
