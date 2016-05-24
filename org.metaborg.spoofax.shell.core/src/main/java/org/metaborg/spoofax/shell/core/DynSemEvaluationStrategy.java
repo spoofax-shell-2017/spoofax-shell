@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemContext;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRoot;
@@ -19,27 +20,12 @@ import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.inject.Inject;
-
 /**
  * An {@link IEvaluationStrategy} for DynSem-based languages.
  */
 public class DynSemEvaluationStrategy implements IEvaluationStrategy {
-    private ILanguageImpl langImpl;
     private ClassLoader classLoader;
     private DynSemContext context;
-
-    /**
-     * Creates a new {@link DynSemEvaluationStrategy} for evaluating the given {@link ILanguageImpl
-     * language implementation}.
-     *
-     * @param langImpl
-     *            The language implementation for evaluating with DynSem.
-     */
-    @Inject
-    DynSemEvaluationStrategy(ILanguageImpl langImpl) {
-        this.langImpl = langImpl;
-    }
 
     @Override
     public String name() {
@@ -48,15 +34,31 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
     @SuppressWarnings("deprecation")
     @Override
-    public IStrategoTerm evaluate(IStrategoTerm input) {
+    public IStrategoTerm evaluate(IStrategoTerm input, IContext context) {
+        ILanguageImpl langImpl = context.language();
         if (uninitialized()) {
-            initialize();
+            try {
+                initialize(langImpl);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
-        // Create DynSem node from the AST input
-        ITerm program = IExprTerm.create(input);
-        RuleRoot root =
-            context.getRuleRegistry().lookupRule("default", program.constructor(), program.arity());
+        ITerm program = null;
+        try {
+            // Create DynSem node from the AST input
+            Class<?> generatedTermClass = classLoader.loadClass(null);
+            Method method = generatedTermClass.getMethod("create", (Class<?>) null);
+            program = (ITerm) method.invoke(input);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                 | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        RuleRoot root = this.context.getRuleRegistry().lookupRule("default", program.constructor(),
+                                                                  program.arity());
         root.getCallTarget().call(program);
+        return null;
     }
 
     private boolean uninitialized() {
@@ -65,12 +67,15 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
     /**
      * Initialize the DynSemContext and ClassLoader.
+     *
+     * @param langImpl
+     *            The language implementation.
+     * @throws Exception
+     *             .
      */
-    protected void initialize() throws ClassNotFoundException, MalformedURLException,
-        IllegalAccessException, IllegalArgumentException, NoSuchFieldException, SecurityException,
-        NoSuchMethodException, InvocationTargetException {
-        classLoader = classLoader();
-        Properties dynSemProperties = dynSemProperties();
+    protected void initialize(ILanguageImpl langImpl) throws Exception {
+        classLoader = classLoader(langImpl);
+        Properties dynSemProperties = dynSemProperties(langImpl);
         String targetPackage = dynSemProperties.getProperty("target.package");
         String languageName = dynSemProperties.getProperty("source.langname");
 
@@ -88,7 +93,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     /*
      * Returns the dynsem.properties file parsed as a Properties object.
      */
-    private Properties dynSemProperties() throws Exception {
+    private Properties dynSemProperties(ILanguageImpl langImpl) throws Exception {
         Optional<FileObject> optDynSemPropertiesFile = StreamSupport
             .stream(langImpl.locations().spliterator(), false)
             .filter(file -> file.getName().getBaseName().equals("dynsem.properties")).findFirst();
@@ -105,7 +110,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     /*
      * Initialize the ClassLoader for reflectively loading and instantiating classes.
      */
-    private ClassLoader classLoader() throws MalformedURLException {
+    private ClassLoader classLoader(ILanguageImpl langImpl) throws MalformedURLException {
         ShellFacet shellFacet = langImpl.facet(ShellFacet.class);
         String interpreterJar = shellFacet.getInterpreterPath();
         URL[] url = { new URL(interpreterJar) };
