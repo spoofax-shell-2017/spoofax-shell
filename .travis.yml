@@ -3,3 +3,12 @@ jdk:
   - oraclejdk8
 notifications:
   email: false
+# Skip the install step, which causes a double build. The commands below in
+# `script` automatically download and install their dependencies as well.
+install: true
+# The Eclipse plugin module cannot be build in the same reactor build, so it has
+# to be build separately. This also means that its dependencies will not be
+# automatically resolved, hence the `install` phase for the reactor build.
+script:
+  mvn clean install &&
+  cd org.metaborg.spoofax.shell.eclipse && mvn clean verify
