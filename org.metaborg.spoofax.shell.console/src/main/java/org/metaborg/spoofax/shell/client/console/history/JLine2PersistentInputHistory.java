@@ -33,7 +33,7 @@ public class JLine2PersistentInputHistory extends JLine2InputHistory {
      *            not been loaded from disk.
      */
     @Inject
-    JLine2PersistentInputHistory(@Named("historyPath") String filePath,
+    public JLine2PersistentInputHistory(@Named("historyPath") String filePath,
                                  jline.console.ConsoleReader reader,
                                  jline.console.history.MemoryHistory delegateHist) {
         super(reader, delegateHist);

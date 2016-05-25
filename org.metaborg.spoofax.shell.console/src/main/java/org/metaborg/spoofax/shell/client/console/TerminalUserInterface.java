@@ -15,7 +15,7 @@ import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
-import org.metaborg.spoofax.shell.client.console.history.JLine2InputHistory;
+import org.metaborg.spoofax.shell.client.IInputHistory;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
@@ -31,7 +31,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     private final ArrayList<String> lines;
     private final PrintWriter out;
     private final PrintWriter err;
-    private final JLine2InputHistory hist;
+    private final IInputHistory hist;
     private StyledText prompt;
     private StyledText continuationPrompt;
 
@@ -49,7 +49,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
      */
     @Inject
     public TerminalUserInterface(ConsoleReader reader, @Named("out") OutputStream out,
-                                 @Named("err") OutputStream err, JLine2InputHistory hist)
+                                 @Named("err") OutputStream err, IInputHistory hist)
                                      throws IOException {
         this.reader = reader;
         this.hist = hist;
@@ -113,7 +113,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     }
 
     @Override
-    public JLine2InputHistory history() {
+    public IInputHistory history() {
         return hist;
     }
 
