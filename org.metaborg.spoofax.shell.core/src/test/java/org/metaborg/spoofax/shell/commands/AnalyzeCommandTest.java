@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.apache.commons.vfs2.FileObject;
@@ -22,42 +23,43 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
-import org.metaborg.spoofax.core.stratego.IStrategoCommon;
-import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
+import org.metaborg.spoofax.shell.output.AnalyzeResult;
+import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.google.common.collect.Lists;
 
 /**
  * Test creating and using the {@link AnalyzeCommand}.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AnalyzeCommandTest {
-    @Mock private IStrategoCommon common;
+    // Constructor mocks
     @Mock private IContextService contextService;
     @Mock private ISpoofaxAnalysisService analysisService;
     @Mock private ICommandFactory commandFactory;
+    @Mock private IResultFactory resultFactory;
     @Mock private Consumer<StyledText> onSuccess;
     @Mock private Consumer<StyledText> onError;
     @Mock private IProject project;
-    @Mock private IContext context;
     @Mock private ILanguageImpl lang;
 
+    @Mock private IContext context;
+
     @Mock private ParseCommand parseCommand;
-    @Mock private ISpoofaxParseUnit parseUnit;
-    @Mock private ISpoofaxAnalyzeResult analyzeResult;
-    @Mock private ISpoofaxAnalyzeUnit analyzeUnit;
+    @Mock private ParseResult parseResult;
+    @Mock private ISpoofaxAnalyzeResult spoofaxAnalyzeResult;
+    @Mock private AnalyzeResult analyzeResult;
 
     private FileObject sourceFile;
     private AnalyzeCommand analyzeCommand;
+
 
     /**
      * Set up mocks used in the test case.
@@ -68,19 +70,18 @@ public class AnalyzeCommandTest {
     public void setup() throws FileSystemException, MetaborgException {
         sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
 
-        when(contextService.get(any(), any(), any())).thenReturn(context);
-        when(analysisService.analyze(any(), any())).thenReturn(analyzeResult);
-        when(commandFactory.createParse(any(), any())).thenReturn(parseCommand);
-
         when(project.location()).thenReturn(sourceFile);
-        when(parseCommand.parse(any(), any())).thenReturn(parseUnit);
 
-        when(analyzeResult.result()).thenReturn(analyzeUnit);
-        when(analyzeUnit.messages()).thenReturn(Lists.<IMessage>newArrayList());
+        when(commandFactory.createParse(any(), any())).thenReturn(parseCommand);
+        when(parseCommand.parse(any())).thenReturn(parseResult);
+        when(parseResult.context()).thenReturn(Optional.of(context));
 
-        analyzeCommand = new AnalyzeCommand(common, contextService, analysisService,
-                                            commandFactory, onSuccess, onError, project, lang);
+        when(analysisService.analyze(any(), any())).thenReturn(spoofaxAnalyzeResult);
+        when(resultFactory.createAnalyzeResult(any())).thenReturn(analyzeResult);
 
+        analyzeCommand = new AnalyzeCommand(contextService, analysisService,
+                                            commandFactory, resultFactory,
+                                            onSuccess, onError, project, lang);
     }
 
     /**
@@ -93,15 +94,15 @@ public class AnalyzeCommandTest {
 
     /**
      * Test parsing source that results in a valid {@link ISpoofaxParseUnit}.
-     * @throws MetaborgException when the source contains invalid syntax
+     * @throws MetaborgException whParseResulten the source contains invalid syntax
      * @throws IOException when reading from file fails
      */
     @Test
-    public void testParseValid() throws MetaborgException {
-        when(analyzeUnit.valid()).thenReturn(true);
+    public void testAnalyzeValid() throws MetaborgException {
+        when(analyzeResult.valid()).thenReturn(true);
 
-        ISpoofaxAnalyzeUnit actual = analyzeCommand.analyze("test", sourceFile);
-        assertEquals(actual, analyzeUnit);
+        AnalyzeResult actual = analyzeCommand.analyze(parseResult);
+        assertEquals(actual, analyzeResult);
     }
 
     /**
@@ -109,10 +110,10 @@ public class AnalyzeCommandTest {
      * @throws MetaborgException when the source contains invalid syntax
      */
     @Test(expected = MetaborgException.class)
-    public void testParseInvalid() throws MetaborgException {
-        when(analyzeUnit.valid()).thenReturn(false);
+    public void testAnalyzeInvalid() throws MetaborgException {
+        when(analyzeResult.valid()).thenReturn(false);
 
-        analyzeCommand.analyze("test", sourceFile);
+        analyzeCommand.analyze(parseResult);
     }
     /**
      * Test the {@link ParseCommand} for source resulting in a valid {@link ISpoofaxParseUnit}.
@@ -120,7 +121,7 @@ public class AnalyzeCommandTest {
      */
     @Test
     public void testExecuteValid() throws MetaborgException {
-        when(analyzeUnit.valid()).thenReturn(true);
+        when(analyzeResult.valid()).thenReturn(true);
 
         analyzeCommand.execute("test");
         verify(onSuccess, times(1)).accept(any(StyledText.class));
@@ -134,7 +135,7 @@ public class AnalyzeCommandTest {
      */
     @Test
     public void testExecuteInvalid() throws MetaborgException, FileSystemException {
-        when(analyzeUnit.valid()).thenReturn(false);
+        when(analyzeResult.valid()).thenReturn(false);
 
         analyzeCommand.execute("test");
         verify(onSuccess, never()).accept(any());

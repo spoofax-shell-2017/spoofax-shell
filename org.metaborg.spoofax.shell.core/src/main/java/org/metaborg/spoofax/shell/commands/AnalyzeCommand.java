@@ -31,7 +31,7 @@ public class AnalyzeCommand extends SpoofaxCommand {
 
     private IContextService contextService;
     private ISpoofaxAnalysisService analysisService;
-    private IResultFactory unitFactory;
+    private IResultFactory resultFactory;
     private ParseCommand parseCommand;
 
     /**
@@ -49,7 +49,7 @@ public class AnalyzeCommand extends SpoofaxCommand {
     public AnalyzeCommand(IContextService contextService,
                           ISpoofaxAnalysisService analysisService,
                           ICommandFactory commandFactory,
-                          IResultFactory unitFactory,
+                          IResultFactory resultFactory,
                           @Named("onSuccess") Consumer<StyledText> onSuccess,
                           @Named("onError") Consumer<StyledText> onError,
                           @Assisted IProject project,
@@ -58,7 +58,7 @@ public class AnalyzeCommand extends SpoofaxCommand {
         super(onSuccess, onError, project, lang);
         this.contextService = contextService;
         this.analysisService = analysisService;
-        this.unitFactory = unitFactory;
+        this.resultFactory = resultFactory;
         this.parseCommand = commandFactory.createParse(project, lang);
     }
 
@@ -81,7 +81,7 @@ public class AnalyzeCommand extends SpoofaxCommand {
             analyze = analysisService.analyze(unit.unit(), context).result();
         }
 
-        AnalyzeResult result = unitFactory.createAnalyzeResult(analyze);
+        AnalyzeResult result = resultFactory.createAnalyzeResult(analyze);
 
         if (!result.valid()) {
             throw new MetaborgException("Invalid analysis result!");
@@ -92,7 +92,7 @@ public class AnalyzeCommand extends SpoofaxCommand {
     @Override
     public void execute(String... args) {
         try {
-            InputResult input = unitFactory.createInputResult(lang, write(args[0]), args[0]);
+            InputResult input = resultFactory.createInputResult(lang, write(args[0]), args[0]);
             ParseResult parse = parseCommand.parse(input);
             AnalyzeResult analyze = analyze(parse);
 

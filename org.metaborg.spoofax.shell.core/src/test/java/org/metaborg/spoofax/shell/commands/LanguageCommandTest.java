@@ -26,7 +26,6 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.analysis.AnalysisFacet;
-import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -42,29 +41,21 @@ import com.google.common.collect.Lists;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class LanguageCommandTest {
+    // Constructor mocks
+    @Mock private ILanguageDiscoveryService langDiscoveryService;
+    @Mock private IResourceService resourceService;
+    @Mock private ICommandInvoker invoker;
+    @Mock private Consumer<StyledText> onSuccess;
+    @Mock private Consumer<StyledText> onError;
+    @Mock private IProject project;
 
-    @Mock
-    private IStrategoCommon common;
-    @Mock
-    private ILanguageDiscoveryService langDiscoveryService;
-    @Mock
-    private IResourceService resourceService;
-    @Mock
-    private ICommandInvoker invoker;
-    @Mock
-    private ICommandFactory commandFactory;
-    @Mock
-    private Consumer<StyledText> onSuccess;
-    @Mock
-    private Consumer<StyledText> onError;
-    @Mock
-    private IProject project;
-    @Mock
-    private ILanguageComponent langcomp;
-    @Mock
-    private ILanguageImpl lang;
+    @Mock private ICommandFactory commandFactory;
+
+    @Mock private ILanguageComponent langcomp;
+    @Mock private ILanguageImpl lang;
 
     private FileObject langloc;
+    private LanguageCommand langCommand;
 
     /**
      * Set up mocks used in the test case.
@@ -77,6 +68,9 @@ public class LanguageCommandTest {
         when(invoker.getCommandFactory()).thenReturn(commandFactory);
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
         .thenReturn(Lists.newArrayList(lang));
+
+        langCommand = new LanguageCommand(langDiscoveryService, resourceService, invoker,
+                                          onSuccess, onError, project);
     }
 
     /**
@@ -84,9 +78,6 @@ public class LanguageCommandTest {
      */
     @Test
     public void testDescription() {
-        LanguageCommand langCommand = new LanguageCommand(common,
-                                                          langDiscoveryService, resourceService,
-                                                          invoker, onSuccess, onError, project);
         assertThat(langCommand.description(), isA(String.class));
     }
 
@@ -100,9 +91,6 @@ public class LanguageCommandTest {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList());
 
-        LanguageCommand langCommand = new LanguageCommand(common,
-                                                          langDiscoveryService, resourceService,
-                                                          invoker, onSuccess, onError, project);
         langCommand.load(langloc);
     }
 
@@ -116,11 +104,7 @@ public class LanguageCommandTest {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
-        LanguageCommand langCommand = new LanguageCommand(common,
-                                                          langDiscoveryService, resourceService,
-                                                          invoker, onSuccess, onError, project);
         ILanguageImpl actual = langCommand.load(langloc);
-
         verify(langDiscoveryService, times(1)).request(langloc);
         verify(langDiscoveryService, times(1)).discover(langrequest);
         assertEquals(lang, actual);
@@ -135,9 +119,6 @@ public class LanguageCommandTest {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
-        LanguageCommand langCommand = new LanguageCommand(common,
-                                                          langDiscoveryService, resourceService,
-                                                          invoker, onSuccess, onError, project);
         langCommand.execute();
         verify(onError, times(1)).accept(any());
 
@@ -154,9 +135,6 @@ public class LanguageCommandTest {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
-        LanguageCommand langCommand = new LanguageCommand(common,
-                                                          langDiscoveryService, resourceService,
-                                                          invoker, onSuccess, onError, project);
         langCommand.execute("res:paplj.full");
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());
@@ -173,9 +151,6 @@ public class LanguageCommandTest {
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
         when(lang.hasFacet(AnalysisFacet.class)).thenReturn(true);
 
-        LanguageCommand langCommand = new LanguageCommand(common,
-                                                          langDiscoveryService, resourceService,
-                                                          invoker, onSuccess, onError, project);
         langCommand.execute("res:paplj.full");
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());

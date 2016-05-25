@@ -21,10 +21,11 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.syntax.ParseException;
-import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.InputResult;
+import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -34,14 +35,18 @@ import org.mockito.runners.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ParseCommandTest {
-    @Mock private IStrategoCommon common;
+    // Constructor mocks
     @Mock private ISpoofaxSyntaxService syntaxService;
-    @Mock private IResultFactory unitFactory;
+    @Mock private IResultFactory resultFactory;
     @Mock private Consumer<StyledText> onSuccess;
     @Mock private Consumer<StyledText> onError;
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
+
     @Mock private ISpoofaxParseUnit parseUnit;
+
+    @Mock private InputResult inputResult;
+    @Mock private ParseResult parseResult;
 
     private FileObject sourceFile;
     private ParseCommand parseCommand;
@@ -54,11 +59,14 @@ public class ParseCommandTest {
     @Before
     public void setup() throws FileSystemException, ParseException {
         sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
-        parseCommand = new ParseCommand(syntaxService, unitFactory,
-                                        onSuccess, onError, project, lang);
 
-        when(syntaxService.parse(any())).thenReturn(parseUnit);
         when(project.location()).thenReturn(sourceFile);
+
+        when(resultFactory.createInputResult(any(), any(), any())).thenReturn(inputResult);
+        when(resultFactory.createParseResult(any())).thenReturn(parseResult);
+
+        parseCommand = new ParseCommand(syntaxService, resultFactory,
+                                        onSuccess, onError, project, lang);
     }
 
     /**
@@ -75,10 +83,10 @@ public class ParseCommandTest {
      */
     @Test
     public void testParseValid() throws MetaborgException {
-        when(parseUnit.valid()).thenReturn(true);
+        when(parseResult.valid()).thenReturn(true);
 
-        ISpoofaxParseUnit actual = parseCommand.parse();
-        assertEquals(actual, parseUnit);
+        ParseResult actual = parseCommand.parse(inputResult);
+        assertEquals(actual, parseResult);
     }
 
     /**
@@ -87,9 +95,9 @@ public class ParseCommandTest {
      */
     @Test(expected = MetaborgException.class)
     public void testParseInvalid() throws MetaborgException {
-        when(parseUnit.valid()).thenReturn(false);
+        when(parseResult.valid()).thenReturn(false);
 
-        parseCommand.parse("test", sourceFile);
+        parseCommand.parse(inputResult);
     }
 
     /**
@@ -98,7 +106,7 @@ public class ParseCommandTest {
      */
     @Test
     public void testExecuteValid() throws MetaborgException {
-        when(parseUnit.valid()).thenReturn(true);
+        when(parseResult.valid()).thenReturn(true);
 
         parseCommand.execute("test");
         verify(onSuccess, times(1)).accept(any(StyledText.class));
@@ -112,7 +120,7 @@ public class ParseCommandTest {
      */
     @Test
     public void testExecuteInvalid() throws MetaborgException, FileSystemException {
-        when(parseUnit.valid()).thenReturn(false);
+        when(parseResult.valid()).thenReturn(false);
 
         parseCommand.execute("test");
         verify(onSuccess, never()).accept(any());

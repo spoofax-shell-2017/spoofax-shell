@@ -10,20 +10,22 @@ import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
+import org.metaborg.spoofax.shell.commands.SpoofaxCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * 
+ * Represents a {@link TransformResult} as returned by the {@link SpoofaxCommand}.
+ * Wraps a {@link ISpoofaxTransformUnit}.
  */
 public class TransformResult extends AbstractResult<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> {
 
     /**
-     *
-     * @param common
-     * @param unit
+     * Create a {@link TransformResult}.
+     * @param common  the {@link IStrategoCommon} service
+     * @param unit    the wrapped {@link ISpoofaxTransformUnit}
      */
     @Inject
     public TransformResult(IStrategoCommon common,

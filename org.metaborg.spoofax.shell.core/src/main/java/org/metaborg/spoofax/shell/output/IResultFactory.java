@@ -8,6 +8,9 @@ import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
 
+/**
+ * Factory that creates {@link ISpoofaxResult}.
+ */
 public interface IResultFactory {
 
     /**

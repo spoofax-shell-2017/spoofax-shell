@@ -23,9 +23,9 @@ public class AnalyzeResult
 extends AbstractResult<ISpoofaxAnalyzeUnit> {
 
     /**
-     *
-     * @param common
-     * @param unit
+     * Create a {@link AnalyzeResult}.
+     * @param common  the {@link IStrategoCommon} service
+     * @param unit    the wrapped {@link ISpoofaxAnalyzeUnit}
      */
     @Inject
     public AnalyzeResult(IStrategoCommon common,

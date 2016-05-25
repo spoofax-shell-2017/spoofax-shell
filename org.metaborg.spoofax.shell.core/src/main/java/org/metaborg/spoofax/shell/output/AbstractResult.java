@@ -18,7 +18,7 @@ public abstract class AbstractResult <T extends IUnit> implements ISpoofaxResult
     /**
      * Constructor for an {@link AbstractResult}.
      * @param common  the {@link IStrategoCommon} service
-     * @param unit    the wrapped unit
+     * @param unit    the wrapped {@link IUnit}
      */
     public AbstractResult(IStrategoCommon common, T unit) {
         this.common = common;
