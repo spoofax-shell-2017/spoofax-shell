@@ -3,10 +3,10 @@ package org.metaborg.spoofax.shell.commands;
 import java.awt.Color;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -46,31 +46,33 @@ public class HelpCommand implements IReplCommand {
         return "You just used it.";
     }
 
+    private String formathelp(Map<String, IReplCommand> commands) {
+        int longestCommand = commands.keySet().stream().mapToInt(a -> a.length()).max().orElse(0);
+        String format = "%-" + longestCommand + "s %s";
+
+        return commands.keySet().stream().flatMap(name -> {
+            String[] sname = name.split("\\R");
+            String[] sdesc = commands.get(name).description().split("\\R");
+
+            return IntStream.range(0, Math.max(sname.length, sdesc.length))
+                    .mapToObj(idx -> String.format(format,
+                                                   idx < sname.length ? sname[idx] : "",
+                                                   idx < sdesc.length ? sdesc[idx] : ""));
+        }).collect(Collectors.joining("\n"));
+    }
+
     @Override
     public void execute(String... args) {
         try {
-            StringBuilder output = new StringBuilder();
-            Map<String, IReplCommand> commands = invoker.getCommands();
-
-            Set<String> commandNames;
+            Map<String, IReplCommand> commands;
             if (args.length > 0) {
-                commandNames = Collections.singleton(args[0]);
-                invoker.commandFromName(args[0]);
+                IReplCommand command = invoker.commandFromName(args[0]);
+                commands = Collections.singletonMap(args[0], command);
             } else {
-                commandNames = commands.keySet();
+                commands = invoker.getCommands();
             }
 
-            int longestCommand = commandNames.stream()
-                .max((a, b) -> Integer.compare(a.length(), b.length())).orElse("").length();
-
-            // @formatter:off
-            commandNames.forEach(name ->
-                output.append(invoker.commandPrefix()).append(name)
-                      .append(StringUtils.repeat(' ', longestCommand - name.length() + 1))
-                      .append(commands.get(name).description()).append('\n'));
-            // @formatter:on
-
-            successHook.accept(new StyledText(output.toString()));
+            successHook.accept(new StyledText(formathelp(commands)));
         } catch (CommandNotFoundException e) {
             errorHook.accept(new StyledText(Color.RED, e.getMessage()));
         }
