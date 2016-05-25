@@ -1,7 +1,5 @@
 package org.metaborg.spoofax.shell.client.console;
 
-import static org.metaborg.spoofax.shell.client.console.AnsiColors.findClosest;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,6 +15,7 @@ import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
+import org.metaborg.spoofax.shell.client.console.history.JLine2InputHistory;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
@@ -136,7 +135,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         text.getSource().stream()
         .forEach(e -> {
             if (e.style() != null && e.style().color() != null) {
-                ansi.fg(findClosest(e.style().color())).a(e.fragment()).reset();
+                    ansi.fg(AnsiColors.findClosest(e.style().color())).a(e.fragment()).reset();
             } else {
                 ansi.a(e.fragment());
             }

@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client.console.history;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -12,6 +12,8 @@ import java.io.IOException;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
+import org.metaborg.spoofax.shell.client.console.history.JLine2InputHistory;
+import org.metaborg.spoofax.shell.client.console.history.JLine2PersistentInputHistory;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;

@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client.console.history;
 
 import java.util.List;
 import java.util.stream.Collectors;

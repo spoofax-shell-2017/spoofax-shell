@@ -8,6 +8,8 @@ import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.Repl;
 import org.metaborg.spoofax.shell.client.ReplModule;
+import org.metaborg.spoofax.shell.client.console.history.JLine2InputHistory;
+import org.metaborg.spoofax.shell.client.console.history.JLine2PersistentInputHistory;
 
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
