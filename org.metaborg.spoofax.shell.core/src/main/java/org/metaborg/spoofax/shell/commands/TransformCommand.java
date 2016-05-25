@@ -23,6 +23,7 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.menu.MenuService;
 import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
@@ -49,9 +50,39 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
 
     private AnalyzeCommand analyzeCommand;
     private ParseCommand parseCommand;
+    private Strategy strategy;
 
     private Map<String, ITransformAction> actions;
 
+    /**
+     */
+    private interface Strategy {
+        TransformResult transform(IContext context, ParseResult unit, ITransformGoal goal)
+                throws MetaborgException;
+    }
+
+    /**
+     */
+    private class Parsed implements Strategy {
+        public TransformResult transform(IContext context, ParseResult unit, ITransformGoal goal)
+                throws MetaborgException {
+            Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> transform =
+                    transformService.transform(unit.unit(), context, goal);
+            return unitFactory.createTransformResult(transform.iterator().next());
+        }
+    }
+
+    /**
+     */
+    private class Analyzed implements Strategy {
+        public TransformResult transform(IContext context, ParseResult unit, ITransformGoal goal)
+                throws MetaborgException {
+            AnalyzeResult analyze = analyzeCommand.analyze(unit);
+            Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> transform =
+                    transformService.transform(analyze.unit(), context, goal);
+            return unitFactory.createTransformResult(transform.iterator().next());
+        }
+    }
 
     /**
      * Instantiate an {@link EvaluateCommand}.
@@ -73,12 +104,14 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
                             @Named("onSuccess") Consumer<StyledText> onSuccess,
                             @Named("onError") Consumer<StyledText> onError,
                             @Assisted IProject project,
-                            @Assisted ILanguageImpl lang) {
+                            @Assisted ILanguageImpl lang,
+                            @Assisted boolean analyzed) {
     // CHECKSTYLE.ON: |
         super(onSuccess, onError, project, lang);
         this.contextService = contextService;
         this.transformService = transformService;
         this.unitFactory = unitFactory;
+        this.strategy = analyzed ? new Analyzed() : new Parsed();
 
         this.parseCommand = commandFactory.createParse(project, lang);
         this.analyzeCommand = commandFactory.createAnalyze(project, lang);
@@ -93,13 +126,10 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
                      .collect(Collectors.joining("\n"));
     }
 
-    private TransformResult transform(AnalyzeResult unit, ITransformGoal goal)
+    private TransformResult transform(Strategy strat, ParseResult unit, ITransformGoal goal)
             throws MetaborgException {
         IContext context = unit.context().orElse(contextService.get(unit.source(), project, lang));
-
-        Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> transform =
-                transformService.transform(unit.unit(), context, goal);
-        TransformResult result = unitFactory.createTransformResult(transform.iterator().next());
+        TransformResult result = strat.transform(context, unit, goal);
 
         if (!result.valid()) {
             throw new MetaborgException("Invalid transform result!");
@@ -115,8 +145,7 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
 
             InputResult input = unitFactory.createInputResult(lang, write(split[1]), split[1]);
             ParseResult parse = parseCommand.parse(input);
-            AnalyzeResult analyze = analyzeCommand.analyze(parse);
-            TransformResult transform = transform(analyze, goal);
+            TransformResult transform = transform(strategy, parse, goal);
 
             this.onSuccess.accept(transform.styled());
         } catch (IOException | MetaborgException e) {

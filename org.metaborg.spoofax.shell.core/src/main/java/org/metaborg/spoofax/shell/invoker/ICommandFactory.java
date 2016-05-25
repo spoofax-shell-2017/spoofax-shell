@@ -30,9 +30,10 @@ public interface ICommandFactory {
 
     /**
      * Factory method for creating a transform command.
-     * @param project The associated {@link IProject}
-     * @param lang    The associated {@link ILanguageImpl}
+     * @param project   The associated {@link IProject}
+     * @param lang      The associated {@link ILanguageImpl}
+     * @param analyzed  Indicates whether to analyze or not
      * @return        an {@link TransformCommand}
      */
-    TransformCommand createTransform(IProject project, ILanguageImpl lang);
+    TransformCommand createTransform(IProject project, ILanguageImpl lang, boolean analyzed);
 }

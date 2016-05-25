@@ -48,6 +48,6 @@ public interface IResultFactory {
      * @param unit  the wrapped {@link ISpoofaxTransformUnit}
      * @return a {@link TransformResult}
      */
-    TransformResult createTransformResult(ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit> unit);
+    TransformResult createTransformResult(ISpoofaxTransformUnit<?> unit);
 
 }

@@ -12,22 +12,21 @@ import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.shell.commands.SpoofaxCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * Represents an {@link AnalyzeResult} as returned by the {@link SpoofaxCommand}.
  * Wraps a {@link ISpoofaxAnalyzeUnit}.
  */
-public class AnalyzeResult
-extends AbstractResult<ISpoofaxAnalyzeUnit> {
+public class AnalyzeResult extends AbstractResult<ISpoofaxAnalyzeUnit> {
 
     /**
      * Create a {@link AnalyzeResult}.
      * @param common  the {@link IStrategoCommon} service
      * @param unit    the wrapped {@link ISpoofaxAnalyzeUnit}
      */
-    @Inject
+    @AssistedInject
     public AnalyzeResult(IStrategoCommon common,
                          @Assisted ISpoofaxAnalyzeUnit unit) {
         super(common, unit);

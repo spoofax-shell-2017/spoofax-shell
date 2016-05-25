@@ -84,16 +84,16 @@ public class LanguageCommand extends SpoofaxCommand {
 
             FileObject resolve = resourceService.resolve("zip:" + args[0] + "!/");
             ILanguageImpl lang = load(resolve);
+            boolean analyze = lang.hasFacet(AnalyzerFacet.class);
 
             invoker.resetCommands();
             ICommandFactory commandFactory = invoker.getCommandFactory();
             invoker.addCommand("parse", commandFactory.createParse(project, lang));
-            if (lang.hasFacet(AnalyzerFacet.class)) {
+            invoker.addCommand("transform", commandFactory.createTransform(project, lang, analyze));
+
+            if (analyze) {
                 invoker.addCommand("analyze", commandFactory.createAnalyze(project, lang));
-                invoker.addCommand("transform", commandFactory.createTransform(project, lang));
-            } // else {
-                // Add transform command hooked to parse here.
-            // }
+            }
 
             onSuccess.accept(new StyledText("Loaded language " + lang));
         } catch (MetaborgException e) {
