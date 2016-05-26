@@ -60,7 +60,7 @@ public class EvaluateCommand extends SpoofaxCommand {
                                                 IEvaluationStrategy evalStrategy)
             throws MetaborgException {
             AnalyzeResult analyzed = analyzeCommand.analyze(parsed);
-            IStrategoTerm ast = evalStrategy.evaluate(analyzed.ast().get(), context);
+            IStrategoTerm ast = evalStrategy.evaluate(analyzed, context);
             // TODO: Normally this is done in the unit service, but since this is my own Unit this
             // is not possible.
             EvaluateUnit<ISpoofaxAnalyzeUnit> unit =
@@ -78,7 +78,7 @@ public class EvaluateCommand extends SpoofaxCommand {
         public EvaluateResult performEvaluation(IContext context, ParseResult parsed,
                                                 IEvaluationStrategy evalStrategy)
             throws MetaborgException {
-            IStrategoTerm ast = evalStrategy.evaluate(parsed.ast().get(), context);
+            IStrategoTerm ast = evalStrategy.evaluate(parsed, context);
             EvaluateUnit<ISpoofaxParseUnit> unit =
                 new EvaluateUnit<ISpoofaxParseUnit>(((UnitWrapper) parsed.unit()).unit, ast,
                                                     context, parsed.unit());
