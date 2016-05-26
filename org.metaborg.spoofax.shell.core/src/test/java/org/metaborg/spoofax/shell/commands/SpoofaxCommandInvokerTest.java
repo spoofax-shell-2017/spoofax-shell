@@ -5,9 +5,6 @@ import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommandInvoker;
 
 import com.google.inject.Guice;
 

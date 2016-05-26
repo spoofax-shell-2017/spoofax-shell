@@ -5,7 +5,12 @@ import java.util.function.Consumer;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.context.IContext;
+import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.FacetContribution;
+import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.project.IProject;
+import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.stratego.IStrategoRuntimeService;
 import org.metaborg.spoofax.core.stratego.StrategoRuntimeFacet;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
@@ -15,6 +20,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.HybridInterpreter;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 
 /**
@@ -24,19 +30,27 @@ public class EvaluateCommand extends SpoofaxCommand {
     private static final String DESCRIPTION = "Evaluate an expression";
 
     @Inject
+    private IContextService contextService;
+    @Inject
     private IStrategoRuntimeService runtimeService;
     @Inject
     private AnalyzeCommand analyzeCommand;
 
     /**
      * Instantiate an {@link EvaluateCommand}.
+     * @param common    The {@link IStrategoCommon} service.
      * @param onSuccess Called upon success by the created {@link SpoofaxCommand}.
      * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
+     * @param project   The project in which this command should operate.
+     * @param lang      The language to which this command applies.
      */
     @Inject
-    public EvaluateCommand(@Named("onSuccess") Consumer<StyledText> onSuccess,
-                           @Named("onError") Consumer<StyledText> onError) {
-        super(onSuccess, onError);
+    public EvaluateCommand(IStrategoCommon common,
+                           @Named("onSuccess") Consumer<StyledText> onSuccess,
+                           @Named("onError") Consumer<StyledText> onError,
+                           @Assisted IProject project,
+                           @Assisted ILanguageImpl lang) {
+        super(common, onSuccess, onError, project, lang);
     }
 
     @Override
@@ -87,21 +101,21 @@ public class EvaluateCommand extends SpoofaxCommand {
      *             When interpreting fails.
      */
     public IStrategoTerm interp(ISpoofaxAnalyzeUnit analyzeUnit) throws MetaborgException {
-        FacetContribution<StrategoRuntimeFacet> runContrib = this.context.language()
-                .facetContribution(StrategoRuntimeFacet.class);
+        IContext context = contextService.get(analyzeUnit.source(), project, lang);
+        FacetContribution<StrategoRuntimeFacet> runContrib =
+                lang.facetContribution(StrategoRuntimeFacet.class);
         if (runContrib == null) {
             throw new MetaborgException("Cannot retrieve the runtime facet");
         }
         HybridInterpreter interpreter =
-            runtimeService.runtime(runContrib.contributor, this.context);
+            runtimeService.runtime(runContrib.contributor, context);
         return common.invoke(interpreter, analyzeUnit.ast(), "runstrat");
     }
 
     @Override
     public void execute(String... args) {
         try {
-            FileObject tempFile = this.context.location().resolveFile("tmp.src");
-            IStrategoTerm term = this.interp(args[0], tempFile);
+            IStrategoTerm term = this.interp(args[0], write(args[0]));
 
             this.onSuccess.accept(new StyledText(common.toString(term)));
         } catch (IOException | MetaborgException e) {

@@ -13,29 +13,6 @@ public class CommandTestModule extends AbstractModule {
     protected void configure() {
         MapBinder<String, IReplCommand> commandBinder =
             MapBinder.newMapBinder(binder(), String.class, IReplCommand.class);
-        commandBinder.addBinding("existing-command").toInstance(new IReplCommand() {
-
-            @Override
-            public void execute(String... args) {
-            }
-
-            @Override
-            public String description() {
-                return "dummy";
-            }
-        });
-        bind(IReplCommand.class).annotatedWith(Names.named("EvalCommand"))
-            .toInstance(new IReplCommand() {
-
-            @Override
-            public void execute(String... args) {
-            }
-
-            @Override
-            public String description() {
-                return "dummy";
-            }
-        });
     }
 
 }

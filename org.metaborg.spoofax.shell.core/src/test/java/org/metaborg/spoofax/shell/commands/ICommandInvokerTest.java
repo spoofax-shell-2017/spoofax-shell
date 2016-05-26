@@ -2,23 +2,14 @@ package org.metaborg.spoofax.shell.commands;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Map;
+
 import org.junit.Test;
 
 /**
  * Tests default method implementations of {@link ICommandInvoker}.
  */
 public class ICommandInvokerTest implements ICommandInvoker {
-
-    /**
-     * Test whether {@link #ensureNoPrefix(String)} correctly strips off the prefix, and keeps it
-     * otherwise when there is none.
-     */
-    @Test
-    public void testEnsureNoPrefix() {
-        assertEquals("Returns argument without prefix.", "expected",
-                     ensureNoPrefix(commandPrefix() + "expected"));
-        assertEquals("Returns argument as given.", "expected", ensureNoPrefix("expected"));
-    }
 
     /**
      * Test whether the command gets executed without a prefix. See {@link #commandFromName(String)}
@@ -74,22 +65,20 @@ public class ICommandInvokerTest implements ICommandInvoker {
         return "PREFIX/";
     }
 
-    /**
-     * Called from {@link #testExecutesEvaluationCommand()}.
-     */
-    public IReplCommand evaluationCommand() {
-        return new IReplCommand() {
+    @Override
+    public void addCommand(String name, IReplCommand command) {
+        // TODO Auto-generated method stub
+    }
 
-            @Override
-            public void execute(String... args) {
-                assertEquals("test", args[0]);
-            }
+    @Override
+    public Map<String, IReplCommand> getCommands() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-            @Override
-            public String description() {
-                return "dummy";
-            }
-        };
+    @Override
+    public void resetCommands() {
+        // TODO Auto-generated method stub
     }
 
 }

@@ -1,6 +1,7 @@
 package org.metaborg.spoofax.shell.commands;
 
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * An interface for binding and executing {@link IReplCommand}s.
@@ -25,22 +26,6 @@ public interface ICommandInvoker {
     String commandPrefix();
 
     /**
-     * Ensure that the given parameter is returned without the {@link #commandPrefix()}.
-     *
-     * @param optionallyPrefixedCommandName
-     *            An optionally prefixed command name.
-     * @return The command name without prefix if found. Otherwise just the same String as the
-     *         argument.
-     */
-    default String ensureNoPrefix(String optionallyPrefixedCommandName) {
-        if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {
-            return optionallyPrefixedCommandName.substring(commandPrefix().length());
-        }
-        // No prefix found, so just return the argument.
-        return optionallyPrefixedCommandName;
-    }
-
-    /**
      * Execute the {@link IReplCommand} which is bound to the given command name, minus the prefix.
      *
      * @param optionallyPrefixedCommandName
@@ -60,4 +45,22 @@ public interface ICommandInvoker {
             commandFromName("eval").execute(optionallyPrefixedCommandName);
         }
     }
+
+    /**
+     * Add a command to the list of available commands.
+     * @param name    The name of the {@link IReplCommand}
+     * @param command The {@link IReplCommand}
+     */
+    void addCommand(String name, IReplCommand command);
+
+    /**
+     * Get a list of all available commands.
+     * @return a {@link Map} from command name to {@link IReplCommand}
+     */
+    Map<String, IReplCommand> getCommands();
+
+    /**
+     * Reset the list of available commands to its initial default list.
+     */
+    void resetCommands();
 }

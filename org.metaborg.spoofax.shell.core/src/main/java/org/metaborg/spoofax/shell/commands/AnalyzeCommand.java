@@ -5,14 +5,20 @@ import java.util.function.Consumer;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.context.IContext;
+import org.metaborg.core.context.IContextService;
+import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
+import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.core.StyledText;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 
 /**
@@ -22,19 +28,27 @@ public class AnalyzeCommand extends SpoofaxCommand {
     private static final String DESCRIPTION = "Analyze an expression.";
 
     @Inject
+    private IContextService contextService;
+    @Inject
     private ISpoofaxAnalysisService analysisService;
     @Inject
     private ParseCommand parseCommand;
 
     /**
      * Instantiate an {@link AnalyzeCommand}.
+     * @param common    The {@link IStrategoCommon} service.
      * @param onSuccess Called upon success by the created {@link SpoofaxCommand}.
      * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
+     * @param project   The project in which this command should operate.
+     * @param lang      The language to which this command applies.
      */
     @Inject
-    public AnalyzeCommand(@Named("onSuccess") Consumer<StyledText> onSuccess,
-                          @Named("onError") Consumer<StyledText> onError) {
-        super(onSuccess, onError);
+    public AnalyzeCommand(IStrategoCommon common,
+                          @Named("onSuccess") Consumer<StyledText> onSuccess,
+                          @Named("onError") Consumer<StyledText> onError,
+                          @Assisted IProject project,
+                          @Assisted ILanguageImpl lang) {
+        super(common, onSuccess, onError, project, lang);
     }
 
     @Override
@@ -72,7 +86,8 @@ public class AnalyzeCommand extends SpoofaxCommand {
      *             When analyzing fails.
      */
     public ISpoofaxAnalyzeUnit analyze(ISpoofaxParseUnit parseUnit) throws MetaborgException {
-        ISpoofaxAnalyzeResult analyzeResult = analysisService.analyze(parseUnit, this.context);
+        IContext context = contextService.get(parseUnit.source(), project, lang);
+        ISpoofaxAnalyzeResult analyzeResult = analysisService.analyze(parseUnit, context);
         ISpoofaxAnalyzeUnit analyzeUnit = analyzeResult.result();
 
         if (!analyzeUnit.valid()) {
@@ -86,8 +101,7 @@ public class AnalyzeCommand extends SpoofaxCommand {
     @Override
     public void execute(String... args) {
         try {
-            FileObject tempFile = this.context.location().resolveFile("tmp.src");
-            IStrategoTerm term = this.analyze(args[0], tempFile).ast();
+            IStrategoTerm term = this.analyze(args[0], write(args[0])).ast();
 
             this.onSuccess.accept(new StyledText(common.toString(term)));
         } catch (IOException | MetaborgException e) {
