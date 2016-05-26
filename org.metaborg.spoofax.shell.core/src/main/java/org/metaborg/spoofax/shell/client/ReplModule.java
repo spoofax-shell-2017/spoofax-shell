@@ -15,12 +15,13 @@ import org.metaborg.spoofax.shell.commands.ExitCommand;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
-import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.hooks.OnEvalErrorHook;
 import org.metaborg.spoofax.shell.hooks.OnEvalSuccessHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
+import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.common.io.Files;
 import com.google.inject.Provides;
@@ -70,6 +71,7 @@ public class ReplModule extends SpoofaxModule {
         // @formatter:on
 
         install(new FactoryModuleBuilder().build(ICommandFactory.class));
+        install(new FactoryModuleBuilder().build(IResultFactory.class));
     }
 
     /**

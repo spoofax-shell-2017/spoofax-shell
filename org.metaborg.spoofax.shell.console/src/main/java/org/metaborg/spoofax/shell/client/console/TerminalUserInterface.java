@@ -17,7 +17,7 @@ import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
-import org.metaborg.spoofax.shell.core.StyledText;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

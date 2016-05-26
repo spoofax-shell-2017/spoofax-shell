@@ -13,10 +13,9 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
-import org.metaborg.spoofax.core.stratego.IStrategoCommon;
-import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -32,23 +31,21 @@ public class LanguageCommand extends SpoofaxCommand {
 
     /**
      * Instantiate a {@link LanguageCommand}. Loads all commands applicable to a lanugage.
-     * @param common    The {@link IStrategoCommon} service.
-     * @param langDiscoveryService the {@link ILanguageDiscoveryService}
-     * @param resourceService      the {@link IResourceService}
-     * @param invoker   the {@link ICommandInvoker}
-     * @param onSuccess called when a language was loaded successfully
-     * @param onError   called when loading a language has failed
-     * @param project   the associated {@link IProject}
+     * @param langDiscoveryService  the {@link ILanguageDiscoveryService}
+     * @param resourceService       the {@link IResourceService}
+     * @param invoker               the {@link ICommandInvoker}
+     * @param onSuccess             called when a language was loaded successfully
+     * @param onError               called when loading a language has failed
+     * @param project               the associated {@link IProject}
      */
     @Inject
-    public LanguageCommand(IStrategoCommon common, // FIXME: consider storing terms in result class
-                           ILanguageDiscoveryService langDiscoveryService,
+    public LanguageCommand(ILanguageDiscoveryService langDiscoveryService,
                            IResourceService resourceService,
                            ICommandInvoker invoker,
                            @Named("onSuccess") Consumer<StyledText> onSuccess,
                            @Named("onError") Consumer<StyledText> onError,
                            IProject project) { // FIXME: don't use the hardcoded @Provides
-        super(common, onSuccess, onError, project, null);
+        super(onSuccess, onError, project, null);
         this.langDiscoveryService = langDiscoveryService;
         this.resourceService = resourceService;
         this.invoker = invoker;

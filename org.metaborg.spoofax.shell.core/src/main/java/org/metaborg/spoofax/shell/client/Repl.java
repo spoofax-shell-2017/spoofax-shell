@@ -3,9 +3,9 @@ package org.metaborg.spoofax.shell.client;
 import java.awt.Color;
 import java.io.IOException;
 
-import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
 

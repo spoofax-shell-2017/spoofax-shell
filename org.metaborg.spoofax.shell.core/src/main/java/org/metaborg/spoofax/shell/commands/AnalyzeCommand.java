@@ -3,7 +3,6 @@ package org.metaborg.spoofax.shell.commands;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.analysis.IAnalysisService;
 import org.metaborg.core.context.IContext;
@@ -11,13 +10,14 @@ import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
-import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
+import org.metaborg.spoofax.shell.output.AnalyzeResult;
+import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.InputResult;
+import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.StyledText;
 import org.metaborg.util.concurrent.IClosableLock;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -31,11 +31,11 @@ public class AnalyzeCommand extends SpoofaxCommand {
 
     private IContextService contextService;
     private ISpoofaxAnalysisService analysisService;
+    private IResultFactory unitFactory;
     private ParseCommand parseCommand;
 
     /**
      * Instantiate an {@link AnalyzeCommand}.
-     * @param common           The {@link IStrategoCommon} service.
      * @param contextService   The {@link IContextService}.
      * @param analysisService  The {@link IAnalysisService}
      * @param commandFactory   The {@link ICommandFactory} used to create a {@link ParseCommand}.
@@ -46,18 +46,19 @@ public class AnalyzeCommand extends SpoofaxCommand {
      */
     @Inject
     // CHECKSTYLE.OFF: |
-    public AnalyzeCommand(IStrategoCommon common,
-                          IContextService contextService,
+    public AnalyzeCommand(IContextService contextService,
                           ISpoofaxAnalysisService analysisService,
                           ICommandFactory commandFactory,
+                          IResultFactory unitFactory,
                           @Named("onSuccess") Consumer<StyledText> onSuccess,
                           @Named("onError") Consumer<StyledText> onError,
                           @Assisted IProject project,
                           @Assisted ILanguageImpl lang) {
     // CHECKSTYLE.ON: |
-        super(common, onSuccess, onError, project, lang);
+        super(onSuccess, onError, project, lang);
         this.contextService = contextService;
         this.analysisService = analysisService;
+        this.unitFactory = unitFactory;
         this.parseCommand = commandFactory.createParse(project, lang);
     }
 
@@ -67,49 +68,35 @@ public class AnalyzeCommand extends SpoofaxCommand {
     }
 
     /**
-     * Analyzes a program using the {@link ISpoofaxAnalysisService}. Delegates parsing to the
-     * {@link ParseCommand}.
-     *
-     * @param source              The source of the program.
-     * @param sourceFile          The temporary file containing the source of the program.
-     * @throws MetaborgException  When parsing or analyzing fails.
-     * @return An {@link ISpoofaxAnalyzeUnit}.
-     */
-    public ISpoofaxAnalyzeUnit analyze(String source, FileObject sourceFile)
-            throws MetaborgException {
-        ISpoofaxParseUnit parse = parseCommand.parse(source, sourceFile);
-        return this.analyze(parse);
-    }
-
-    /**
-     * Analyzes a program using the {@link ISpoofaxAnalysisService}.
-     *
-     * @param parseUnit           A {@link ParseCommand} result.
+     * Analyzes a {@link ProcessingUnit} using the {@link ISpoofaxAnalysisService}.
+     * @param unit                The {@link ProcessingUnit} that is used as input.
      * @throws MetaborgException  When analyzing fails.
-     * @return An {@link ISpoofaxAnalyzeUnit}.
+     * @return An analyzed {@link ProcessingUnit}.
      */
-    public ISpoofaxAnalyzeUnit analyze(ISpoofaxParseUnit parseUnit) throws MetaborgException {
-        IContext context = contextService.get(parseUnit.source(), project, lang);
+    public AnalyzeResult analyze(ParseResult unit) throws MetaborgException {
+        IContext context = unit.context().orElse(contextService.get(unit.source(), project, lang));
 
-        ISpoofaxAnalyzeUnit analyzeUnit;
+        ISpoofaxAnalyzeUnit analyze;
         try (IClosableLock lock = context.write()) {
-            analyzeUnit = analysisService.analyze(parseUnit, context).result();
-
-            if (!analyzeUnit.valid()) {
-                StringBuilder builder = new StringBuilder();
-                analyzeUnit.messages().forEach(builder::append);
-                throw new MetaborgException(builder.toString());
-            }
+            analyze = analysisService.analyze(unit.unit(), context).result();
         }
-        return analyzeUnit;
+
+        AnalyzeResult result = unitFactory.createAnalyzeResult(analyze);
+
+        if (!result.valid()) {
+            throw new MetaborgException("Invalid analysis result!");
+        }
+        return result;
     }
 
     @Override
     public void execute(String... args) {
         try {
-            IStrategoTerm term = this.analyze(args[0], write(args[0])).ast();
+            InputResult input = unitFactory.createInputResult(lang, write(args[0]), args[0]);
+            ParseResult parse = parseCommand.parse(input);
+            AnalyzeResult analyze = analyze(parse);
 
-            this.onSuccess.accept(new StyledText(common.toString(term)));
+            this.onSuccess.accept(analyze.styled());
         } catch (IOException | MetaborgException e) {
             this.onError.accept(new StyledText(e.getMessage()));
         }

@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.junit.Test;
-import org.metaborg.spoofax.shell.core.StyledText;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.action.ITransformGoal;
@@ -22,13 +21,16 @@ import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.menu.Separator;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.menu.MenuService;
-import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
-import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.spoofax.shell.output.AnalyzeResult;
+import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.InputResult;
+import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.output.TransformResult;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -43,14 +45,16 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
 
     private IContextService contextService;
     private ISpoofaxTransformService transformService;
+    private IResultFactory unitFactory;
+
     private AnalyzeCommand analyzeCommand;
-//    private ParseCommand parseCommand;
+    private ParseCommand parseCommand;
 
     private Map<String, ITransformAction> actions;
 
+
     /**
      * Instantiate an {@link EvaluateCommand}.
-     * @param common    The {@link IStrategoCommon} service.
      * @param contextService The {@link IContextService}.
      * @param transformService The {@link ISpoofaxTransformService}.
      * @param menuService The {@link MenuService} used to retrieve actions.
@@ -61,20 +65,22 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
      */
     @Inject
     // CHECKSTYLE.OFF: |
-    public TransformCommand(IStrategoCommon common,
-                            IContextService contextService,
+    public TransformCommand(IContextService contextService,
                             ISpoofaxTransformService transformService,
                             IMenuService menuService,
                             ICommandFactory commandFactory,
+                            IResultFactory unitFactory,
                             @Named("onSuccess") Consumer<StyledText> onSuccess,
                             @Named("onError") Consumer<StyledText> onError,
                             @Assisted IProject project,
                             @Assisted ILanguageImpl lang) {
     // CHECKSTYLE.ON: |
-        super(common, onSuccess, onError, project, lang);
+        super(onSuccess, onError, project, lang);
         this.contextService = contextService;
         this.transformService = transformService;
-//        this.parseCommand = commandFactory.createParse(project, lang);
+        this.unitFactory = unitFactory;
+
+        this.parseCommand = commandFactory.createParse(project, lang);
         this.analyzeCommand = commandFactory.createAnalyze(project, lang);
 
         actions = Maps.newConcurrentMap();
@@ -87,23 +93,18 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
                      .collect(Collectors.joining("\n"));
     }
 
-    private IStrategoTerm transform(String source, FileObject sourceFile, ITransformGoal goal)
-            throws IOException, MetaborgException {
-        return this.transform(analyzeCommand.analyze(source, sourceFile), goal);
-    }
-
-    private IStrategoTerm transform(ISpoofaxAnalyzeUnit analyzeUnit, ITransformGoal goal)
+    private TransformResult transform(AnalyzeResult unit, ITransformGoal goal)
             throws MetaborgException {
-        IContext context = contextService.get(analyzeUnit.source(), project, lang);
-        Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> transform =
-                transformService.transform(analyzeUnit, context, goal);
+        IContext context = unit.context().orElse(contextService.get(unit.source(), project, lang));
 
-        for (ISpoofaxTransformUnit<?> unit : transform) {
-            if (!unit.success()) {
-                throw new MetaborgException("The resulting parse unit is invalid.");
-            }
+        Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> transform =
+                transformService.transform(unit.unit(), context, goal);
+        TransformResult result = unitFactory.createTransformResult(transform.iterator().next());
+
+        if (!result.valid()) {
+            throw new MetaborgException("Invalid transform result!");
         }
-        return transform.iterator().next().ast();
+        return result;
     }
 
     @Override
@@ -111,9 +112,13 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
         try {
             String[] split = args[0].split("\\s+", 2);
             ITransformGoal goal = actions.get(split[0]).goal();
-            IStrategoTerm term = this.transform(split[1], write(split[1]), goal);
 
-            this.onSuccess.accept(new StyledText(common.toString(term)));
+            InputResult input = unitFactory.createInputResult(lang, write(split[1]), split[1]);
+            ParseResult parse = parseCommand.parse(input);
+            AnalyzeResult analyze = analyzeCommand.analyze(parse);
+            TransformResult transform = transform(analyze, goal);
+
+            this.onSuccess.accept(transform.styled());
         } catch (IOException | MetaborgException e) {
             this.onError.accept(new StyledText(e.getMessage()));
         }

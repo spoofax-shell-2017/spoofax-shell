@@ -8,7 +8,7 @@ import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.Repl;
-import org.metaborg.spoofax.shell.core.StyledText;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
