@@ -48,6 +48,7 @@ public class ReplModule extends SpoofaxModule {
         commandBinder.addBinding("help").to(HelpCommand.class).in(Singleton.class);
         commandBinder.addBinding("parse").to(ParseCommand.class).in(Singleton.class);
         commandBinder.addBinding("analyze").to(AnalyzeCommand.class).in(Singleton.class);
+        commandBinder.addBinding("load").to(LanguageCommand.class).in(Singleton.class);
         // FIXME: partially rewrite commandinvoker so eval becomes part of the hashmap
         // commandBinder.addBinding("eval").to(EvaluateCommand.class).in(Singleton.class);
         bind(IReplCommand.class).annotatedWith(Names.named("EvalCommand"))
