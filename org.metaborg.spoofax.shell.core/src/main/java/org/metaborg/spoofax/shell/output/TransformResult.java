@@ -32,6 +32,9 @@ public class TransformResult extends AbstractResult<ISpoofaxTransformUnit<?>> {
         super(common, unit);
     }
 
+    // Duplication here and in AnalyzeResult is intentional since no common ancestor of
+    // ISpoofaxAnalyzeUnit and ISpoofaxTransformUnit exists with these functions.
+    @SuppressWarnings("CPD-START")
     @Override
     public Optional<IStrategoTerm> ast() {
         return Optional.of(unit().ast());
@@ -57,9 +60,9 @@ public class TransformResult extends AbstractResult<ISpoofaxTransformUnit<?>> {
         }
     }
 
+    @SuppressWarnings("CPD-END")
     @Override
     public boolean valid() {
         return unit().valid();
     }
-
 }
