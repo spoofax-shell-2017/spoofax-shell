@@ -1,5 +1,6 @@
 package org.metaborg.spoofax.shell.client.console;
 
+import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -50,7 +51,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     @Inject
     public TerminalUserInterface(ConsoleReader reader, @Named("out") OutputStream out,
                                  @Named("err") OutputStream err, IInputHistory hist)
-                                     throws IOException {
+        throws IOException {
         this.reader = reader;
         this.hist = hist;
         reader.setExpandEvents(false);
@@ -64,6 +65,9 @@ public class TerminalUserInterface implements IEditor, IDisplay {
                                                                       Charset.forName("UTF-8"))));
 
         lines = new ArrayList<>();
+
+        this.setPrompt(new StyledText(Color.GREEN, "[In ]: "));
+        this.setContinuationPrompt(new StyledText("[...]: "));
     }
 
     /**
@@ -76,17 +80,27 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         lines.add(lastLine);
     }
 
-    // -------------- IEditor --------------
-    @Override
+    /**
+     * Set the prompt to display.
+     *
+     * @param promptString
+     *            The prompt string.
+     */
     public void setPrompt(StyledText promptString) {
         prompt = promptString;
     }
 
-    @Override
+    /**
+     * Set the prompt to display when in multiline mode.
+     *
+     * @param promptString
+     *            The prompt string.
+     */
     public void setContinuationPrompt(StyledText promptString) {
         continuationPrompt = promptString;
     }
 
+    // -------------- IEditor --------------
     @Override
     public void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService) {
         reader.addCompleter((buffer, cursor, candidates) -> {

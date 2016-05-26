@@ -1,11 +1,9 @@
 package org.metaborg.spoofax.shell.client;
 
-import java.awt.Color;
 import java.io.IOException;
 
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
-import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
 
@@ -36,10 +34,6 @@ public class Repl {
         this.editor = editor;
         this.display = display;
         this.invoker = invoker;
-
-        // TODO: this does not really belong here.
-        this.editor.setPrompt(new StyledText(Color.GREEN, "[In ]: "));
-        this.editor.setContinuationPrompt(new StyledText("[...]: "));
     }
 
     /**
@@ -65,7 +59,8 @@ public class Repl {
     }
 
     /**
-     * @param running the running to set
+     * @param running
+     *            the running to set
      */
     public void setRunning(boolean running) {
         this.running = running;
