@@ -83,7 +83,10 @@ public class LanguageCommand extends SpoofaxCommand {
             invoker.addCommand("eval", commandFactory.createEvaluate(project, lang));
             if (lang.hasFacet(AnalysisFacet.class)) {
                 invoker.addCommand("analyze", commandFactory.createAnalyze(project, lang));
-            }
+                invoker.addCommand("transform", commandFactory.createTransform(project, lang));
+            } // else {
+                // Add transform command hooked to parse here.
+            // }
 
             onSuccess.accept(new StyledText("Loaded language " + lang));
         } catch (MetaborgException e) {

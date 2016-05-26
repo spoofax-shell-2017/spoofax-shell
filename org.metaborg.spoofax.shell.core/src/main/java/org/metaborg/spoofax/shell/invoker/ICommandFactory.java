@@ -5,6 +5,7 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.commands.AnalyzeCommand;
 import org.metaborg.spoofax.shell.commands.EvaluateCommand;
 import org.metaborg.spoofax.shell.commands.ParseCommand;
+import org.metaborg.spoofax.shell.commands.TransformCommand;
 
 /**
  * Factory for creating Spoofax commands.
@@ -35,4 +36,12 @@ public interface ICommandFactory {
      * @return        an {@link EvaluateCommand}
      */
     EvaluateCommand createEvaluate(IProject project, ILanguageImpl lang);
+
+    /**
+     * Factory method for creating a transform command.
+     * @param project The associated {@link IProject}
+     * @param lang    The associated {@link ILanguageImpl}
+     * @return        an {@link TransformCommand}
+     */
+    TransformCommand createTransform(IProject project, ILanguageImpl lang);
 }
