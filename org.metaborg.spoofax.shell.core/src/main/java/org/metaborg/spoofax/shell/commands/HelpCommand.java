@@ -46,7 +46,12 @@ public class HelpCommand implements IReplCommand {
         return "You just used it.";
     }
 
-    private String formathelp(Map<String, IReplCommand> commands) {
+    /**
+     * Formats the description of a {@link IReplCommand} map.
+     * @param commands  the {@link IReplCommand} map
+     * @return a formatted string
+     */
+    public String formathelp(Map<String, IReplCommand> commands) {
         int longestCommand = commands.keySet().stream().mapToInt(a -> a.length()).max().orElse(0);
         String format = "%-" + longestCommand + "s %s";
 

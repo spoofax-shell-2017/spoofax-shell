@@ -16,8 +16,6 @@ import com.google.inject.Inject;
  * Command for processing a String as an expression in some language.
  */
 public abstract class SpoofaxCommand implements IReplCommand {
-    private static final String DESCRIPTION = "Process an expression in some language";
-
     protected Consumer<StyledText> onSuccess;
     protected Consumer<StyledText> onError;
 
@@ -40,11 +38,6 @@ public abstract class SpoofaxCommand implements IReplCommand {
         this.onError = onError;
         this.project = project;
         this.lang = lang;
-    }
-
-    @Override
-    public String description() {
-        return DESCRIPTION;
     }
 
     /**
