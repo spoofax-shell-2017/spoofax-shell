@@ -4,9 +4,9 @@ import java.util.function.Consumer;
 
 import org.metaborg.core.context.IContext;
 import org.metaborg.spoofax.core.SpoofaxModule;
-import org.metaborg.spoofax.shell.client.Repl.ExitCommand;
 import org.metaborg.spoofax.shell.commands.AnalyzeCommand;
 import org.metaborg.spoofax.shell.commands.EvaluateCommand;
+import org.metaborg.spoofax.shell.commands.ExitCommand;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
