@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.commands;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -27,9 +28,11 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.shell.hooks.ResultHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.mockito.Mock;
@@ -45,7 +48,8 @@ public class AnalyzeCommandTest {
     @Mock private ISpoofaxAnalysisService analysisService;
     @Mock private ICommandFactory commandFactory;
     @Mock private IResultFactory resultFactory;
-    @Mock private Consumer<StyledText> onSuccess;
+    @Mock
+    private ResultHook resultHook;
     @Mock private Consumer<StyledText> onError;
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
@@ -80,8 +84,8 @@ public class AnalyzeCommandTest {
         when(resultFactory.createAnalyzeResult(any())).thenReturn(analyzeResult);
 
         analyzeCommand = new AnalyzeCommand(contextService, analysisService,
-                                            commandFactory, resultFactory,
-                                            onSuccess, onError, project, lang);
+                                            commandFactory, resultHook, resultFactory, project,
+                                            lang);
     }
 
     /**
@@ -120,12 +124,15 @@ public class AnalyzeCommandTest {
      * @throws MetaborgException when the source contains invalid syntax
      */
     @Test
-    public void testExecuteValid() throws MetaborgException {
+    public void testExecuteValid() {
         when(analyzeResult.valid()).thenReturn(true);
 
-        analyzeCommand.execute("test");
-        verify(onSuccess, times(1)).accept(any(StyledText.class));
-        verify(onError, never()).accept(any());
+        try {
+            analyzeCommand.execute("test");
+            verify(resultHook, times(1)).accept(any(ISpoofaxResult.class));
+        } catch (MetaborgException e) {
+            fail("Should not happen");
+        }
     }
 
     /**
@@ -133,12 +140,11 @@ public class AnalyzeCommandTest {
      * @throws MetaborgException when the source contains invalid syntax
      * @throws FileSystemException when the temporary file is not resolved
      */
-    @Test
+    @Test(expected = MetaborgException.class)
     public void testExecuteInvalid() throws MetaborgException, FileSystemException {
         when(analyzeResult.valid()).thenReturn(false);
 
         analyzeCommand.execute("test");
-        verify(onSuccess, never()).accept(any());
-        verify(onError, times(1)).accept(any(StyledText.class));
+        verify(resultHook, never()).accept(any());
     }
 }

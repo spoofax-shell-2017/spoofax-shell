@@ -1,44 +1,37 @@
 package org.metaborg.spoofax.shell.commands;
 
-import java.awt.Color;
 import java.util.Collections;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.metaborg.core.MetaborgException;
+import org.metaborg.spoofax.shell.hooks.MessageHook;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 /**
  * Shows descriptions of all commands, or one command if given.
  */
 public class HelpCommand implements IReplCommand {
-    private ICommandInvoker invoker;
-    private final Consumer<StyledText> successHook;
-    private final Consumer<StyledText> errorHook;
+    private final MessageHook messageHook;
+    private final ICommandInvoker invoker;
 
     /**
      * Instantiates a new HelpCommand.
      *
+     * @param messageHook
+     *            The {@link MessageHook} to send the help message to.
      * @param invoker
      *            The {@link ICommandInvoker}.
-     * @param successHook
-     *            Called when a given command and its description was found.
-     * @param errorHook
-     *            Called when a given command was not found.
      */
     @Inject
-    public HelpCommand(ICommandInvoker invoker,
-                       @Named("onSuccess") Consumer<StyledText> successHook,
-                       @Named("onError") Consumer<StyledText> errorHook) {
+    public HelpCommand(MessageHook messageHook, ICommandInvoker invoker) {
+        this.messageHook = messageHook;
         this.invoker = invoker;
-        this.successHook = successHook;
-        this.errorHook = errorHook;
     }
 
     @Override
@@ -67,7 +60,7 @@ public class HelpCommand implements IReplCommand {
     }
 
     @Override
-    public void execute(String... args) {
+    public void execute(String... args) throws MetaborgException {
         try {
             Map<String, IReplCommand> commands;
             if (args.length > 0) {
@@ -77,9 +70,9 @@ public class HelpCommand implements IReplCommand {
                 commands = invoker.getCommands();
             }
 
-            successHook.accept(new StyledText(formathelp(commands)));
+            messageHook.accept(new StyledText(formathelp(commands)));
         } catch (CommandNotFoundException e) {
-            errorHook.accept(new StyledText(Color.RED, e.getMessage()));
+            throw new MetaborgException("Command not found: " + e.commandName());
         }
     }
 

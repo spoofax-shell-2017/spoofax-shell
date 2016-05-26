@@ -1,5 +1,6 @@
 package org.metaborg.spoofax.shell.commands;
 
+import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 /**
@@ -16,7 +17,10 @@ public interface IReplCommand {
     /**
      * Execute this command.
      *
-     * @param args The arguments for this command.
+     * @param args
+     *            The arguments for this command.
+     * @throws MetaborgException
+     *             When something goes wrong during execution.
      */
-    void execute(String... args);
+    void execute(String... args) throws MetaborgException;
 }

@@ -21,7 +21,7 @@ import com.google.inject.assistedinject.AssistedInject;
  * Represents a {@link InputResult} as returned by the {@link SpoofaxCommand}.
  * Wraps a {@link ISpoofaxInputUnit}.
  */
-public class InputResult extends AbstractResult<ISpoofaxInputUnit> {
+public class InputResult extends AbstractSpoofaxResult<ISpoofaxInputUnit> {
 
     /**
      * Create a {@link InputResult}.

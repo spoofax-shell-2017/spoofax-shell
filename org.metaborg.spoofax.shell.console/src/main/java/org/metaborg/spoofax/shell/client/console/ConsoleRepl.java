@@ -1,55 +1,70 @@
 package org.metaborg.spoofax.shell.client.console;
 
-import java.awt.Color;
 import java.io.IOException;
 
-import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.core.Spoofax;
-import org.metaborg.spoofax.shell.client.IDisplay;
-import org.metaborg.spoofax.shell.client.IEditor;
-import org.metaborg.spoofax.shell.client.Repl;
-import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.core.Repl;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 
 /**
- * This class launches a console based REPL.
+ * A console based REPL.
  *
  * It uses a GNU Readline-like input buffer with multiline editing capabilities, keyboard shortcuts
  * and persistent history. ANSI color codes are used to display colors.
  */
-public final class ConsoleRepl {
-
-    private ConsoleRepl() {
-    }
+public class ConsoleRepl extends Repl {
+    private final IEditor editor;
+    private final IDisplay display;
 
     /**
-     * Instantiates and runs a new Repl.
+     * Instantiates a new ConsoleRepl.
      *
-     * @param args
-     *            The path to a language implementation location, using any URI supported by Apache
-     *            VFS.
-     * @throws IOException
-     *             When an IO error occurs during execution.
+     * @param editor
+     *            The {@link IEditor} for receiving input.
+     * @param display
+     *            The {@link IDisplay} for displaying results.
+     * @param invoker
+     *            The {@link ICommandInvoker} for executing user input.
      */
-    public static void main(String[] args) throws IOException {
-        try (Spoofax spoofax = new Spoofax()) {
-            Injector injector = Guice.createInjector(new ConsoleReplModule());
-            IEditor editor = injector.getInstance(IEditor.class);
-            IDisplay display = injector.getInstance(IDisplay.class);
-            Repl repl = injector.getInstance(Repl.class);
+    @Inject
+    public ConsoleRepl(IEditor editor, IDisplay display, ICommandInvoker invoker) {
+        super(invoker);
+        this.editor = editor;
+        this.display = display;
+    }
 
-            StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
-                    .append(Color.GREEN, "Spoofax")
-                    .append(Color.BLUE, " REPL");
+    @Override
+    public void run() {
+        try {
+            this.editor.history().loadFromDisk();
 
-            display.displayResult(message);
-            editor.history().loadFromDisk();
-            repl.run();
-            editor.history().persistToDisk();
-        } catch (IOException | MetaborgException e) {
+            String input;
+            setRunning(true);
+            while (running && (input = read()) != null) {
+                print(eval(input));
+            }
+
+            this.editor.history().persistToDisk();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    @Override
+    protected String read() {
+        String input = null;
+        try {
+            input = editor.getInput();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return input;
+    }
+
+    @Override
+    protected void print(String result) {
+        display.displayResult(result);
+    }
+
 }

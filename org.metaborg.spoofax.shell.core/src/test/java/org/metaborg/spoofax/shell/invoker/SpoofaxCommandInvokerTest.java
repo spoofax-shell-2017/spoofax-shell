@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.metaborg.core.MetaborgException;
 import org.mockito.Mock;
 
 import com.google.common.collect.Maps;
@@ -37,6 +38,8 @@ public class SpoofaxCommandInvokerTest {
             fail("No exceptions thrown, but command does not exist");
         } catch (CommandNotFoundException e) {
             assertCommandNameInMessage("does-not-exist", e);
+        } catch (MetaborgException e) {
+            fail("Should not happen");
         }
     }
 

@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.metaborg.spoofax.shell.client.Repl;
+import org.metaborg.spoofax.shell.core.Repl;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
