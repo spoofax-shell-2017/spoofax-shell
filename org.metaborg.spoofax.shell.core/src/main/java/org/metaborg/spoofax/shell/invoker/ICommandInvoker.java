@@ -1,7 +1,9 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.invoker;
 
 import java.util.Arrays;
 import java.util.Map;
+
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 /**
  * An interface for binding and executing {@link IReplCommand}s.

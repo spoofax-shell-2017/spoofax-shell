@@ -16,9 +16,9 @@ import java.io.OutputStream;
 
 import org.junit.Test;
 import org.metaborg.core.context.IContext;
-import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
 import org.metaborg.spoofax.shell.commands.ExitCommand;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
+import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

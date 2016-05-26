@@ -1,6 +1,8 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.invoker;
 
 import java.util.Map;
+
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;

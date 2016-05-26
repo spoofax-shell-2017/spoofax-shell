@@ -17,7 +17,7 @@ import org.metaborg.spoofax.shell.client.MockModule;
 import org.metaborg.spoofax.shell.client.Repl;
 import org.metaborg.spoofax.shell.client.ReplModule;
 import org.metaborg.spoofax.shell.client.ReplTest;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 import com.google.inject.Guice;
 

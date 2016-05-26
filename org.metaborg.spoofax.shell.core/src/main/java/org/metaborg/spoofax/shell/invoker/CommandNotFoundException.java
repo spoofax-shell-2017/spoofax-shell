@@ -1,4 +1,6 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.invoker;
+
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 /**
  * Thrown when an {@link IReplCommand} could not be found.

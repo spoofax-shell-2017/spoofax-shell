@@ -1,10 +1,13 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.invoker;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
 
 import com.google.inject.Guice;
 

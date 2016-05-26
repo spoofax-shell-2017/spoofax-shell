@@ -1,4 +1,6 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.invoker;
+
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.MapBinder;

@@ -14,6 +14,8 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.shell.core.StyledText;
+import org.metaborg.spoofax.shell.invoker.ICommandFactory;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

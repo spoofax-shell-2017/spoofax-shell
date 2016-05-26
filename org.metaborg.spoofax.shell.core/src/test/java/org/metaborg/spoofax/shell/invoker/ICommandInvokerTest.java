@@ -1,10 +1,13 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.invoker;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
 
 import org.junit.Test;
+import org.metaborg.spoofax.shell.commands.IReplCommand;
+import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 /**
  * Tests default method implementations of {@link ICommandInvoker}.

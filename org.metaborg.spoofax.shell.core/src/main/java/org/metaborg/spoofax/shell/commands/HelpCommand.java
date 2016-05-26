@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.metaborg.spoofax.shell.core.StyledText;
+import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

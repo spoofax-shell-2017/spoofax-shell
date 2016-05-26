@@ -14,14 +14,14 @@ import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.shell.commands.EvaluateCommand;
 import org.metaborg.spoofax.shell.commands.ExitCommand;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
-import org.metaborg.spoofax.shell.commands.ICommandFactory;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommandInvoker;
 import org.metaborg.spoofax.shell.core.StyledText;
 import org.metaborg.spoofax.shell.hooks.OnEvalErrorHook;
 import org.metaborg.spoofax.shell.hooks.OnEvalSuccessHook;
+import org.metaborg.spoofax.shell.invoker.ICommandFactory;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
 
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
