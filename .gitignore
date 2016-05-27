@@ -23,3 +23,5 @@ hs_err_pid*
 # OSGi bundle
 MANIFEST.MF
 
+# Language implementations
+*.full
