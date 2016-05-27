@@ -55,21 +55,21 @@ public class ReplTest {
     /**
      * Tests the {@link ExitCommand}.
      */
-     @Test
-     public void testExitCommand() {
-         try {
-             repl.run();
+    @Test
+    public void testExitCommand() {
+        try {
+            repl.run();
 
-             // Ensure that the command was given to the invoker just once.
-             verify(invoker, times(1)).execute(":exit");
+            // Ensure that the command was given to the invoker just once.
+            verify(invoker, times(1)).execute(":exit");
 
-             // Ensure that exitCommand was executed once.
-             verify(exitCommand, times(1)).execute();
+            // Ensure that exitCommand was executed once.
+            verify(exitCommand, times(1)).execute();
 
-             // Verify that the Editor was not asked for input after the exit command was executed.
-             verify(repl, times(1)).read();
-         } catch (MetaborgException | CommandNotFoundException e) {
-             fail("Should not happen");
-         }
-     }
+            // Verify that the Editor was not asked for input after the exit command was executed.
+            verify(repl, times(1)).read();
+        } catch (MetaborgException | CommandNotFoundException e) {
+            fail("Should not happen");
+        }
+    }
 }

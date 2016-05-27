@@ -34,7 +34,7 @@ public class ParseResultTest {
     @Mock private IStrategoTerm ast;
     @Mock private IMessage message1, message2;
 
-    private List<IMessage> messages = Arrays.asList(message1, message2);
+    private List<IMessage> messages;
     private ParseResult parseResult;
 
     /**
@@ -42,6 +42,7 @@ public class ParseResultTest {
      */
     @Before
     public void setup() {
+        messages = Arrays.asList(message1, message2);
         when(common.toString(any())).thenReturn(ACTUAL);
         when(unit.ast()).thenReturn(ast);
         when(unit.messages()).thenReturn(messages);

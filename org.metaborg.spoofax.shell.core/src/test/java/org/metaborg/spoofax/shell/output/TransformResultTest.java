@@ -35,7 +35,7 @@ public class TransformResultTest {
     @Mock private IContext context;
     @Mock private IMessage message1, message2;
 
-    private List<IMessage> messages = Arrays.asList(message1, message2);
+    private List<IMessage> messages;
     private TransformResult transformResult;
 
     /**
@@ -43,6 +43,7 @@ public class TransformResultTest {
      */
     @Before
     public void setup() {
+        messages = Arrays.asList(message1, message2);
         when(common.toString(any())).thenReturn(ACTUAL);
         when(unit.ast()).thenReturn(ast);
         when(unit.context()).thenReturn(context);
