@@ -13,10 +13,8 @@ import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.shell.hooks.MessageHook;
-import org.metaborg.spoofax.shell.hooks.ResultHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
-import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
@@ -24,44 +22,38 @@ import com.google.inject.Inject;
 /**
  * Represents a command that loads a Spoofax language.
  */
-public class LanguageCommand extends SpoofaxCommand {
+public class LanguageCommand implements IReplCommand {
 
+    private final MessageHook messageHook;
     private final ILanguageDiscoveryService langDiscoveryService;
     private final IResourceService resourceService;
     private final ICommandInvoker invoker;
-    private final MessageHook messageHook;
+    private final IProject project;
+    private ILanguageImpl lang;
 
     /**
      * Instantiate a {@link LanguageCommand}. Loads all commands applicable to a lanugage.
      *
+     * @param messageHook
+     *            the {@link MessageHook} to send messages to.
      * @param langDiscoveryService
      *            the {@link ILanguageDiscoveryService}
      * @param resourceService
      *            the {@link IResourceService}
      * @param invoker
      *            the {@link ICommandInvoker}
-     * @param messageHook
-     *            the {@link MessageHook} to send messages to.
-     * @param resultHook
-     *            the {@link ResultHook} to send results of successful evaluations to.
-     * @param resultFactory
-     *            the {@link IResultFactory}
      * @param project
      *            the associated {@link IProject}
      */
     @Inject
-    public LanguageCommand(ILanguageDiscoveryService langDiscoveryService,
-                           IResourceService resourceService,
-                           ICommandInvoker invoker,
-                           MessageHook messageHook,
-                           ResultHook resultHook,
-                           IResultFactory resultFactory,
+    public LanguageCommand(MessageHook messageHook, ILanguageDiscoveryService langDiscoveryService,
+                           IResourceService resourceService, ICommandInvoker invoker,
                            IProject project) { // FIXME: don't use the hardcoded @Provides
-        super(resultHook, resultFactory, project, null);
+        this.messageHook = messageHook;
         this.langDiscoveryService = langDiscoveryService;
         this.resourceService = resourceService;
         this.invoker = invoker;
-        this.messageHook = messageHook;
+        this.project = project;
     }
 
     @Override

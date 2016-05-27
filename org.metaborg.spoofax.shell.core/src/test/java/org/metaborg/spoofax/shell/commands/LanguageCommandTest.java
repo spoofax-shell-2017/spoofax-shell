@@ -26,7 +26,6 @@ import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.analysis.AnalysisFacet;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.hooks.MessageHook;
-import org.metaborg.spoofax.shell.hooks.ResultHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -47,8 +46,6 @@ public class LanguageCommandTest {
     @Mock private ICommandInvoker invoker;
     @Mock
     private MessageHook messageHook;
-    @Mock
-    private ResultHook resultHook;
     @Mock
     private IResultFactory resultFactory;
     @Mock private IProject project;
@@ -73,8 +70,8 @@ public class LanguageCommandTest {
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
         .thenReturn(Lists.newArrayList(lang));
 
-        langCommand = new LanguageCommand(langDiscoveryService, resourceService, invoker,
-                                          messageHook, resultHook, resultFactory, project);
+        langCommand = new LanguageCommand(messageHook, langDiscoveryService, resourceService,
+                                          invoker, project);
     }
 
     /**
