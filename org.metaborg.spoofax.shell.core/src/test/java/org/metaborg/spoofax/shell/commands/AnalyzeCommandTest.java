@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -34,7 +33,6 @@ import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
-import org.metaborg.spoofax.shell.output.StyledText;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -50,7 +48,6 @@ public class AnalyzeCommandTest {
     @Mock private IResultFactory resultFactory;
     @Mock
     private IResultHook resultHook;
-    @Mock private Consumer<StyledText> onError;
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
 

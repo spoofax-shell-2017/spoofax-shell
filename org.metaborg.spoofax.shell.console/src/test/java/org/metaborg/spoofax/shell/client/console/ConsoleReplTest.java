@@ -21,11 +21,8 @@ import org.junit.Test;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleReplModule;
-import org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterface;
 import org.metaborg.spoofax.shell.commands.ExitCommand;
-import org.metaborg.spoofax.shell.core.Repl;
 import org.metaborg.spoofax.shell.core.ReplModule;
-import org.metaborg.spoofax.shell.core.ReplTest;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
@@ -35,9 +32,9 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 
 /**
- * Tests integration of {@link Repl} with {@link TerminalUserInterface}.
+ * Tests {@link ConsoleRepl}.
  */
-public class ConsoleReplTest extends ReplTest {
+public class ConsoleReplTest {
     private Injector injector;
     private ConsoleRepl repl;
     private ByteArrayInputStream in;
@@ -90,7 +87,7 @@ public class ConsoleReplTest extends ReplTest {
         setUp(String.valueOf(C_D));
         invokerMock = mock(ICommandInvoker.class, RETURNS_MOCKS);
 
-        // Create a user input simulated Repl with the mock invoker.
+        // Create a user input simulated ConsoleRepl with the mock invoker.
         createRepl(new UserInputSimulationModule(in, out), new MockModule(invokerMock));
     }
 
@@ -115,14 +112,13 @@ public class ConsoleReplTest extends ReplTest {
         invokerMock = spy(injector.getInstance(ICommandInvoker.class));
         editorMock = spy(injector.getInstance(IEditor.class));
 
-        // Create a user input simulated Repl with the mock invoker and mock editor.
+        // Create a user input simulated ConsoleRepl with the mock invoker and mock editor.
         createRepl(new UserInputSimulationModule(in, out), new MockModule(invokerMock, editorMock));
     }
 
     /**
-     * Tests the {@link Repl.ExitCommand}.
+     * Tests the {@link ExitCommand}.
      */
-    @Override
     @Test
     public void testExitCommand() {
         try {

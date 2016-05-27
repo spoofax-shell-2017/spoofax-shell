@@ -1,7 +1,6 @@
 package org.metaborg.spoofax.shell.client.console;
 
 import java.awt.Color;
-import java.io.IOException;
 
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleReplModule;
@@ -24,8 +23,6 @@ public final class Main {
      * @param args
      *            The path to a language implementation location, using any URI supported by Apache
      *            VFS.
-     * @throws IOException
-     *             When an IO error occurs during execution.
      */
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ConsoleReplModule());

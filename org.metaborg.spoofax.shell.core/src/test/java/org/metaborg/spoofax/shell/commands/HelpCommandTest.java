@@ -15,10 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.metaborg.core.MetaborgException;
-import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
-import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -34,9 +32,6 @@ public class HelpCommandTest {
     @Mock private ICommandInvoker invoker;
     @Mock
     private IMessageHook messageHook;
-    @Mock private IProject project;
-
-    @Mock private ICommandFactory commandFactory;
 
     private HelpCommand helpCommand;
     private Map<String, IReplCommand> commands;

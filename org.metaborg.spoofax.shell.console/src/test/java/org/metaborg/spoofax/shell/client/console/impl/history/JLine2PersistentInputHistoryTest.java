@@ -1,9 +1,9 @@
 package org.metaborg.spoofax.shell.client.console.impl.history;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.metaborg.spoofax.shell.client.console.TerminalUserInterfaceTest.ENTER;
 
 import java.io.File;
@@ -12,8 +12,6 @@ import java.io.IOException;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.metaborg.spoofax.shell.client.console.impl.history.JLine2InputHistory;
-import org.metaborg.spoofax.shell.client.console.impl.history.JLine2PersistentInputHistory;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -47,7 +45,7 @@ public class JLine2PersistentInputHistoryTest extends JLine2InputHistoryTest {
             // Bind the persistent history adapter.
             b.bind(JLine2InputHistory.class).to(JLine2PersistentInputHistory.class);
             // Bind jline's MemoryHistory so that we can test the adapter.
-            b.bind(jline.console.history.MemoryHistory.class).toInstance(theDelegate);
+            b.bind(MemoryHistory.class).toInstance(theDelegate);
             // Bind the temp file path.
             b.bindConstant().annotatedWith(Names.named("historyPath")).to(tempHistory.getPath());
         };
