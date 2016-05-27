@@ -60,7 +60,7 @@ public class HelpCommand implements IReplCommand {
             String[] sdesc = commands.get(name).description().split("\\R");
 
             return IntStream.range(0, Math.max(sname.length, sdesc.length))
-                    .mapToObj(idx -> String.format(format,
+                    .<String>mapToObj(idx -> String.format(format,
                                                    idx < sname.length ? sname[idx] : "",
                                                    idx < sdesc.length ? sdesc[idx] : ""));
         }).collect(Collectors.joining("\n"));
