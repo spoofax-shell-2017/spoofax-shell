@@ -223,6 +223,7 @@
                 <version>3.0.3</version>
                 <configuration>
                     <includeTests>true</includeTests>
+                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
                     <!-- See: http://stackoverflow.com/questions/29594445/cobertura-maven-plugin-conflicts-with-findbugs -->
                     <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
                 </configuration>
@@ -290,6 +291,7 @@
                 <version>3.0.3</version>
                 <configuration>
                     <includeTests>true</includeTests>
+                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
                 </configuration>
             </plugin>
         </plugins>

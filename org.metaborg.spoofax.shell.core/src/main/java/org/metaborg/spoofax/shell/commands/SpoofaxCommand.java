@@ -3,12 +3,13 @@ package org.metaborg.spoofax.shell.commands;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.function.Consumer;
 
 import org.apache.commons.vfs2.FileObject;
+import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
-import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.hooks.IResultHook;
+import org.metaborg.spoofax.shell.output.IResultFactory;
 
 import com.google.inject.Inject;
 
@@ -16,26 +17,28 @@ import com.google.inject.Inject;
  * Command for processing a String as an expression in some language.
  */
 public abstract class SpoofaxCommand implements IReplCommand {
-    protected Consumer<StyledText> onSuccess;
-    protected Consumer<StyledText> onError;
-
+    protected IResultHook resultHook;
+    protected IResultFactory resultFactory;
     protected IProject project;
     protected ILanguageImpl lang;
 
     /**
      * Instantiate a {@link SpoofaxCommand}.
-     * @param onSuccess Called upon success by the created {@link SpoofaxCommand}.
-     * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
-     * @param project   The project in which this command should operate.
-     * @param lang      The language to which this command applies.
+     *
+     * @param resultHook
+     *            The {@link ResultHook<?>} to send results of successful evaluations to.
+     * @param resultFactory
+     *            The {@link ResulFactory}.
+     * @param project
+     *            The project in which this command should operate.
+     * @param lang
+     *            The language to which this command applies.
      */
     @Inject
-    SpoofaxCommand(Consumer<StyledText> onSuccess,
-                   Consumer<StyledText> onError,
-                   IProject project,
-                   ILanguageImpl lang) {
-        this.onSuccess = onSuccess;
-        this.onError = onError;
+    SpoofaxCommand(IResultHook resultHook, IResultFactory resultFactory,
+                   IProject project, ILanguageImpl lang) {
+        this.resultHook = resultHook;
+        this.resultFactory = resultFactory;
         this.project = project;
         this.lang = lang;
     }
@@ -56,19 +59,6 @@ public abstract class SpoofaxCommand implements IReplCommand {
         return sourceFile;
     }
 
-    /**
-     * Executes a command.
-     * @param input  the input for this command
-     * @return the result of this command
-     */
-//    public abstract ISpoofaxResult<?> execute(ISpoofaxResult<?> input);
-
-    /**
-     * Executes a command.
-     *
-     * @param args
-     *            The command's arguments.
-     */
     @Override
-    public abstract void execute(String... args);
+    public abstract void execute(String... args) throws MetaborgException;
 }

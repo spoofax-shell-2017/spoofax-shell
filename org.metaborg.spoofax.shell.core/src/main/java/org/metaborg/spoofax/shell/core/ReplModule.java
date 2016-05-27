@@ -1,6 +1,4 @@
-package org.metaborg.spoofax.shell.client;
-
-import java.util.function.Consumer;
+package org.metaborg.spoofax.shell.core;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
@@ -15,21 +13,16 @@ import org.metaborg.spoofax.shell.commands.ExitCommand;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
-import org.metaborg.spoofax.shell.hooks.OnEvalErrorHook;
-import org.metaborg.spoofax.shell.hooks.OnEvalSuccessHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
 import org.metaborg.spoofax.shell.output.IResultFactory;
-import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.common.io.Files;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.MapBinder;
-import com.google.inject.name.Names;
 
 /**
  * Client library bindings.
@@ -62,13 +55,6 @@ public class ReplModule extends SpoofaxModule {
         super.configure();
 
         configureCommands();
-
-        // @formatter:off
-        bind(new TypeLiteral<Consumer<StyledText>>() { }).annotatedWith(Names.named("onSuccess"))
-                .to(OnEvalSuccessHook.class).in(Singleton.class);
-        bind(new TypeLiteral<Consumer<StyledText>>() { }).annotatedWith(Names.named("onError"))
-                .to(OnEvalErrorHook.class).in(Singleton.class);
-        // @formatter:on
 
         install(new FactoryModuleBuilder().build(ICommandFactory.class));
         install(new FactoryModuleBuilder().build(IResultFactory.class));

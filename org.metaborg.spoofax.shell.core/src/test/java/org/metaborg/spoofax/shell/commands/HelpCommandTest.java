@@ -3,23 +3,23 @@ package org.metaborg.spoofax.shell.commands;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.metaborg.core.MetaborgException;
 import org.metaborg.core.project.IProject;
+import org.metaborg.spoofax.shell.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
-import org.metaborg.spoofax.shell.output.StyledText;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -32,8 +32,8 @@ import com.google.common.collect.Maps;
 public class HelpCommandTest {
     // Constructor mocks
     @Mock private ICommandInvoker invoker;
-    @Mock private Consumer<StyledText> onSuccess;
-    @Mock private Consumer<StyledText> onError;
+    @Mock
+    private IMessageHook messageHook;
     @Mock private IProject project;
 
     @Mock private ICommandFactory commandFactory;
@@ -86,7 +86,7 @@ public class HelpCommandTest {
         when(invoker.getCommands()).thenReturn(commands);
         when(invoker.commandFromName("name-1")).thenReturn(single);
         when(invoker.commandFromName("name-2")).thenReturn(multi);
-        helpCommand = new HelpCommand(invoker, onSuccess, onError);
+        helpCommand = new HelpCommand(messageHook, invoker);
     }
 
     /**
@@ -99,60 +99,71 @@ public class HelpCommandTest {
 
     /**
      * Test getting help for a command that does not exist.
-     * @throws CommandNotFoundException when the command could not be found
+     *
+     * @throws MetaborgException
+     *             expected.
      */
-    @Test
-    public void testCommandNotFound() throws CommandNotFoundException {
-        when(invoker.commandFromName(any())).thenThrow(new CommandNotFoundException("error"));
+    @Test(expected = MetaborgException.class)
+    public void testCommandNotFound() throws MetaborgException {
+        try {
+            when(invoker.commandFromName(any())).thenThrow(new CommandNotFoundException("error"));
 
-        helpCommand.execute("invalid-command");
-        verify(onSuccess, never()).accept(any());
-        verify(onError, times(1)).accept(any());
+            helpCommand.execute("invalid-command");
+            verify(messageHook, never()).accept(any());
+        } catch (CommandNotFoundException e) {
+            fail("Should not happen");
+        }
     }
 
     /**
      * Test getting help for an existing command with a single line description.
+     *
+     * @throws MetaborgException
+     *             Not expected
      */
     @Test
-    public void testCommandSingleLine() {
+    public void testCommandSingleLine() throws MetaborgException {
         String expected = "name-1 test-1";
 
-        Consumer<StyledText> onSuccess = (s) -> assertEquals(expected, s.toString());
-        helpCommand = new HelpCommand(invoker, onSuccess, onError);
+        IMessageHook messageHook = (s) -> assertEquals(expected, s.toString());
+        helpCommand = new HelpCommand(messageHook, invoker);
 
         helpCommand.execute("name-1");
-        verify(onError, never()).accept(any());
     }
 
     /**
      * Test getting help for an existing command with a multi line description.
+     *
+     * @throws MetaborgException
+     *             Not expected.
      */
     @Test
-    public void testCommandMultiLine() {
+    public void testCommandMultiLine() throws MetaborgException {
         String expected = "name-2 test-2\n"
                         + "       test-2";
 
-        Consumer<StyledText> onSuccess = (s) -> assertEquals(expected, s.toString());
-        helpCommand = new HelpCommand(invoker, onSuccess, onError);
+        IMessageHook messageHook = (s) -> assertEquals(expected, s.toString());
+        helpCommand = new HelpCommand(messageHook, invoker);
 
         helpCommand.execute("name-2");
-        verify(onError, never()).accept(any());
     }
 
     /**
      * Test getting help for an existing command with a multi line description.
+     *
+     * @throws MetaborgException
+     *             Not expected.
      */
     @Test
-    public void testCommands() {
+    public void testCommands() throws MetaborgException {
         String expected = "name-1 test-1\n"
                         + "name-2 test-2\n"
                         + "       test-2";
 
-        Consumer<StyledText> onSuccess = (s) -> assertEquals(expected, s.toString());
-        helpCommand = new HelpCommand(invoker, onSuccess, onError);
+        IMessageHook messageHook = (s) -> assertEquals(expected, s.toString());
+        helpCommand = new HelpCommand(messageHook, invoker);
 
         helpCommand.execute();
-        verify(onError, never()).accept(any());
     }
 
 }

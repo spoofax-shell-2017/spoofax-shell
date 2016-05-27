@@ -9,8 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.function.Consumer;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.VFS;
@@ -27,9 +25,10 @@ import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.analysis.AnalysisFacet;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.shell.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
-import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -45,8 +44,10 @@ public class LanguageCommandTest {
     @Mock private ILanguageDiscoveryService langDiscoveryService;
     @Mock private IResourceService resourceService;
     @Mock private ICommandInvoker invoker;
-    @Mock private Consumer<StyledText> onSuccess;
-    @Mock private Consumer<StyledText> onError;
+    @Mock
+    private IMessageHook messageHook;
+    @Mock
+    private IResultFactory resultFactory;
     @Mock private IProject project;
 
     @Mock private ICommandFactory commandFactory;
@@ -69,8 +70,8 @@ public class LanguageCommandTest {
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
         .thenReturn(Lists.newArrayList(lang));
 
-        langCommand = new LanguageCommand(langDiscoveryService, resourceService, invoker,
-                                          onSuccess, onError, project);
+        langCommand = new LanguageCommand(messageHook, langDiscoveryService, resourceService,
+                                          invoker, project);
     }
 
     /**
@@ -114,21 +115,33 @@ public class LanguageCommandTest {
      * Test execute with invalid input arguments.
      * @throws MetaborgException when language discovery fails
      */
-    @Test
-    public void testExecuteInvalidArgs() throws MetaborgException {
+    @Test(expected = MetaborgException.class)
+    public void testExecuteInvalidArgs1() throws MetaborgException {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
         langCommand.execute();
-        verify(onError, times(1)).accept(any());
+    }
+
+    /**
+     * Test execute with invalid input arguments.
+     *
+     * @throws MetaborgException
+     *             when language discovery fails
+     */
+    @Test(expected = MetaborgException.class)
+    public void testExecuteInvalidArgs2() throws MetaborgException {
+        Iterable<ILanguageDiscoveryRequest> langrequest = any();
+        when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
         langCommand.execute(new String[] { "", "" });
-        verify(onError, times(2)).accept(any());
     }
 
     /**
      * Test execute with valid input arguments and without AnalysisFacet.
-     * @throws MetaborgException when language discovery fails
+     *
+     * @throws MetaborgException
+     *             when language discovery fails
      */
     @Test
     public void testExecute() throws MetaborgException {
@@ -138,7 +151,7 @@ public class LanguageCommandTest {
         langCommand.execute("res:paplj.full");
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());
-        verify(onSuccess, times(1)).accept(any());
+        verify(messageHook, times(1)).accept(any());
     }
 
     /**
@@ -154,7 +167,7 @@ public class LanguageCommandTest {
         langCommand.execute("res:paplj.full");
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());
-        verify(onSuccess, times(1)).accept(any());
+        verify(messageHook, times(1)).accept(any());
     }
 
 }

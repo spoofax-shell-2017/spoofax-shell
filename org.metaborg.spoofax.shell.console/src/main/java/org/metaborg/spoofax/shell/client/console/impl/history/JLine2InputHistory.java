@@ -1,10 +1,10 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client.console.impl.history;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.metaborg.spoofax.shell.client.IInputHistory;
+import org.metaborg.spoofax.shell.client.console.IInputHistory;
 
 import com.google.inject.Inject;
 

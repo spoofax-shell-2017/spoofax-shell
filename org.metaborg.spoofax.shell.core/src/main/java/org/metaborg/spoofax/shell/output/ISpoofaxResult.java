@@ -15,7 +15,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * Wraps Spoofax {@link IUnit} of various types.
  * @param <T> the wrapped subtype of {@link IUnit}
  */
-public interface ISpoofaxResult <T> {
+public interface ISpoofaxResult<T extends IUnit> {
     /**
      * Returns the ast of this unit as a {@link IStrategoTerm} if present.
      * @return a {@link IStrategoTerm} or null

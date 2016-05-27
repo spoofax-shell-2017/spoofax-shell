@@ -3,13 +3,12 @@ package org.metaborg.spoofax.shell.commands;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.function.Consumer;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -23,10 +22,11 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.shell.hooks.IResultHook;
 import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
-import org.metaborg.spoofax.shell.output.StyledText;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -38,8 +38,8 @@ public class ParseCommandTest {
     // Constructor mocks
     @Mock private ISpoofaxSyntaxService syntaxService;
     @Mock private IResultFactory resultFactory;
-    @Mock private Consumer<StyledText> onSuccess;
-    @Mock private Consumer<StyledText> onError;
+    @Mock
+    private IResultHook resultHook;
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
 
@@ -65,8 +65,7 @@ public class ParseCommandTest {
         when(resultFactory.createInputResult(any(), any(), any())).thenReturn(inputResult);
         when(resultFactory.createParseResult(any())).thenReturn(parseResult);
 
-        parseCommand = new ParseCommand(syntaxService, resultFactory,
-                                        onSuccess, onError, project, lang);
+        parseCommand = new ParseCommand(syntaxService, resultHook, resultFactory, project, lang);
     }
 
     /**
@@ -105,12 +104,15 @@ public class ParseCommandTest {
      * @throws MetaborgException when the source contains invalid syntax
      */
     @Test
-    public void testExecuteValid() throws MetaborgException {
+    public void testExecuteValid() {
         when(parseResult.valid()).thenReturn(true);
 
-        parseCommand.execute("test");
-        verify(onSuccess, times(1)).accept(any(StyledText.class));
-        verify(onError, never()).accept(any());
+        try {
+            parseCommand.execute("test");
+            verify(resultHook, times(1)).accept(any(ISpoofaxResult.class));
+        } catch (MetaborgException e) {
+            fail("Should not happen");
+        }
     }
 
     /**
@@ -118,12 +120,11 @@ public class ParseCommandTest {
      * @throws MetaborgException when the source contains invalid syntax
      * @throws FileSystemException when the temporary file is not resolved
      */
-    @Test
+    @Test(expected = MetaborgException.class)
     public void testExecuteInvalid() throws MetaborgException, FileSystemException {
         when(parseResult.valid()).thenReturn(false);
 
         parseCommand.execute("test");
-        verify(onSuccess, never()).accept(any());
-        verify(onError, times(1)).accept(any(StyledText.class));
+        verify(resultHook, never()).accept(any());
     }
 }

@@ -1,6 +1,6 @@
 package org.metaborg.spoofax.shell.commands;
 
-import org.metaborg.spoofax.shell.client.Repl;
+import org.metaborg.spoofax.shell.core.Repl;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

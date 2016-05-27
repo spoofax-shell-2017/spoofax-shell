@@ -1,14 +1,13 @@
-package org.metaborg.spoofax.shell.client;
+package org.metaborg.spoofax.shell.client.console;
 
 import java.io.IOException;
 
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.output.StyledText;
 
 /**
- * An {@link IEditor} is where expressions in some language can be typed. It takes care of the
- * prompt, keybindings, the history and multiline editing capabilities.
+ * An {@link IEditor} is where expressions in some language can be typed. It takes care of
+ * keybindings, offering completions, the input history and multiline editing capabilities.
  */
 public interface IEditor {
 
@@ -33,21 +32,4 @@ public interface IEditor {
      * @return The history of evaluated expressions, oldest entries first.
      */
     IInputHistory history();
-
-    /**
-     * Set the prompt to display.
-     *
-     * @param promptString
-     *            The prompt string.
-     */
-    void setPrompt(StyledText promptString);
-
-    /**
-     * Set the prompt to display when in multiline mode.
-     *
-     * @param styledText
-     *            The prompt string.
-     */
-    void setContinuationPrompt(StyledText styledText);
-
 }

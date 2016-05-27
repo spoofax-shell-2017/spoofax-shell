@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.output;
 import java.awt.Color;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.style.IRegionStyle;
@@ -128,6 +129,37 @@ public class StyledText {
      */
     public StyledText append(IStyle style, String text) {
         return this.append(null, style, text);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof StyledText)) {
+            return false;
+        }
+
+        StyledText other = (StyledText) obj;
+        if (source.size() != other.source.size()) {
+            return false;
+        }
+
+        return IntStream.range(0, source.size())
+            .mapToObj(e -> {
+                IRegionStyle<String> s = source.get(e);
+                IRegionStyle<String> o = other.source.get(e);
+
+                return s.fragment().equals(o.fragment())
+                        && (s.style() == o.style()
+                            || s.style() != null && s.style().equals(o.style())
+                            || o.style() != null && o.style().equals(s.style()));
+            })
+            .allMatch(e -> e);
+    }
+
+    @Override
+    public int hashCode() {
+        return source.stream()
+                .map(e -> e.fragment().hashCode() * e.style().hashCode())
+                .reduce(1, (a, b) -> a * b);
     }
 
     @Override

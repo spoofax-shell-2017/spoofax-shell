@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client;
+package org.metaborg.spoofax.shell.client.console;
 
 import org.metaborg.spoofax.shell.output.StyledText;
 
@@ -20,19 +20,4 @@ public interface IDisplay {
      */
     void displayError(StyledText s);
 
-    /**
-     * Display a result string with no style.
-     * @param s The string to be displayed.
-     */
-    default void displayResult(String s) {
-        displayResult(new StyledText(s));
-    }
-
-    /**
-     * Display an error string with no style.
-     * @param s The string to be displayed.
-     */
-    default void displayError(String s) {
-        displayError(new StyledText(s));
-    }
 }

@@ -1,7 +1,6 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client.console.impl;
 
-import static org.metaborg.spoofax.shell.client.console.AnsiColors.findClosest;
-
+import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,8 +14,10 @@ import java.util.stream.Collectors;
 import org.fusesource.jansi.Ansi;
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.client.IDisplay;
-import org.metaborg.spoofax.shell.client.IEditor;
+import org.metaborg.spoofax.shell.client.console.AnsiColors;
+import org.metaborg.spoofax.shell.client.console.IDisplay;
+import org.metaborg.spoofax.shell.client.console.IEditor;
+import org.metaborg.spoofax.shell.client.console.IInputHistory;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
@@ -32,7 +33,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     private final ArrayList<String> lines;
     private final PrintWriter out;
     private final PrintWriter err;
-    private final JLine2InputHistory hist;
+    private final IInputHistory hist;
     private StyledText prompt;
     private StyledText continuationPrompt;
 
@@ -50,8 +51,8 @@ public class TerminalUserInterface implements IEditor, IDisplay {
      */
     @Inject
     public TerminalUserInterface(ConsoleReader reader, @Named("out") OutputStream out,
-                                 @Named("err") OutputStream err, JLine2InputHistory hist)
-                                     throws IOException {
+                                 @Named("err") OutputStream err, IInputHistory hist)
+        throws IOException {
         this.reader = reader;
         this.hist = hist;
         reader.setExpandEvents(false);
@@ -65,6 +66,9 @@ public class TerminalUserInterface implements IEditor, IDisplay {
                                                                       Charset.forName("UTF-8"))));
 
         lines = new ArrayList<>();
+
+        this.setPrompt(new StyledText(Color.GREEN, "[In ]: "));
+        this.setContinuationPrompt(new StyledText("[...]: "));
     }
 
     /**
@@ -77,17 +81,27 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         lines.add(lastLine);
     }
 
-    // -------------- IEditor --------------
-    @Override
+    /**
+     * Set the prompt to display.
+     *
+     * @param promptString
+     *            The prompt string.
+     */
     public void setPrompt(StyledText promptString) {
         prompt = promptString;
     }
 
-    @Override
+    /**
+     * Set the prompt to display when in multiline mode.
+     *
+     * @param promptString
+     *            The prompt string.
+     */
     public void setContinuationPrompt(StyledText promptString) {
         continuationPrompt = promptString;
     }
 
+    // -------------- IEditor --------------
     @Override
     public void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService) {
         reader.addCompleter((buffer, cursor, candidates) -> {
@@ -114,7 +128,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     }
 
     @Override
-    public JLine2InputHistory history() {
+    public IInputHistory history() {
         return hist;
     }
 
@@ -136,7 +150,7 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         text.getSource().stream()
         .forEach(e -> {
             if (e.style() != null && e.style().color() != null) {
-                ansi.fg(findClosest(e.style().color())).a(e.fragment()).reset();
+                    ansi.fg(AnsiColors.findClosest(e.style().color())).a(e.fragment()).reset();
             } else {
                 ansi.a(e.fragment());
             }

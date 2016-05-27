@@ -19,7 +19,7 @@ import com.google.inject.assistedinject.AssistedInject;
  * Represents a {@link TransformResult} as returned by the {@link SpoofaxCommand}.
  * Wraps a {@link ISpoofaxTransformUnit}.
  */
-public class TransformResult extends AbstractResult<ISpoofaxTransformUnit<?>> {
+public class TransformResult extends AbstractSpoofaxResult<ISpoofaxTransformUnit<?>> {
 
     /**
      * Create a {@link TransformResult}.
