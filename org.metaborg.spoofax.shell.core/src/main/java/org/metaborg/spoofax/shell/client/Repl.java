@@ -3,13 +3,11 @@ package org.metaborg.spoofax.shell.client;
 import java.awt.Color;
 import java.io.IOException;
 
-import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
-import org.metaborg.spoofax.shell.commands.IReplCommand;
-import org.metaborg.spoofax.shell.core.StyledText;
+import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 /**
  * Interactive REPL (Read-Eval-Print Loop) which reads an expression or command typed in by the user
@@ -52,7 +50,7 @@ public class Repl {
      */
     public void run() throws IOException {
         String input;
-        running = true;
+        setRunning(true);
         while (running && (input = editor.getInput()) != null) {
             input = input.trim();
             if (input.length() == 0) {
@@ -67,30 +65,9 @@ public class Repl {
     }
 
     /**
-     * Exit the REPL.
+     * @param running the running to set
      */
-    static class ExitCommand implements IReplCommand {
-        private final Provider<Repl> replProvider;
-
-        /**
-         * Instantiates a new ExitCommand.
-         *
-         * @param replProvider
-         *            Provides the REPL instance.
-         */
-        @Inject
-        ExitCommand(Provider<Repl> replProvider) {
-            this.replProvider = replProvider;
-        }
-
-        @Override
-        public String description() {
-            return "Exit the REPL session.";
-        }
-
-        @Override
-        public void execute(String... args) {
-            replProvider.get().running = false;
-        }
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 }

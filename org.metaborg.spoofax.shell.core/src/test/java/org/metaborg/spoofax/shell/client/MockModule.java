@@ -1,6 +1,6 @@
 package org.metaborg.spoofax.shell.client;
 
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 import com.google.inject.AbstractModule;
 

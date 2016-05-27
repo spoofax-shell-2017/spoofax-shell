@@ -1,5 +1,7 @@
 package org.metaborg.spoofax.shell.commands;
 
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+
 /**
  * Interface for REPL commands. Used together with {@link ICommandInvoker}, instances of
  * implementors of this interface can be bound to names and descriptions.

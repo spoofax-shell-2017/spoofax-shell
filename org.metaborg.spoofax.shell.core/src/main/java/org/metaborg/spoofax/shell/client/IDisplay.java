@@ -1,6 +1,6 @@
 package org.metaborg.spoofax.shell.client;
 
-import org.metaborg.spoofax.shell.core.StyledText;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 /**
  * An {@link IDisplay} is for displaying the results of a command or expression that was executed,

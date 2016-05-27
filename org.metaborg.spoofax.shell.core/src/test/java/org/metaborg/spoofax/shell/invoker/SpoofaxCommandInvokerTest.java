@@ -1,15 +1,13 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.invoker;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommandInvoker;
+import org.mockito.Mock;
 
-import com.google.inject.Guice;
+import com.google.common.collect.Maps;
 
 /**
  * Test the default implementation of {@link ICommandInvoker}.
@@ -17,13 +15,15 @@ import com.google.inject.Guice;
 public class SpoofaxCommandInvokerTest {
     private SpoofaxCommandInvoker invoker;
 
+    @Mock
+    private ICommandFactory factory;
+
     /**
      * Setup the commands, one with description and one without.
      */
     @Before
     public void setUp() {
-        invoker =
-            Guice.createInjector(new CommandTestModule()).getInstance(SpoofaxCommandInvoker.class);
+        invoker = new SpoofaxCommandInvoker(factory, Maps.newHashMap());
     }
 
     /**

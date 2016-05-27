@@ -11,13 +11,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import org.metaborg.core.context.IContext;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.MockModule;
 import org.metaborg.spoofax.shell.client.Repl;
 import org.metaborg.spoofax.shell.client.ReplModule;
 import org.metaborg.spoofax.shell.client.ReplTest;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 import com.google.inject.Guice;
 
@@ -30,7 +29,7 @@ public class ConsoleReplTest extends ReplTest {
 
     @Override
     protected ReplModule replModule() {
-        return new ConsoleReplModule(mock(IContext.class, RETURNS_MOCKS));
+        return new ConsoleReplModule();
     }
 
     /**

@@ -15,9 +15,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.junit.Test;
-import org.metaborg.core.context.IContext;
-import org.metaborg.spoofax.shell.commands.CommandNotFoundException;
-import org.metaborg.spoofax.shell.commands.ICommandInvoker;
+import org.metaborg.spoofax.shell.commands.ExitCommand;
+import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
+import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -37,7 +37,7 @@ public class ReplTest {
      * @return The {@link ReplModule} for this ReplTest.
      */
     protected ReplModule replModule() {
-        return new ReplModule(mock(IContext.class, RETURNS_MOCKS));
+        return new ReplModule();
     }
 
     /**
@@ -124,7 +124,7 @@ public class ReplTest {
             setUpExit();
 
             // Stub the invoker so that it returns an exit command which we can spy on.
-            Repl.ExitCommand exitCommandMock = spy(new Repl.ExitCommand(() -> repl));
+            ExitCommand exitCommandMock = spy(new ExitCommand(() -> repl));
             when(invokerMock.commandFromName("exit")).thenReturn(exitCommandMock);
 
             repl.run();

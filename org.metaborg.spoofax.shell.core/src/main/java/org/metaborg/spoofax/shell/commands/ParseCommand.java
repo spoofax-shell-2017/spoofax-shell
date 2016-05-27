@@ -1,20 +1,21 @@
 package org.metaborg.spoofax.shell.commands;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.function.Consumer;
 
-import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
-import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
+import org.metaborg.spoofax.core.syntax.SpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
-import org.metaborg.spoofax.shell.core.StyledText;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.InputResult;
+import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 
 /**
@@ -23,20 +24,28 @@ import com.google.inject.name.Named;
 public class ParseCommand extends SpoofaxCommand {
     private static final String DESCRIPTION = "Parse an expression.";
 
-    @Inject
-    private ISpoofaxUnitService unitService;
-    @Inject
     private ISpoofaxSyntaxService syntaxService;
+    private IResultFactory unitFactory;
 
     /**
      * Instantiate a {@link ParseCommand}.
-     * @param onSuccess Called upon success by the created {@link SpoofaxCommand}.
-     * @param onError   Called upon an error by the created {@link SpoofaxCommand}.
+     * @param syntaxService  The {@link SpoofaxSyntaxService}.
+     * @param unitFactory    The {@link IResultFactory}.
+     * @param onSuccess      Called upon success by the created {@link SpoofaxCommand}.
+     * @param onError        Called upon an error by the created {@link SpoofaxCommand}.
+     * @param project        The project in which this command should operate.
+     * @param lang           The language to which this command applies.
      */
     @Inject
-    public ParseCommand(@Named("onSuccess") Consumer<StyledText> onSuccess,
-                        @Named("onError") Consumer<StyledText> onError) {
-        super(onSuccess, onError);
+    public ParseCommand(ISpoofaxSyntaxService syntaxService,
+                        IResultFactory unitFactory,
+                        @Named("onSuccess") Consumer<StyledText> onSuccess,
+                        @Named("onError") Consumer<StyledText> onError,
+                        @Assisted IProject project,
+                        @Assisted ILanguageImpl lang) {
+        super(onSuccess, onError, project, lang);
+        this.syntaxService = syntaxService;
+        this.unitFactory = unitFactory;
     }
 
     @Override
@@ -47,39 +56,28 @@ public class ParseCommand extends SpoofaxCommand {
     /**
      * Parses a program using the {@link ISpoofaxSyntaxService}.
      *
-     * @param source
-     *            The source of the program.
-     * @param sourceFile
-     *            The temporary file containing the source of the program.
+     * @param unit the input for the program
      * @return An {@link ISpoofaxParseUnit}.
      * @throws MetaborgException
      *             When parsing fails.
-     * @throws IOException
-     *             When writing to the temporary file fails
      */
-    public ISpoofaxParseUnit parse(String source, FileObject sourceFile)
-            throws IOException, MetaborgException {
-        OutputStream os = sourceFile.getContent().getOutputStream();
-        os.write(source.getBytes(Charset.forName("UTF-8")));
-        os.close();
+    public ParseResult parse(InputResult unit) throws MetaborgException {
+        ISpoofaxParseUnit parse = syntaxService.parse(unit.unit());
+        ParseResult result = unitFactory.createParseResult(parse);
 
-        ISpoofaxInputUnit inputUnit = unitService.inputUnit(sourceFile, source,
-                this.context.language(), null);
-
-        ISpoofaxParseUnit parseUnit = this.syntaxService.parse(inputUnit);
-        if (!parseUnit.valid()) {
-            throw new MetaborgException("The resulting parse unit is invalid.");
+        if (!result.valid()) {
+            throw new MetaborgException("Invalid parse result!");
         }
-        return parseUnit;
+        return result;
     }
 
     @Override
     public void execute(String... args) {
         try {
-            FileObject tempFile = this.context.location().resolveFile("tmp.src");
-            IStrategoTerm term = this.parse(args[0], tempFile).ast();
+            InputResult input = unitFactory.createInputResult(lang, write(args[0]), args[0]);
+            ParseResult parse = parse(input);
 
-            this.onSuccess.accept(new StyledText(common.toString(term)));
+            this.onSuccess.accept(parse.styled());
         } catch (IOException | MetaborgException e) {
             this.onError.accept(new StyledText(e.getMessage()));
         }

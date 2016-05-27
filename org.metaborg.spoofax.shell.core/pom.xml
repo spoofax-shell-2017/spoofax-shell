@@ -21,6 +21,10 @@
             <artifactId>guice</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-assistedinject</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.core</artifactId>
         </dependency>

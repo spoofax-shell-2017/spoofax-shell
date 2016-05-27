@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
-import org.metaborg.spoofax.shell.core.StyledText;
+import org.metaborg.spoofax.shell.output.StyledText;
 import org.mockito.Mockito;
 
 import com.google.inject.Guice;

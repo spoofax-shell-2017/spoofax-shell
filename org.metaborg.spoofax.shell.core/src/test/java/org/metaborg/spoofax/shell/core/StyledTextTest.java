@@ -9,6 +9,7 @@ import java.awt.Color;
 import org.junit.Test;
 import org.metaborg.core.style.RegionStyle;
 import org.metaborg.core.style.Style;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 /**
  * Test cases for the {@link StyledText} class, which wraps Spoofax's {@link RegionStyle}.
