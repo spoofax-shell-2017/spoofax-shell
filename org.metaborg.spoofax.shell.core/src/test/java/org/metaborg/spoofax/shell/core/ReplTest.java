@@ -1,80 +1,75 @@
 package org.metaborg.spoofax.shell.core;
 
-import static org.mockito.Mockito.RETURNS_MOCKS;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.metaborg.core.MetaborgException;
+import org.metaborg.spoofax.shell.commands.ExitCommand;
+import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
+import org.metaborg.spoofax.shell.invoker.ICommandFactory;
+import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.util.Modules;
+import com.google.common.collect.Maps;
+import com.google.inject.Provider;
 
 /**
  * Tests the REPL by simulating user input.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ReplTest {
-    protected ICommandInvoker invokerMock;
-    protected Repl replMock;
-    protected Injector injector;
+    @Mock private ICommandFactory factory;
+    @Mock private Provider<Repl> provider;
 
-    /**
-     * @return The {@link ReplModule} for this ReplTest.
-     */
-    protected ReplModule replModule() {
-        return new ReplModule();
-    }
-
-    /**
-     * Create an {@link Injector} with {@link Module} {@code overrides}.
-     *
-     * @param overrides
-     *            The module overrides.
-     */
-    protected void createInjector(Module... overrides) {
-        Module overridden = Modules.override(replModule()).with(overrides);
-        injector = Guice.createInjector(overridden);
-    }
-
+    private SpoofaxCommandInvoker invoker;
+    private ExitCommand exitCommand;
+    private Repl repl;
 
     /**
      * Setup the mock invoker.
+     * @throws CommandNotFoundException when the exit command was not found
      */
-    protected void setUpExit() {
-        replMock = mock(Repl.class, RETURNS_MOCKS);
-        when(replMock.read()).thenReturn(":exit");
+    @Before
+    public void setup() throws CommandNotFoundException {
+        exitCommand = spy(new ExitCommand(provider));
+        invoker = spy(new SpoofaxCommandInvoker(factory, Maps.newHashMap()));
+        repl = spy(new Repl(invoker) {
+            @Override
+            protected String read() {
+                return ":exit";
+            }
+        });
 
-        // Create an injector Then use it to create an invoker.
-        createInjector(new MockModule(replMock));
-        invokerMock = spy(injector.getInstance(ICommandInvoker.class));
+        doReturn(exitCommand).when(invoker).commandFromName("exit");
+        when(provider.get()).thenReturn(repl);
     }
 
-    /// **
-    // * Tests the {@link ExitCommand}.
-    // */
-    // @Test
-    // public void testExitCommand() {
-    // try {
-    // setUpExit();
+    /**
+     * Tests the {@link ExitCommand}.
+     */
+     @Test
+     public void testExitCommand() {
+         try {
+             repl.run();
 
-    // // Stub the invoker so that it returns an exit command which we can spy on.
-    // ExitCommand exitCommandMock = spy(new ExitCommand(() -> replMock));
-    // when(invokerMock.commandFromName("exit")).thenReturn(exitCommandMock);
+             // Ensure that the command was given to the invoker just once.
+             verify(invoker, times(1)).execute(":exit");
 
-    // replMock.run();
+             // Ensure that exitCommand was executed once.
+             verify(exitCommand, times(1)).execute();
 
-    // // Ensure that the command was given to the invoker just once.
-    // verify(invokerMock, times(1)).execute(":exit");
-
-    // // Ensure that exitCommand was executed once.
-    // verify(exitCommandMock, times(1)).execute();
-
-    // // Verify that the Editor was not asked for input after the exit command was executed.
-    // verify(replMock, times(1)).read();
-    // } catch (MetaborgException | CommandNotFoundException e) {
-    // fail("Should not happen");
-    // }
-    // }
+             // Verify that the Editor was not asked for input after the exit command was executed.
+             verify(repl, times(1)).read();
+         } catch (MetaborgException | CommandNotFoundException e) {
+             fail("Should not happen");
+         }
+     }
 }

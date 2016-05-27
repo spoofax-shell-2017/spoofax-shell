@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.core;
+package org.metaborg.spoofax.shell.output;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
