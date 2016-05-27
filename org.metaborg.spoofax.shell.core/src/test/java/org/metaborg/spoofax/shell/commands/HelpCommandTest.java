@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.project.IProject;
-import org.metaborg.spoofax.shell.hooks.MessageHook;
+import org.metaborg.spoofax.shell.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -33,7 +33,7 @@ public class HelpCommandTest {
     // Constructor mocks
     @Mock private ICommandInvoker invoker;
     @Mock
-    private MessageHook messageHook;
+    private IMessageHook messageHook;
     @Mock private IProject project;
 
     @Mock private ICommandFactory commandFactory;
@@ -125,7 +125,7 @@ public class HelpCommandTest {
     public void testCommandSingleLine() throws MetaborgException {
         String expected = "name-1 test-1";
 
-        MessageHook messageHook = (s) -> assertEquals(expected, s.toString());
+        IMessageHook messageHook = (s) -> assertEquals(expected, s.toString());
         helpCommand = new HelpCommand(messageHook, invoker);
 
         helpCommand.execute("name-1");
@@ -142,7 +142,7 @@ public class HelpCommandTest {
         String expected = "name-2 test-2\n"
                         + "       test-2";
 
-        MessageHook messageHook = (s) -> assertEquals(expected, s.toString());
+        IMessageHook messageHook = (s) -> assertEquals(expected, s.toString());
         helpCommand = new HelpCommand(messageHook, invoker);
 
         helpCommand.execute("name-2");
@@ -160,7 +160,7 @@ public class HelpCommandTest {
                         + "name-2 test-2\n"
                         + "       test-2";
 
-        MessageHook messageHook = (s) -> assertEquals(expected, s.toString());
+        IMessageHook messageHook = (s) -> assertEquals(expected, s.toString());
         helpCommand = new HelpCommand(messageHook, invoker);
 
         helpCommand.execute();

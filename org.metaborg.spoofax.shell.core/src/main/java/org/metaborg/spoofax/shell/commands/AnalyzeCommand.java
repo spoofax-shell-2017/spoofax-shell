@@ -12,7 +12,7 @@ import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.shell.hooks.ResultHook;
+import org.metaborg.spoofax.shell.hooks.IResultHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -43,7 +43,7 @@ public class AnalyzeCommand extends SpoofaxCommand {
      * @param commandFactory
      *            The {@link ICommandFactory} used to create a {@link ParseCommand}.
      * @param resultHook
-     *            The {@link ResultHook} to send results of successful evaluations to.
+     *            The {@link IResultHook} to send results of successful evaluations to.
      * @param resultFactory
      *            The {@link ResultFactory}.
      * @param project
@@ -53,7 +53,7 @@ public class AnalyzeCommand extends SpoofaxCommand {
      */
     @Inject
     public AnalyzeCommand(IContextService contextService, ISpoofaxAnalysisService analysisService,
-                          ICommandFactory commandFactory, ResultHook resultHook,
+                          ICommandFactory commandFactory, IResultHook resultHook,
                           IResultFactory resultFactory, @Assisted IProject project,
                           @Assisted ILanguageImpl lang) {
         super(resultHook, resultFactory, project, lang);

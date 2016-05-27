@@ -12,7 +12,7 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
-import org.metaborg.spoofax.shell.hooks.MessageHook;
+import org.metaborg.spoofax.shell.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -24,7 +24,7 @@ import com.google.inject.Inject;
  */
 public class LanguageCommand implements IReplCommand {
 
-    private final MessageHook messageHook;
+    private final IMessageHook messageHook;
     private final ILanguageDiscoveryService langDiscoveryService;
     private final IResourceService resourceService;
     private final ICommandInvoker invoker;
@@ -35,7 +35,7 @@ public class LanguageCommand implements IReplCommand {
      * Instantiate a {@link LanguageCommand}. Loads all commands applicable to a lanugage.
      *
      * @param messageHook
-     *            the {@link MessageHook} to send messages to.
+     *            the {@link IMessageHook} to send messages to.
      * @param langDiscoveryService
      *            the {@link ILanguageDiscoveryService}
      * @param resourceService
@@ -46,7 +46,7 @@ public class LanguageCommand implements IReplCommand {
      *            the associated {@link IProject}
      */
     @Inject
-    public LanguageCommand(MessageHook messageHook, ILanguageDiscoveryService langDiscoveryService,
+    public LanguageCommand(IMessageHook messageHook, ILanguageDiscoveryService langDiscoveryService,
                            IResourceService resourceService, ICommandInvoker invoker,
                            IProject project) { // FIXME: don't use the hardcoded @Provides
         this.messageHook = messageHook;

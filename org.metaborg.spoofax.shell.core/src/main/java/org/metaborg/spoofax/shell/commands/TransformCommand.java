@@ -24,7 +24,7 @@ import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
-import org.metaborg.spoofax.shell.hooks.ResultHook;
+import org.metaborg.spoofax.shell.hooks.IResultHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -95,7 +95,7 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
      * @param commandFactory
      *            The {@link CommandFactory} to create {@link SpoofaxCommand}s.
      * @param resultHook
-     *            The {@link ResultHook} to send results of successful evaluations to.
+     *            The {@link IResultHook} to send results of successful evaluations to.
      * @param resultFactory
      *            The {@link ResultFactory}.
      * @param project
@@ -111,7 +111,7 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
                             ISpoofaxTransformService transformService,
                             IMenuService menuService,
                             ICommandFactory commandFactory,
-                            ResultHook resultHook,
+                            IResultHook resultHook,
                             IResultFactory resultFactory,
                             @Assisted IProject project,
                             @Assisted ILanguageImpl lang,

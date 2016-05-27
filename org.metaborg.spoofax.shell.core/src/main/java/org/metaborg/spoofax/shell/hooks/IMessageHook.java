@@ -8,5 +8,5 @@ import org.metaborg.spoofax.shell.output.StyledText;
 /**
  * Called with the result of executing an {@link IReplCommand}.
  */
-public interface MessageHook extends Consumer<StyledText> {
+public interface IMessageHook extends Consumer<StyledText> {
 }

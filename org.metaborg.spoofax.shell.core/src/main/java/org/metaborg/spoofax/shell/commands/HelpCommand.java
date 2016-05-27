@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.shell.hooks.MessageHook;
+import org.metaborg.spoofax.shell.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -17,19 +17,19 @@ import com.google.inject.Inject;
  * Shows descriptions of all commands, or one command if given.
  */
 public class HelpCommand implements IReplCommand {
-    private final MessageHook messageHook;
+    private final IMessageHook messageHook;
     private final ICommandInvoker invoker;
 
     /**
      * Instantiates a new HelpCommand.
      *
      * @param messageHook
-     *            The {@link MessageHook} to send the help message to.
+     *            The {@link IMessageHook} to send the help message to.
      * @param invoker
      *            The {@link ICommandInvoker}.
      */
     @Inject
-    public HelpCommand(MessageHook messageHook, ICommandInvoker invoker) {
+    public HelpCommand(IMessageHook messageHook, ICommandInvoker invoker) {
         this.messageHook = messageHook;
         this.invoker = invoker;
     }

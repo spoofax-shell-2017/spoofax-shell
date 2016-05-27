@@ -28,7 +28,7 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.hooks.ResultHook;
+import org.metaborg.spoofax.shell.hooks.IResultHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -49,7 +49,7 @@ public class AnalyzeCommandTest {
     @Mock private ICommandFactory commandFactory;
     @Mock private IResultFactory resultFactory;
     @Mock
-    private ResultHook resultHook;
+    private IResultHook resultHook;
     @Mock private Consumer<StyledText> onError;
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;

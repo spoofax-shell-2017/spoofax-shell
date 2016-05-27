@@ -10,7 +10,7 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.syntax.SpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.hooks.ResultHook;
+import org.metaborg.spoofax.shell.hooks.IResultHook;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
@@ -32,7 +32,7 @@ public class ParseCommand extends SpoofaxCommand {
      * @param syntaxService
      *            The {@link SpoofaxSyntaxService}.
      * @param resultHook
-     *            The {@link ResultHook} to send results of successful evaluations to.
+     *            The {@link IResultHook} to send results of successful evaluations to.
      * @param resultFactory
      *            The {@link IResultFactory}.
      * @param project
@@ -41,7 +41,7 @@ public class ParseCommand extends SpoofaxCommand {
      *            The language to which this command applies.
      */
     @Inject
-    public ParseCommand(ISpoofaxSyntaxService syntaxService, ResultHook resultHook,
+    public ParseCommand(ISpoofaxSyntaxService syntaxService, IResultHook resultHook,
                         IResultFactory resultFactory,
                         @Assisted IProject project, @Assisted ILanguageImpl lang) {
         super(resultHook, resultFactory, project, lang);

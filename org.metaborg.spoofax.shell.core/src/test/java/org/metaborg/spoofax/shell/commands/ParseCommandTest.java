@@ -22,7 +22,7 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.hooks.ResultHook;
+import org.metaborg.spoofax.shell.hooks.IResultHook;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.InputResult;
@@ -39,7 +39,7 @@ public class ParseCommandTest {
     @Mock private ISpoofaxSyntaxService syntaxService;
     @Mock private IResultFactory resultFactory;
     @Mock
-    private ResultHook resultHook;
+    private IResultHook resultHook;
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
 

@@ -10,5 +10,5 @@ import org.metaborg.spoofax.shell.output.ISpoofaxResult;
  *
  * @see {@link ISpoofaxResult}.
  */
-public interface ResultHook extends Consumer<ISpoofaxResult<?>> {
+public interface IResultHook extends Consumer<ISpoofaxResult<?>> {
 }
