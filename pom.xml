@@ -4,7 +4,7 @@
 
     <groupId>org.metaborg</groupId>
     <artifactId>org.metaborg.spoofax.shell</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Spoofax Shell</name>
     <description>A REPL for all languages defined in Spoofax</description>

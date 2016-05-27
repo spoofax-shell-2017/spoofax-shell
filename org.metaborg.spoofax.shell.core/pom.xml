@@ -6,7 +6,7 @@
     <name>Spoofax Shell Core library</name>
     <description>Spoofax Shell core library</description>
     <url>http://spoofax-shell.github.io/</url>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
 
     <parent>
         <groupId>org.metaborg</groupId>
