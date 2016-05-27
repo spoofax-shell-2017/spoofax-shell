@@ -31,6 +31,7 @@ public class ConsoleReplModule extends ReplModule {
      */
     protected void configureUserInterface() {
         bind(Repl.class).to(ConsoleRepl.class);
+        bind(ConsoleRepl.class).in(Singleton.class);
         bind(IInputHistory.class).to(JLine2InputHistory.class);
         bind(JLine2InputHistory.class).to(JLine2PersistentInputHistory.class);
 

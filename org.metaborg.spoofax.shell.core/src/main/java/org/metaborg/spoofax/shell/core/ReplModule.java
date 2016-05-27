@@ -36,7 +36,6 @@ public class ReplModule extends SpoofaxModule {
      */
     protected void configureCommands() {
         commandBinder = MapBinder.newMapBinder(binder(), String.class, IReplCommand.class);
-        // FIXME: the exit command is currently broken.
         commandBinder.addBinding("exit").to(ExitCommand.class).in(Singleton.class);
         commandBinder.addBinding("help").to(HelpCommand.class).in(Singleton.class);
         commandBinder.addBinding("load").to(LanguageCommand.class).in(Singleton.class);
