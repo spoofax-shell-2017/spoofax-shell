@@ -1,9 +1,15 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client.console.impl;
 
+import java.awt.Color;
 import java.io.IOException;
 
+import org.metaborg.core.MetaborgException;
+import org.metaborg.spoofax.shell.client.console.IDisplay;
+import org.metaborg.spoofax.shell.client.console.IEditor;
 import org.metaborg.spoofax.shell.core.Repl;
+import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
 
@@ -42,12 +48,16 @@ public class ConsoleRepl extends Repl {
             String input;
             setRunning(true);
             while (running && (input = read()) != null) {
-                print(eval(input));
+                try {
+                    eval(input);
+                } catch (CommandNotFoundException | MetaborgException e) {
+                    this.display.displayError(new StyledText(Color.RED, e.getMessage()));
+                }
             }
 
             this.editor.history().persistToDisk();
         } catch (IOException e) {
-            e.printStackTrace();
+            this.display.displayError(new StyledText(Color.RED, e.getMessage()));
         }
     }
 
@@ -60,11 +70,6 @@ public class ConsoleRepl extends Repl {
             e.printStackTrace();
         }
         return input;
-    }
-
-    @Override
-    protected void print(String result) {
-        display.displayResult(result);
     }
 
 }

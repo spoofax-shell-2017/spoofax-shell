@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client.console.history;
+package org.metaborg.spoofax.shell.client.console.impl.history;
 
 import java.io.File;
 import java.io.IOException;

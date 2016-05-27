@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client;
+package org.metaborg.spoofax.shell.client.console;
 
 import java.io.IOException;
 
@@ -6,8 +6,8 @@ import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
 /**
- * An {@link IEditor} is where expressions in some language can be typed. It takes care of the
- * prompt, keybindings, the history and multiline editing capabilities.
+ * An {@link IEditor} is where expressions in some language can be typed. It takes care of
+ * keybindings, offering completions, the input history and multiline editing capabilities.
  */
 public interface IEditor {
 
