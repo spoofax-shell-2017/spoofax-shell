@@ -35,6 +35,7 @@ public class ConsoleReplModule extends ReplModule {
         bind(IInputHistory.class).to(JLine2InputHistory.class);
         bind(JLine2InputHistory.class).to(JLine2PersistentInputHistory.class);
 
+        bind(TerminalUserInterface.class).in(Singleton.class);
         bind(IEditor.class).to(TerminalUserInterface.class);
         bind(IDisplay.class).to(TerminalUserInterface.class);
         bind(IMessageHook.class).to(ConsoleMessageHook.class);
