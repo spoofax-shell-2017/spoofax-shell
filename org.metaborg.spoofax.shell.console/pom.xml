@@ -138,7 +138,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.metaborg.spoofax.shell.client.console.ConsoleRepl</mainClass>
+                            <mainClass>org.metaborg.spoofax.shell.client.console.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
