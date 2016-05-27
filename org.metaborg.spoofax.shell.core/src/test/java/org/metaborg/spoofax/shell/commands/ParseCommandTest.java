@@ -43,8 +43,6 @@ public class ParseCommandTest {
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
 
-    @Mock private ISpoofaxParseUnit parseUnit;
-
     @Mock private InputResult inputResult;
     @Mock private ParseResult parseResult;
 

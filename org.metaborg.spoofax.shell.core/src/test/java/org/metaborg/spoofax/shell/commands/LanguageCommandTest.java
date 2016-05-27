@@ -28,7 +28,6 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
-import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -46,8 +45,6 @@ public class LanguageCommandTest {
     @Mock private ICommandInvoker invoker;
     @Mock
     private IMessageHook messageHook;
-    @Mock
-    private IResultFactory resultFactory;
     @Mock private IProject project;
 
     @Mock private ICommandFactory commandFactory;
