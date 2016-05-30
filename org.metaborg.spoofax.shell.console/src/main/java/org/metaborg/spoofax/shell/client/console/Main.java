@@ -2,6 +2,7 @@ package org.metaborg.spoofax.shell.client.console;
 
 import java.awt.Color;
 
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleReplModule;
 import org.metaborg.spoofax.shell.output.StyledText;

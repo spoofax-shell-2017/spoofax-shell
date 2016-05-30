@@ -1,7 +1,7 @@
 package org.metaborg.spoofax.shell.client.console.impl.hooks;
 
-import org.metaborg.spoofax.shell.client.console.IDisplay;
-import org.metaborg.spoofax.shell.hooks.IMessageHook;
+import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;

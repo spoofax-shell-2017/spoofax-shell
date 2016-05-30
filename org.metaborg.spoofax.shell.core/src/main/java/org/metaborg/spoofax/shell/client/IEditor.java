@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client;
 
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;

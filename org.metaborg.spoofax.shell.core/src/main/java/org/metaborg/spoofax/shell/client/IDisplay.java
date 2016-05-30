@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client.console;
+package org.metaborg.spoofax.shell.client;
 
 import org.metaborg.spoofax.shell.output.StyledText;
 

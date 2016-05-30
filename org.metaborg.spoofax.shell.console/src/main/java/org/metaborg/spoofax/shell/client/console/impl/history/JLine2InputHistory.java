@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.metaborg.spoofax.shell.client.console.IInputHistory;
+import org.metaborg.spoofax.shell.client.IInputHistory;
 
 import com.google.inject.Inject;
 

@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 import org.fusesource.jansi.Ansi;
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IEditor;
+import org.metaborg.spoofax.shell.client.IInputHistory;
 import org.metaborg.spoofax.shell.client.console.AnsiColors;
-import org.metaborg.spoofax.shell.client.console.IDisplay;
-import org.metaborg.spoofax.shell.client.console.IEditor;
-import org.metaborg.spoofax.shell.client.console.IInputHistory;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
