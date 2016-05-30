@@ -103,28 +103,33 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     // -------------- IEditor --------------
     @Override
+    public String getInput() {
+        String input = null;
+        String lastLine;
+        reader.setPrompt(ansi(prompt));
+        try {
+            // While the input is not empty, keep asking.
+            while ((lastLine = reader.readLine()) != null && lastLine.trim().length() > 0) {
+                reader.flush();
+                reader.setPrompt(ansi(continuationPrompt));
+                saveLine(lastLine);
+            }
+            // Concatenate the strings with newlines in between.
+            input = lastLine == null ? null : lines.stream().collect(Collectors.joining("\n"));
+            // Clear the lines for next input.
+            lines.clear();
+        } catch (IOException e) {
+            err.println("An error occured: " + e.getMessage() + "\nExiting...");
+            err.flush();
+        }
+        return input;
+    }
+
+    @Override
     public void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService) {
         reader.addCompleter((buffer, cursor, candidates) -> {
             return cursor;
         });
-    }
-
-    @Override
-    public String getInput() throws IOException {
-        String input;
-        String lastLine;
-        reader.setPrompt(ansi(prompt));
-        // While the input is not empty, keep asking.
-        while ((lastLine = reader.readLine()) != null && lastLine.trim().length() > 0) {
-            reader.flush();
-            reader.setPrompt(ansi(continuationPrompt));
-            saveLine(lastLine);
-        }
-        // Concatenate the strings with newlines in between.
-        input = lastLine == null ? null : lines.stream().collect(Collectors.joining("\n"));
-        // Clear the lines for next input.
-        lines.clear();
-        return input;
     }
 
     @Override
@@ -147,10 +152,9 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     private String ansi(StyledText text) {
         Ansi ansi = Ansi.ansi();
-        text.getSource().stream()
-        .forEach(e -> {
+        text.getSource().stream().forEach(e -> {
             if (e.style() != null && e.style().color() != null) {
-                    ansi.fg(AnsiColors.findClosest(e.style().color())).a(e.fragment()).reset();
+                ansi.fg(AnsiColors.findClosest(e.style().color())).a(e.fragment()).reset();
             } else {
                 ansi.a(e.fragment());
             }

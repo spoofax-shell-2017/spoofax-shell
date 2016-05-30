@@ -19,9 +19,9 @@ import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.spoofax.shell.client.console.commands.ExitCommand;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleReplModule;
-import org.metaborg.spoofax.shell.commands.ExitCommand;
 import org.metaborg.spoofax.shell.core.ReplModule;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;

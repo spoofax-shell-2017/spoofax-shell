@@ -1,7 +1,5 @@
 package org.metaborg.spoofax.shell.client.console;
 
-import java.io.IOException;
-
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 
@@ -15,10 +13,8 @@ public interface IEditor {
      * Get the input from the user, optionally spanning multiple lines.
      *
      * @return The input typed in by the user.
-     * @throws IOException
-     *             When an IO error occurs.
      */
-    String getInput() throws IOException;
+    String getInput();
 
     /**
      * Set the completion service to be used when hitting TAB.

@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.client.console.commands;
 
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.metaborg.spoofax.shell.core.Repl;
+import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -21,14 +21,14 @@ import com.google.inject.Provider;
 public class ExitCommandTest {
 
     @Mock
-    private Provider<Repl> provider;
+    private Provider<ConsoleRepl> provider;
     @Mock
-    private Repl repl;
+    private ConsoleRepl repl;
 
     private ExitCommand exitCommand;
 
     /**
-     * Set up the {@link Repl} mock.
+     * Set up the {@link ConsoleRepl} mock.
      */
     @Before
     public void setup() {

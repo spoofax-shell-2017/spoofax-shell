@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.client.console.IDisplay;
 import org.metaborg.spoofax.shell.client.console.IEditor;
-import org.metaborg.spoofax.shell.core.Repl;
+import org.metaborg.spoofax.shell.core.IRepl;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -19,9 +19,11 @@ import com.google.inject.Inject;
  * It uses a GNU Readline-like input buffer with multiline editing capabilities, keyboard shortcuts
  * and persistent history. ANSI color codes are used to display colors.
  */
-public class ConsoleRepl extends Repl {
+public class ConsoleRepl implements IRepl {
+    private final ICommandInvoker invoker;
     private final IEditor editor;
     private final IDisplay display;
+    private boolean running;
 
     /**
      * Instantiates a new ConsoleRepl.
@@ -35,19 +37,41 @@ public class ConsoleRepl extends Repl {
      */
     @Inject
     public ConsoleRepl(IEditor editor, IDisplay display, ICommandInvoker invoker) {
-        super(invoker);
+        this.invoker = invoker;
         this.editor = editor;
         this.display = display;
     }
 
-    @Override
+    /**
+     * Whether or not to keep running the loop.
+     *
+     * @param running
+     *            {@code true} to keep the loop running, {@code false} to stop it.
+     *
+     * @see ConsoleRepl#run()
+     */
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    /**
+     * Run {@link IRepl#eval(String)} in a loop, for as long as {@code running} is {@code true}.
+     *
+     * @throws MetaborgException
+     *             When something goes wrong during execution.
+     * @throws CommandNotFoundException
+     *             When the command could not be found.
+     *
+     * @see IRepl#eval(String)
+     * @see ConsoleRepl#setRunning(boolean)
+     */
     public void run() {
         try {
             this.editor.history().loadFromDisk();
 
             String input;
             setRunning(true);
-            while (running && (input = read()) != null) {
+            while (running && (input = editor.getInput()) != null) {
                 try {
                     eval(input);
                 } catch (CommandNotFoundException | MetaborgException e) {
@@ -62,14 +86,8 @@ public class ConsoleRepl extends Repl {
     }
 
     @Override
-    protected String read() {
-        String input = null;
-        try {
-            input = editor.getInput();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return input;
+    public ICommandInvoker getInvoker() {
+        return this.invoker;
     }
 
 }

@@ -1,6 +1,7 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.client.console.commands;
 
-import org.metaborg.spoofax.shell.core.Repl;
+import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -10,7 +11,7 @@ import com.google.inject.Provider;
  */
 public class ExitCommand implements IReplCommand {
 
-    private final Provider<Repl> replProvider;
+    private final Provider<ConsoleRepl> replProvider;
 
     /**
      * Instantiates a new ExitCommand.
@@ -19,7 +20,7 @@ public class ExitCommand implements IReplCommand {
      *            Provides the REPL instance.
      */
     @Inject
-    public ExitCommand(Provider<Repl> replProvider) {
+    public ExitCommand(Provider<ConsoleRepl> replProvider) {
         this.replProvider = replProvider;
     }
 
