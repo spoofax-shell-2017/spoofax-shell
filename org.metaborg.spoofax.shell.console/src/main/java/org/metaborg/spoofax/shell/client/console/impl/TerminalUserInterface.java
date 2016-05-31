@@ -150,13 +150,17 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         err.flush();
     }
 
-    private String ansi(StyledText text) {
+    private String ansi(StyledText styled) {
+        String text = styled.toString();
+
         Ansi ansi = Ansi.ansi();
-        text.getSource().stream().forEach(e -> {
+        styled.getSource().forEach(e -> {
+            String fragment = text.substring(e.region().startOffset(), e.region().endOffset() + 1);
+
             if (e.style() != null && e.style().color() != null) {
-                ansi.fg(AnsiColors.findClosest(e.style().color())).a(e.fragment()).reset();
+                ansi.fg(AnsiColors.findClosest(e.style().color())).a(fragment).reset();
             } else {
-                ansi.a(e.fragment());
+                ansi.a(fragment);
             }
         });
         return ansi.toString();
