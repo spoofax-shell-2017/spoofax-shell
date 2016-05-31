@@ -15,7 +15,10 @@ import org.metaborg.spoofax.shell.core.DynSemEvaluationStrategy.NonParser;
 import com.oracle.truffle.api.vm.PolyglotEngine;
 
 /**
- * Loads an interpreter from a jar archive.
+ * Loads an interpreter that is present in the class path. This {@link IInterpreterLoader} uses
+ * reflection to load the generated {@link DynSemEntryPoint} and {@link DynSemLanguage} subclasses.
+ * It instantiates a {@link PolyglotEngine} with the {@link NonParser} that is provided, by using
+ * the supported {@link DynSemLanguage#PARSER configuration parameter}.
  */
 public class ClassPathInterpreterLoader implements IInterpreterLoader {
     private NonParser nonParser;
@@ -38,7 +41,6 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         DynSemContext.LANGUAGE = language;
 
         DynSemEntryPoint entryPoint = getEntryPoint(dynSemProperties);
-        //RuleRegistry ruleRegistry = getRuleRegistry(interpreterJar, dynSemProperties);
 
         String mimeType = entryPoint.getMimeType();
         return PolyglotEngine.newBuilder().config(mimeType, DynSemLanguage.PARSER, nonParser)
