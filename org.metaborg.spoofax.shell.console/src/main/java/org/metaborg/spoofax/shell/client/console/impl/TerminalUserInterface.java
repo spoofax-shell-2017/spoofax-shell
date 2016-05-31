@@ -1,5 +1,7 @@
 package org.metaborg.spoofax.shell.client.console.impl;
 
+import static org.metaborg.spoofax.shell.client.console.AnsiColors.findClosest;
+
 import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -9,15 +11,17 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.fusesource.jansi.Ansi;
 import org.metaborg.core.completion.ICompletionService;
+import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IInputHistory;
-import org.metaborg.spoofax.shell.client.console.AnsiColors;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
@@ -150,6 +154,12 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         err.flush();
     }
 
+    private <T> void optional(T t, Function<T, Boolean> check, Consumer<T> accept) {
+        if (check.apply(t)) {
+            accept.accept(t);
+        }
+    }
+
     private String ansi(StyledText styled) {
         String text = styled.toString();
 
@@ -157,8 +167,14 @@ public class TerminalUserInterface implements IEditor, IDisplay {
         styled.getSource().forEach(e -> {
             String fragment = text.substring(e.region().startOffset(), e.region().endOffset() + 1);
 
-            if (e.style() != null && e.style().color() != null) {
-                ansi.fg(AnsiColors.findClosest(e.style().color())).a(fragment).reset();
+            if (e.style() != null) {
+                IStyle style = e.style();
+                optional(style.color(),           (c) -> c != null, (c) -> ansi.fg(findClosest(c)));
+                optional(style.backgroundColor(), (c) -> c != null, (c) -> ansi.bg(findClosest(c)));
+                optional(style.bold(),           (c) -> c, (c) -> ansi.bold());
+                optional(style.italic(),         (c) -> c, (c) -> ansi.a(Ansi.Attribute.ITALIC));
+                optional(style.underscore(),     (c) -> c, (c) -> ansi.a(Ansi.Attribute.UNDERLINE));
+                ansi.a(fragment).reset();
             } else {
                 ansi.a(fragment);
             }

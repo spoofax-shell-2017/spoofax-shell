@@ -28,7 +28,7 @@ public class StyledText {
      *            The unstyled text.
      */
     public StyledText(String text) {
-        this(defaultStyle(), text);
+        this((IStyle) null, text);
     }
 
     /**
@@ -85,7 +85,7 @@ public class StyledText {
      * @return The styled text.
      */
     public StyledText append(String text) {
-        return this.append(defaultStyle(), text);
+        return this.append((IStyle) null, text);
     }
 
     /**
@@ -131,10 +131,6 @@ public class StyledText {
         this.textBuffer.append(text);
 
         return this;
-    }
-
-    private static IStyle defaultStyle() {
-        return colorStyle(null, null);
     }
 
     private static IStyle colorStyle(Color fg, Color bg) {

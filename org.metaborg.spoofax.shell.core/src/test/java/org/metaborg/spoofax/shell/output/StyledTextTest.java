@@ -2,6 +2,7 @@ package org.metaborg.spoofax.shell.output;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.awt.Color;
 import java.util.List;
@@ -26,7 +27,7 @@ public class StyledTextTest {
 
         assertEquals("Hello world", styledText.toString());
         assertEquals(1, source.size());
-        assertEquals(new Style(null, null, false, false, false), source.get(0).style());
+        assertNull(source.get(0).style());
     }
 
     /**
@@ -53,7 +54,7 @@ public class StyledTextTest {
         assertEquals(part2End, source.get(1).region().endOffset());
 
         assertNotNull(source.get(0).style());
-        assertEquals(new Style(null, null, false, false, false), source.get(1).style());
+        assertNull(source.get(1).style());
     }
 
     /**
