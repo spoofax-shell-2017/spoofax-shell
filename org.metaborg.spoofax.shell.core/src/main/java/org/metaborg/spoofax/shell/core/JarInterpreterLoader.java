@@ -1,22 +1,15 @@
 package org.metaborg.spoofax.shell.core;
 
-import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.core.resource.IResourceService;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemContext;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemEntryPoint;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemLanguage;
-import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
-import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.shell.core.DynSemEvaluationStrategy.NonParser;
 
 import com.oracle.truffle.api.vm.PolyglotEngine;
@@ -26,24 +19,18 @@ import com.oracle.truffle.api.vm.PolyglotEngine;
  */
 public class JarInterpreterLoader implements IInterpreterLoader {
     private NonParser nonParser;
-    private IResourceService resourceService;
 
     /**
      * @param nonParser
      *            The {@link NonParser} to inject as configuration parameter to the VM Builder.
-     * @param resourceService
-     *            The resourceService for resolving the specification term file.
      */
-    public JarInterpreterLoader(NonParser nonParser, IResourceService resourceService) {
+    public JarInterpreterLoader(NonParser nonParser) {
         this.nonParser = nonParser;
-        this.resourceService = resourceService;
     }
 
     @Override
     public PolyglotEngine loadInterpreterForLanguage(ILanguageImpl langImpl)
         throws InterpreterLoadException {
-        ShellFacet shellFacet = langImpl.facet(ShellFacet.class);
-        String interpreterJar = shellFacet.getInterpreterPath();
         Properties dynSemProperties = dynSemProperties(langImpl);
 
         DynSemLanguage language = getDynSemLanguageSingleton(dynSemProperties);
@@ -51,11 +38,11 @@ public class JarInterpreterLoader implements IInterpreterLoader {
         DynSemContext.LANGUAGE = language;
 
         DynSemEntryPoint entryPoint = getEntryPoint(dynSemProperties);
-        RuleRegistry ruleRegistry = getRuleRegistry(interpreterJar, dynSemProperties);
+        //RuleRegistry ruleRegistry = getRuleRegistry(interpreterJar, dynSemProperties);
 
         String mimeType = entryPoint.getMimeType();
         return PolyglotEngine.newBuilder().config(mimeType, DynSemLanguage.PARSER, nonParser)
-            .config(mimeType, DynSemLanguage.RULE_REGISTRY, ruleRegistry)
+            .config(mimeType, DynSemLanguage.RULE_REGISTRY, entryPoint.getRuleRegistry())
             .config(mimeType, DynSemLanguage.TERM_REGISTRY, entryPoint.getTermRegistry()).build();
     }
 
@@ -90,35 +77,6 @@ public class JarInterpreterLoader implements IInterpreterLoader {
             return ClassUtils.getClass(targetPackage + "." + langName + className);
         } catch (ClassNotFoundException e) {
             throw new InterpreterLoadException(e);
-        }
-    }
-
-    private String relativizeToJarPath(String interpreterJar, String pathString) {
-        String baseNameString =
-            FilenameUtils.getBaseName(pathString) + '.' + FilenameUtils.getExtension(pathString);
-        String jarURI = "jar://" + interpreterJar + '!' + File.separator + baseNameString;
-        return jarURI;
-    }
-
-    private FileObject getSpecificationFile(String interpreterJar, Properties dynSemProperties) {
-        String tablePathString = dynSemProperties.getProperty("target.specterm");
-        return resourceService.resolve(relativizeToJarPath(interpreterJar, tablePathString));
-    }
-
-    private RuleRegistry getRuleRegistry(String interpreterJar, Properties dynSemProperties)
-        throws InterpreterLoadException {
-        FileObject specificationFile = getSpecificationFile(interpreterJar, dynSemProperties);
-        String ruleRegistryClass = dynSemProperties.getProperty("target.ruleregistry");
-        try {
-            InputStream specInput = specificationFile.getContent().getInputStream();
-            if (ruleRegistryClass == null) {
-                return new RuleRegistry(specInput);
-            }
-            Class<?> clazz = ClassUtils.getClass(ruleRegistryClass);
-            return (RuleRegistry) ConstructorUtils.invokeConstructor(clazz, specInput);
-        } catch (FileSystemException | InstantiationException | IllegalAccessException
-                 | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
-            throw new InterpreterLoadException("Error constructing rule registry.");
         }
     }
 

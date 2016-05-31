@@ -6,7 +6,6 @@ import java.util.concurrent.Callable;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.core.resource.IResourceService;
 import org.metaborg.meta.lang.dynsem.interpreter.IDynSemLanguageParser;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleResult;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
@@ -16,7 +15,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 
-import com.google.inject.Inject;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.vm.PolyglotEngine;
 import com.oracle.truffle.api.vm.PolyglotEngine.Value;
@@ -33,14 +31,10 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
      * Construct a new {@link DynSemEvaluationStrategy}. This does not yet load the interpreter for
      * the language. Rather, this is done when first invoking
      * {@link #evaluate(AnalyzeResult, IContext)} or {@link #evaluate(ParseResult, IContext)}.
-     *
-     * @param resourceService
-     *            For resolving the DynSem specification term.
      */
-    @Inject // FIXME: I don't want to inject this.
-    public DynSemEvaluationStrategy(IResourceService resourceService) {
+    public DynSemEvaluationStrategy() {
         nonParser = new NonParser();
-        interpLoader = new JarInterpreterLoader(nonParser, resourceService);
+        interpLoader = new JarInterpreterLoader(nonParser);
     }
 
     @Override
