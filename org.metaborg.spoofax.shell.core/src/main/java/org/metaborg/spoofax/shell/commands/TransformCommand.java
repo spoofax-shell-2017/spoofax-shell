@@ -40,7 +40,7 @@ import com.google.inject.assistedinject.Assisted;
  * Represents an evaluate command sent to Spoofax.
  */
 public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor {
-    private static final String DESCRIPTION = "Transform an expression";
+    private static final String DESCRIPTION = "Transform an expression:";
 
     private IContextService contextService;
     private ISpoofaxTransformService transformService;
@@ -132,7 +132,7 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
     @Override
     public String description() {
         return Stream.concat(Stream.of(DESCRIPTION), actions.keySet().stream())
-                     .collect(Collectors.joining("\n"));
+                     .collect(Collectors.joining("\n- "));
     }
 
     private TransformResult transform(Strategy strat, ParseResult unit, ITransformGoal goal)
@@ -148,11 +148,25 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
 
     @Override
     public void execute(String... args) throws MetaborgException {
-        try {
-            String[] split = args[0].split("\\s+", 2);
-            ITransformGoal goal = actions.get(split[0]).goal();
+        String[] split = args[0].split("\\s+", 2);
+        if (split.length < 1) {
+            throw new MetaborgException("No transform goal specified.");
+        }
+        String goalname = split[0];
 
-            InputResult input = resultFactory.createInputResult(lang, write(split[1]), split[1]);
+        if (!actions.containsKey(goalname)) {
+            String message = String.format("Transform goal \"%s\" does not exist.", goalname);
+            throw new MetaborgException(message);
+        }
+        ITransformGoal goal = actions.get(goalname).goal();
+
+        if (split.length < 2) {
+            throw new MetaborgException("No source text specified");
+        }
+        String source = split[1];
+
+        try {
+            InputResult input = resultFactory.createInputResult(lang, write(source), source);
             ParseResult parse = parseCommand.parse(input);
             resultHook.accept(transform(strategy, parse, goal));
         } catch (IOException e) {
@@ -177,7 +191,7 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
 
     @Override
     public void visitAction(IMenuAction action) {
-        actions.put(action.name(), action.action());
+        actions.put(action.name().toLowerCase().replace(' ', '_'), action.action());
     }
 
 }
