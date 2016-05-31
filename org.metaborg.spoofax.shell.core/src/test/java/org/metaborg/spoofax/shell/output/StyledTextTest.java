@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.metaborg.core.style.IRegionStyle;
 import org.metaborg.core.style.RegionStyle;
 import org.metaborg.core.style.Style;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * Test cases for the {@link StyledText} class, which wraps Spoofax's {@link RegionStyle}.
@@ -23,7 +22,7 @@ public class StyledTextTest {
     @Test
     public void testString() {
         StyledText styledText = new StyledText("Hello world");
-        List<IRegionStyle<IStrategoTerm>> source = styledText.getSource();
+        List<IRegionStyle<?>> source = styledText.getSource();
 
         assertEquals("Hello world", styledText.toString());
         assertEquals(1, source.size());
@@ -44,7 +43,7 @@ public class StyledTextTest {
         String part2 = "world";
 
         StyledText styledText = new StyledText(Color.RED, part1).append(part2);
-        List<IRegionStyle<IStrategoTerm>> source = styledText.getSource();
+        List<IRegionStyle<?>> source = styledText.getSource();
 
         assertEquals(part1 + part2, styledText.toString());
         assertEquals(2, source.size());

@@ -10,7 +10,6 @@ import org.metaborg.core.style.IRegionStyle;
 import org.metaborg.core.style.IStyle;
 import org.metaborg.core.style.RegionStyle;
 import org.metaborg.core.style.Style;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Lists;
 
@@ -19,7 +18,7 @@ import com.google.common.collect.Lists;
  * {@link IRegionStyle}.
  */
 public class StyledText {
-    private final List<IRegionStyle<IStrategoTerm>> source;
+    private final List<IRegionStyle<?>> source;
     private StringBuffer textBuffer;
 
     /**
@@ -65,7 +64,7 @@ public class StyledText {
      * @param sourceRegions
      *            The list of styled Stratego terms.
      */
-    public StyledText(Iterable<IRegionStyle<IStrategoTerm>> sourceRegions) {
+    public StyledText(Iterable<IRegionStyle<?>> sourceRegions) {
         this.source = Lists.newArrayList(sourceRegions);
     }
 
@@ -74,7 +73,7 @@ public class StyledText {
      *
      * @return All the styled strings in this text.
      */
-    public List<IRegionStyle<IStrategoTerm>> getSource() {
+    public List<IRegionStyle<?>> getSource() {
         return source;
     }
 
@@ -159,8 +158,8 @@ public class StyledText {
 
         return IntStream.range(0, source.size())
             .mapToObj(e -> {
-                IRegionStyle<IStrategoTerm> s = source.get(e);
-                IRegionStyle<IStrategoTerm> o = other.source.get(e);
+                IRegionStyle<?> s = source.get(e);
+                IRegionStyle<?> o = other.source.get(e);
 
                 return equals(s.style(), o.style()) && equals(s.fragment(), o.fragment());
             })
