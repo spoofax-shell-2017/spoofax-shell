@@ -1,14 +1,13 @@
 package org.metaborg.spoofax.shell.core;
 
-import static org.apache.commons.lang3.reflect.MethodUtils.invokeMethod;
-
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
+import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.meta.lang.dynsem.interpreter.DynSemLanguage;
+import org.metaborg.core.resource.IResourceService;
+import org.metaborg.meta.lang.dynsem.interpreter.IDynSemLanguageParser;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleResult;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
@@ -26,11 +25,23 @@ import com.oracle.truffle.api.vm.PolyglotEngine.Value;
  * An {@link IEvaluationStrategy} for DynSem-based languages.
  */
 public class DynSemEvaluationStrategy implements IEvaluationStrategy {
-    @Inject
     private IInterpreterLoader interpLoader;
-
     private PolyglotEngine polyglotEngine;
-    private DynSemLanguage language;
+    private NonParser nonParser;
+
+    /**
+     * Construct a new {@link DynSemEvaluationStrategy}. This does not yet load the interpreter for
+     * the language. Rather, this is done when first invoking
+     * {@link #evaluate(AnalyzeResult, IContext)} or {@link #evaluate(ParseResult, IContext)}.
+     *
+     * @param resourceService
+     *            For resolving the DynSem specification term.
+     */
+    @Inject // FIXME: I don't want to inject this.
+    public DynSemEvaluationStrategy(IResourceService resourceService) {
+        nonParser = new NonParser();
+        interpLoader = new JarInterpreterLoader(nonParser, resourceService);
+    }
 
     @Override
     public String name() {
@@ -38,33 +49,28 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     @Override
-    public IStrategoTerm evaluate(ParseResult parsed, IContext context) {
+    public IStrategoTerm evaluate(ParseResult parsed, IContext context) throws MetaborgException {
         return evaluate(parsed.unit().input().text(), parsed.ast().get(), context.language());
     }
 
     @Override
-    public IStrategoTerm evaluate(AnalyzeResult analyzed, IContext context) {
+    public IStrategoTerm evaluate(AnalyzeResult analyzed, IContext context)
+        throws MetaborgException {
         return evaluate(analyzed.unit().input().input().text(), analyzed.ast().get(),
                         context.language());
     }
 
-    @SuppressWarnings("deprecation")
-    private IStrategoTerm evaluate(String origSource, IStrategoTerm input, ILanguageImpl langImpl) {
+    private IStrategoTerm evaluate(String origSource, IStrategoTerm input, ILanguageImpl langImpl)
+        throws MetaborgException {
         if (uninitialized()) {
             initialize(langImpl);
         }
+        nonParser.setCurrentTerm(input);
+        Value eval = null;
         try {
-            invokeMethod(language, "setParsedAST", input);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException
-                 | IllegalArgumentException | InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        try {
-            Source source = Source.fromNamedText(origSource, String.valueOf(input.hashCode()))
+            Source source = Source.fromNamedText(origSource, Integer.toHexString(input.hashCode()))
                 .withMimeType("application/x-simpl");
-            polyglotEngine.eval(source);
+            eval = polyglotEngine.eval(source);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -78,7 +84,8 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
                     return prog.execute().as(RuleResult.class);
                 }
             };
-            return new StrategoString(callable.call().result.toString(), TermFactory.EMPTY_LIST,
+            RuleResult ruleResult = callable.call();
+            return new StrategoString(ruleResult.result.toString(), TermFactory.EMPTY_LIST,
                                       IStrategoTerm.IMMUTABLE);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -86,16 +93,43 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     private boolean uninitialized() {
-        return language == null && polyglotEngine == null;
+        return polyglotEngine == null;
     }
 
-    private void initialize(ILanguageImpl langImpl) {
-        try {
-            language = interpLoader.loadInterpreterForLanguage(langImpl);
-        } catch (InterpreterLoadException e) {
-            // TODO: Show message to user.
-            e.getMessage();
+    private void initialize(ILanguageImpl langImpl) throws InterpreterLoadException {
+        polyglotEngine = interpLoader.loadInterpreterForLanguage(langImpl);
+    }
+
+    /**
+     * An {@link IDynSemLanguageParser} which returns just the {@link IStrategoTerm} which is set by
+     * the evaluation strategy. Since Truffle only supports programs parsed directly from source
+     * code, we need this workaround to avoid having to parse source code to {@link IStrategoTerm
+     * ASTs} again. Hence this class is called a {@link NonParser "non parser"}.
+     */
+    static class NonParser implements IDynSemLanguageParser {
+        private IStrategoTerm currentTerm;
+
+        /**
+         * @return the current term.
+         */
+        public IStrategoTerm getCurrentTerm() {
+            return currentTerm;
         }
-        polyglotEngine = PolyglotEngine.newBuilder().build();
+
+        /**
+         * Sets the term to be returned the next time the parser is called through
+         * {@link PolyglotEngine#eval(Source)}.
+         *
+         * @param currentTerm
+         *            the current term to set.
+         */
+        public void setCurrentTerm(IStrategoTerm currentTerm) {
+            this.currentTerm = currentTerm;
+        }
+
+        @Override
+        public IStrategoTerm parse(Source src) {
+            return getCurrentTerm();
+        }
     }
 }

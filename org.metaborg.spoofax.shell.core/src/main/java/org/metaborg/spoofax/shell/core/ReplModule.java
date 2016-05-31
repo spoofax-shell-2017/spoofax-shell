@@ -54,7 +54,6 @@ public class ReplModule extends SpoofaxModule {
      *            The {@link MapBinder} for binding the strategies to their names.
      */
     protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
-        bind(IInterpreterLoader.class).to(JarInterpreterLoader.class);
         evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
     }
 
