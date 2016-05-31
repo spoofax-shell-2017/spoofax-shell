@@ -34,7 +34,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
      */
     public DynSemEvaluationStrategy() {
         nonParser = new NonParser();
-        interpLoader = new JarInterpreterLoader(nonParser);
+        interpLoader = new ClassPathInterpreterLoader(nonParser);
     }
 
     @Override

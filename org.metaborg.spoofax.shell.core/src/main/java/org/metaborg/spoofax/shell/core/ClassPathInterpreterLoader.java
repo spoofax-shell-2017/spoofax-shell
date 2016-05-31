@@ -17,14 +17,14 @@ import com.oracle.truffle.api.vm.PolyglotEngine;
 /**
  * Loads an interpreter from a jar archive.
  */
-public class JarInterpreterLoader implements IInterpreterLoader {
+public class ClassPathInterpreterLoader implements IInterpreterLoader {
     private NonParser nonParser;
 
     /**
      * @param nonParser
      *            The {@link NonParser} to inject as configuration parameter to the VM Builder.
      */
-    public JarInterpreterLoader(NonParser nonParser) {
+    public ClassPathInterpreterLoader(NonParser nonParser) {
         this.nonParser = nonParser;
     }
 
