@@ -48,7 +48,7 @@ public class ReplView extends ViewPart {
 
     private void setupRepl(Injector injector) {
         EclipseRepl repl = injector.getInstance(EclipseRepl.class);
-        this.editor.addObserver(repl);
+        this.editor.asObservable().subscribe(repl);
     }
 
     @Override

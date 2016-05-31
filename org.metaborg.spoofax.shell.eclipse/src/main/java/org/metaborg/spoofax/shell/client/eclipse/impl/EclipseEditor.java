@@ -1,8 +1,7 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
-import java.util.Observable;
-
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -14,6 +13,9 @@ import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IInputHistory;
 
 import com.google.inject.Inject;
+
+import rx.Observable;
+import rx.Subscriber;
 
 /**
  * An Eclipse-based implementation of {@link IEditor}. It uses a {@link Text} widget in singleline
@@ -28,8 +30,9 @@ import com.google.inject.Inject;
  * History is automatically maintained through {@link EclipseHistory}. The regular Eclipse
  * keybindings apply in the {@link Text} widget.
  */
-public class EclipseEditor extends Observable implements IEditor, KeyListener {
+public class EclipseEditor extends KeyAdapter implements IEditor {
     private final Text input;
+    private Subscriber<? super IEditor> observer;
 
     /**
      * Instantiates a new EclipseEditor.
@@ -44,6 +47,10 @@ public class EclipseEditor extends Observable implements IEditor, KeyListener {
         this.input.addKeyListener(this);
     }
 
+    private void clear() {
+        this.input.setText("");
+    }
+
     /**
      * Returns the {@link Control} backing this EclipseEditor.
      *
@@ -51,6 +58,20 @@ public class EclipseEditor extends Observable implements IEditor, KeyListener {
      */
     public Control getControl() {
         return this.input;
+    }
+
+    /**
+     * Creates a new {@link Observable} from this editor. The subscriber will be notified via the
+     * {@link KeyListener} functions when some notable key presses (e.g. Enter to submit input)
+     * occur.
+     *
+     * @return A new {@link Observable} from this editor.
+     */
+    public Observable<IEditor> asObservable() {
+        // FIXME: Allow more than one observer of this editor instance.
+        return Observable.create(s -> {
+            EclipseEditor.this.observer = s;
+        });
     }
 
     @Override
@@ -70,16 +91,11 @@ public class EclipseEditor extends Observable implements IEditor, KeyListener {
     }
 
     @Override
-    public void keyPressed(KeyEvent e) {
-        if (e.keyCode == SWT.CR || e.keyCode == SWT.LF) {
-            setChanged();
-            notifyObservers(this);
-            this.input.setText("");
+    public void keyPressed(KeyEvent event) {
+        if (event.keyCode == SWT.CR || event.keyCode == SWT.LF) {
+            observer.onNext(this);
+            clear();
         }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
     }
 
 }

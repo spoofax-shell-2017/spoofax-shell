@@ -1,8 +1,6 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
 import java.awt.Color;
-import java.util.Observable;
-import java.util.Observer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -18,13 +16,15 @@ import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
 
+import rx.Observer;
+
 /**
  * An Eclipse-based REPL.
  *
  * It uses a multiline input editor with keyboard shortcuts, including persistent history, syntax
  * highlighting and error marking.
  */
-public class EclipseRepl implements IRepl, Observer {
+public class EclipseRepl implements IRepl, Observer<IEditor> {
     private final IDisplay display;
     private final ICommandInvoker invoker;
 
@@ -48,8 +48,17 @@ public class EclipseRepl implements IRepl, Observer {
     }
 
     @Override
-    public void update(Observable observable, Object arg) {
-        IEditor editor = (IEditor) observable;
+    public void onCompleted() {
+        display.displayResult(new StyledText(Color.GREEN, "Completed"));
+    }
+
+    @Override
+    public void onError(Throwable t) {
+        display.displayError(new StyledText(Color.RED, "An exception occured: " + t.getMessage()));
+    }
+
+    @Override
+    public void onNext(IEditor editor) {
         String input = editor.getInput();
         appendInputToDisplay(editor, input);
         runAsJob(input);
@@ -76,4 +85,5 @@ public class EclipseRepl implements IRepl, Observer {
         job.setSystem(true);
         job.schedule();
     }
+
 }
