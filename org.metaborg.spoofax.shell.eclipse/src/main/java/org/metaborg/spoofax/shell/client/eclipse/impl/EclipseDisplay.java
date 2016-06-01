@@ -1,62 +1,124 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
+import java.awt.Color;
+
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.TextViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
-import org.eclipse.ui.console.TextConsoleViewer;
+import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
 
 /**
- * An Eclipse-based {@link IDisplay}, which uses a {@link MessageConsole} to display results and
- * error messages.
+ * An Eclipse-based {@link IDisplay}, which uses a {@link TextViewer} to display results and error
+ * messages.
  */
 public class EclipseDisplay implements IDisplay {
-    private final TextConsoleViewer viewer;
-    private final MessageConsoleStream out;
-    private final MessageConsoleStream err;
+    private final ITextViewer output;
+    private final ColorManager colorManager;
 
     /**
      * Instantiates a new EclipseDisplay.
      *
      * @param parent
-     *            A {@link Composite} control which will be the parent of this EclipseEditor.
+     *            A {@link Composite} control which will be the parent of this EclipseDisplay.
      *            (cannot be {@code null}).
+     * @param colorManager
+     *            The {@link ColorManager} to retrieve colors from.
      */
     @Inject
-    public EclipseDisplay(Composite parent) {
-        MessageConsole console = new MessageConsole("Spoofax REPL Console", null);
-        this.viewer = new TextConsoleViewer(parent, console);
-        this.out = console.newMessageStream();
-        this.err = console.newMessageStream();
-        // TODO: when StyledText can be translated to color understood by Eclipse, this should go.
-        this.err.setColor(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+    public EclipseDisplay(Composite parent, ColorManager colorManager) {
+        this.output = new TextViewer(parent, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+        this.output.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
+        this.output.getTextWidget().setAlwaysShowScrollBars(false);
+        this.output.setEditable(false);
+        this.output.setDocument(new Document());
+
+        this.colorManager = colorManager;
     }
 
-    /**
-     * Returns the {@link Control} backing this EclipseDisplay.
-     *
-     * @return The {@link Control} backing this EclipseDisplay.
-     */
-    public Control getControl() {
-        return this.viewer.getControl();
+    private IDocument getDocument() {
+        return this.output.getDocument();
+    }
+
+    private void scrollText() {
+        output.revealRange(getDocument().getLength(), 0);
+    }
+
+    private void append(IDocument doc, int offset, String fragment) {
+        if (offset > 0) {
+            try {
+                doc.replace(offset, 0, fragment);
+            } catch (BadLocationException ex) {
+                ex.printStackTrace();
+                // TODO: this could mess with the styleranges, perhaps style() shouldn't be called
+                // when this exception occurs.
+            }
+        } else {
+            doc.set(fragment);
+        }
+    }
+
+    private void style(IStyle style, int offset, int length) {
+        if (style != null) {
+            StyleRange styleRange = new StyleRange();
+
+            styleRange.start = offset;
+            styleRange.length = length;
+            styleRange.foreground = this.colorManager.getColor(awtToRGB(style.color()));
+            styleRange.background = this.colorManager.getColor(awtToRGB(style.backgroundColor()));
+
+            if (style.bold()) {
+                styleRange.fontStyle |= SWT.BOLD;
+            }
+            if (style.italic()) {
+                styleRange.fontStyle |= SWT.ITALIC;
+            }
+
+            output.getTextWidget().setStyleRange(styleRange);
+        }
     }
 
     @Override
     public void displayResult(StyledText message) {
-        this.out.println(message.toString());
+        IDocument doc = getDocument();
+        int offset = doc.getLength();
+        String text = message.toString();
+
+        // TODO: restore StyledText so that substrings aren't necessary anymore?
+        message.getSource().forEach(e -> {
+            ISourceRegion region = e.region();
+            append(doc, offset,
+                   text.substring(region.startOffset(), region.endOffset() + 1) + '\n');
+            style(e.style(), offset, region.length());
+        });
+
+        scrollText();
     }
 
     // TODO: Since all markup happens in the message itself, why have a separate displayError
-    // method?
+    // method? However, if IResultHook passes on the ISpoofaxResult to IDisplay, then this separate
+    // method is indeed needed.
     @Override
     public void displayError(StyledText message) {
-        this.err.println(message.toString());
+        displayResult(message);
     }
 
+    private RGB awtToRGB(Color awt) {
+        if (awt == null) {
+            return ColorManager.getDefault();
+        }
+        return new RGB(awt.getRed(), awt.getGreen(), awt.getBlue());
+    }
 }

@@ -5,10 +5,14 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
- * The Activator class controls the plugin's life cycle.
+ * The Activator class controls the plugin's life cycle. It is instantiated by Eclipse
+ * automatically. See {@link org.eclipse.core.runtime.Plugin#Plugin()} and
+ * {@link AbstractUIPlugin#AbstractUIPlugin()} for more information.
+ *
+ * Currently its use is to keep track of certain objects that need to be available for the plugin.
+ * In the future, it can be used as entry points to the REPL for commands and actions.
  */
 public class Activator extends AbstractUIPlugin {
-    public static final String PLUGIN_ID = "org.metaborg.spoofax.shell.eclipse";
     private static Activator plugin;
 
     @Override
@@ -33,13 +37,22 @@ public class Activator extends AbstractUIPlugin {
     }
 
     /**
-     * Returns an {@link ImageDescriptor} for the image file at the given plugin-relative path.
+     * Return the plugin's ID.
+     *
+     * @return The plugin's ID.
+     */
+    public static String getPluginID() {
+        return getDefault().getBundle().getSymbolicName();
+    }
+
+    /**
+     * Return an {@link ImageDescriptor} for the image file at the given plugin-relative path.
      *
      * @param path
      *            The plugin-relative path to the image.
      * @return The {@link ImageDescriptor} for the image at the given path.
      */
     public static ImageDescriptor getImageDescriptor(String path) {
-        return imageDescriptorFromPlugin(PLUGIN_ID, path);
+        return imageDescriptorFromPlugin(getPluginID(), path);
     }
 }

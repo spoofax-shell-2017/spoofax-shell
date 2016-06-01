@@ -1,10 +1,8 @@
 package org.metaborg.spoofax.shell.client.eclipse;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.part.ViewPart;
 import org.metaborg.spoofax.shell.client.eclipse.impl.EclipseDisplay;
 import org.metaborg.spoofax.shell.client.eclipse.impl.EclipseEditor;
@@ -15,45 +13,47 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 /**
- * A {@link ViewPart} showing two widgets: a {@link MessageConsole} (see {@link EclipseDisplay}) and
- * a {@link Text} (see {@link EclipseIEditor}). Together these widgets form a user interface to
- * {@link EclipseRepl}.
+ * The workbench view containing all the widgets (see {@link EclipseDisplay} and
+ * {@link EclipseEditor}) that together form the REPL. Note that because the plugin is registered to
+ * Eclipse as a singleton, at most one ReplView will be active at any given time.
  */
 public class ReplView extends ViewPart {
+    private static final int DISPLAYWEIGHT = 5;
+    private static final int EDITORWEIGHT = 1;
+    private Composite page;
     private EclipseEditor editor;
+    private ColorManager colorManager;
 
     @Override
     public void createPartControl(Composite parent) {
-        Injector injector = Guice.createInjector(new EclipseReplModule(parent));
-        setupLayout(parent);
-        setupDisplay(injector);
-        setupEditor(injector);
-        setupRepl(injector);
-    }
+        this.page = new SashForm(parent, SWT.VERTICAL | SWT.LEFT_TO_RIGHT);
 
-    private void setupLayout(Composite parent) {
-        GridLayout layout = new GridLayout(1, true);
-        parent.setLayout(layout);
-    }
+        // TODO: set Injector in Activator.class such that it can be accessed from elsewhere?
+        Injector injector = Guice.createInjector(new EclipseReplModule(page));
 
-    private void setupDisplay(Injector injector) {
-        EclipseDisplay display = injector.getInstance(EclipseDisplay.class);
-        display.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-    }
-
-    private void setupEditor(Injector injector) {
+        // Create the display first so it appears on top in the sash.
+        injector.getInstance(EclipseDisplay.class);
         this.editor = injector.getInstance(EclipseEditor.class);
-        this.editor.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-    }
+        // Must be after the instantiation of the two widgets.
+        ((SashForm) this.page).setWeights(new int[] { DISPLAYWEIGHT, EDITORWEIGHT });
 
-    private void setupRepl(Injector injector) {
+        // Instantiate the REPL and add it as observer of the editor.
         EclipseRepl repl = injector.getInstance(EclipseRepl.class);
         this.editor.asObservable().subscribe(repl);
+
+        // Retrieve the color manager so that it can be disposed of when the view is closed.
+        this.colorManager = injector.getInstance(ColorManager.class);
     }
 
     @Override
     public void setFocus() {
-        this.editor.getControl().setFocus();
+        this.editor.setFocus();
+    }
+
+    @Override
+    public void dispose() {
+        this.colorManager.dispose();
+        super.dispose();
     }
 
 }

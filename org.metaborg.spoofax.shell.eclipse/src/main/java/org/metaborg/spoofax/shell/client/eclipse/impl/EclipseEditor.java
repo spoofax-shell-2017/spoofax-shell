@@ -1,16 +1,16 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Text;
-import org.metaborg.core.completion.ICompletionService;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.client.IEditor;
-import org.metaborg.spoofax.shell.client.IInputHistory;
 
 import com.google.inject.Inject;
 
@@ -18,21 +18,22 @@ import rx.Observable;
 import rx.Subscriber;
 
 /**
- * An Eclipse-based implementation of {@link IEditor}. It uses a {@link Text} widget in singleline
- * mode and attaches itself as a {@link KeyListener} to listen for certain keypresses. When an Enter
- * (e.g. linefeed or carriage return) is pressed, the {@link Observer}s are notified with the text
- * typed so far.
+ * An Eclipse-based implementation of {@link IEditor}, with a {@link Sourceviewer} backend. It
+ * attaches itself as a {@link KeyListener} to listen for certain keypresses. When an Enter (e.g.
+ * linefeed or carriage return) is pressed, the {@link Observer}s are notified with the text typed
+ * so far.
  *
- * Upon a Shift-Enter, a newline is appended and the {@link Text} widget switches to multiline mode.
- * The widget then functions like a regular editor, in which Shift+Enter is to be used to append
- * newlines and Enter still notifies the {@link Observable}s.
- *
- * History is automatically maintained through {@link EclipseHistory}. The regular Eclipse
- * keybindings apply in the {@link Text} widget.
+ * History is automatically maintained through {@link EclipseInputHistory}. The regular Eclipse
+ * keybindings apply in the {@link SourceViewer#getTextWidget()} widget.
  */
-public class EclipseEditor extends KeyAdapter implements IEditor {
-    private final Text input;
-    private Subscriber<? super IEditor> observer;
+// FIXME: Make IEditor? Or drop IDisplay from EclipseDisplay?
+public class EclipseEditor extends KeyAdapter implements ModifyListener {
+    private final SourceViewer input;
+    // TODO: Use ReplDocument to provide custom partitioning? Perhaps more something for the output
+    // as opposed to input. Should be relatively easy for output to at least partition different
+    // input/output combinations.
+    private final IDocument document;
+    private Subscriber<? super String> observer;
 
     /**
      * Instantiates a new EclipseEditor.
@@ -43,21 +44,19 @@ public class EclipseEditor extends KeyAdapter implements IEditor {
      */
     @Inject
     public EclipseEditor(Composite parent) {
-        this.input = new Text(parent, SWT.SINGLE);
-        this.input.addKeyListener(this);
-    }
-
-    private void clear() {
-        this.input.setText("");
+        this.document = new Document();
+        this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
+        // TODO: I don't think we can use this as each language has different rules...
+        // this.input.configure(new ReplConfiguration(colorManager));
+        this.input.setDocument(document);
+        this.input.getTextWidget().addKeyListener(this);
     }
 
     /**
-     * Returns the {@link Control} backing this EclipseEditor.
-     *
-     * @return The {@link Control} backing this EclipseEditor.
+     * Give focus to this EclipseEditor's input editor.
      */
-    public Control getControl() {
-        return this.input;
+    public void setFocus() {
+        this.input.getTextWidget().setFocus();
     }
 
     /**
@@ -67,35 +66,44 @@ public class EclipseEditor extends KeyAdapter implements IEditor {
      *
      * @return A new {@link Observable} from this editor.
      */
-    public Observable<IEditor> asObservable() {
+    public Observable<String> asObservable() {
         // FIXME: Allow more than one observer of this editor instance.
         return Observable.create(s -> {
             EclipseEditor.this.observer = s;
         });
     }
 
-    @Override
-    public String getInput() {
-        return this.input.getText();
+    private void enterPressed() {
+        String text = document.get();
+        this.observer.onNext(text);
+        this.document.set("");
     }
 
-    @Override
-    public void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public IInputHistory history() {
-        // TODO Auto-generated method stub
-        return null;
+    private void offerCompletions() {
     }
 
     @Override
     public void keyPressed(KeyEvent event) {
-        if (event.keyCode == SWT.CR || event.keyCode == SWT.LF) {
-            observer.onNext(this);
-            clear();
+        switch (event.keyCode) {
+        case SWT.LF: // Fallthrough.
+        case SWT.CR:
+            if ((event.stateMask & (SWT.CTRL | SWT.SHIFT)) == 0) {
+                enterPressed();
+            }
+            break;
+        case ' ':
+            if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
+                offerCompletions();
+            }
+            break;
+        default:
+            break;
         }
+    }
+
+    @Override
+    public void modifyText(ModifyEvent event) {
+        // TODO: text has been modified, send it to get syntax highlighting.
     }
 
 }

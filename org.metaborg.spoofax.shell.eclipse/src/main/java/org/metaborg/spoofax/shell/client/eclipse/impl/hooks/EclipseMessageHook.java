@@ -1,5 +1,6 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl.hooks;
 
+import org.eclipse.swt.widgets.Display;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -25,7 +26,13 @@ public class EclipseMessageHook implements IMessageHook {
 
     @Override
     public void accept(StyledText message) {
-        this.display.displayResult(message);
+        // TODO: run this in UI thread in a nice way!
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                display.displayResult(message);
+            }
+        });
     }
 
 }

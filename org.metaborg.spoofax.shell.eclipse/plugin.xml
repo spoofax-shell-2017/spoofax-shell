@@ -10,5 +10,5 @@
             icon="icons/icon.gif"
         category="org.metaborg.spoofax.shell.eclipse"
            class="org.metaborg.spoofax.shell.client.eclipse.ReplView"/>
-   </extension>
+    </extension>
 </plugin>

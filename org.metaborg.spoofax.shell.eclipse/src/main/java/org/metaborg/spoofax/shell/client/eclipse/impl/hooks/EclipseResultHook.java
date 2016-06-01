@@ -1,5 +1,6 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl.hooks;
 
+import org.eclipse.swt.widgets.Display;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.hooks.IResultHook;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
@@ -25,7 +26,13 @@ public class EclipseResultHook implements IResultHook {
 
     @Override
     public void accept(ISpoofaxResult<?> result) {
-        this.display.displayResult(result.styled());
+        // TODO: run this in UI thread in a nice way!
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                display.displayResult(result.styled());
+            }
+        });
     }
 
 }
