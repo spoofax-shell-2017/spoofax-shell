@@ -23,6 +23,8 @@ import com.google.inject.Inject;
 /**
  * An Eclipse-based {@link IDisplay}, which uses a {@link TextViewer} to display results and error
  * messages.
+ *
+ * Note that this class should always be run in and accessed from the UI thread!
  */
 public class EclipseDisplay implements IDisplay {
     private final ITextViewer output;

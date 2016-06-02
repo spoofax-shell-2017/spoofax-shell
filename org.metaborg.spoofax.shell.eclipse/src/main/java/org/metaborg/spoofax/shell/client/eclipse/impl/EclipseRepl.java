@@ -19,10 +19,12 @@ import com.google.inject.Inject;
 import rx.Observer;
 
 /**
- * An Eclipse-based REPL.
+ * An Eclipse-based implementation of {@link IRepl}.
  *
  * It uses a multiline input editor with keyboard shortcuts, including persistent history, syntax
  * highlighting and error marking.
+ *
+ * Note that this class evaluates input in a separate thread.
  */
 public class EclipseRepl implements IRepl, Observer<String> {
     private static final int INPUT_RED = 232;

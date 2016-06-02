@@ -25,6 +25,8 @@ import rx.Subscriber;
  *
  * History is automatically maintained through {@link EclipseInputHistory}. The regular Eclipse
  * keybindings apply in the {@link SourceViewer#getTextWidget()} widget.
+ *
+ * Note that this class should always be run in and accessed from the UI thread!
  */
 // FIXME: Make IEditor? Or drop IDisplay from EclipseDisplay?
 public class EclipseEditor extends KeyAdapter implements ModifyListener {
@@ -46,8 +48,6 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
     public EclipseEditor(Composite parent) {
         this.document = new Document();
         this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
-        // TODO: I don't think we can use this as each language has different rules...
-        // this.input.configure(new ReplConfiguration(colorManager));
         this.input.setDocument(document);
         this.input.getTextWidget().addKeyListener(this);
     }
