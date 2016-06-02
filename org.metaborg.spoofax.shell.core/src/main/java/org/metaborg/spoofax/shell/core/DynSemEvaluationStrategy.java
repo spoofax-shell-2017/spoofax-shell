@@ -12,6 +12,7 @@ import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleResult;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.spoofax.core.shell.ShellFacet;
+import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
@@ -19,10 +20,12 @@ import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 
+import com.google.inject.Inject;
 import com.oracle.truffle.api.vm.PolyglotEngine;
 import com.oracle.truffle.api.vm.PolyglotEngine.Value;
 
@@ -33,6 +36,11 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     private final IInterpreterLoader interpLoader;
     private PolyglotEngine polyglotEngine;
     private String shellStartSymbol;
+    private Object executionEnvironment;
+    private Object[] rwSemanticComponents;
+
+    @Inject
+    private ITermFactoryService termFactService;
 
     /**
      * Construct a new {@link DynSemEvaluationStrategy}. This does not yet load the interpreter for
@@ -83,17 +91,14 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         String ctorName = inputCtor.getName();
         int arity = inputCtor.getArity();
 
-        Value rule;
-        if (getSortForTerm(input) == shellStartSymbol) {
-            // Look up "-shell->" rule.
-            rule = polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
-        } else {
-            // Look up a "-shell_init->" rule.
-            rule = polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("init", ctorName, arity));
-        }
+        // Look up "-shell->" rule.
+        Value rule =
+            polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
 
         try {
-            RuleResult ruleResult = rule.execute(programTerm).as(RuleResult.class);
+            RuleResult ruleResult =
+                rule.execute(programTerm, executionEnvironment, rwSemanticComponents)
+                    .as(RuleResult.class);
             return new StrategoString(ruleResult.result.toString(), TermFactory.EMPTY_LIST,
                                       IStrategoTerm.IMMUTABLE);
         } catch (IOException e) {
@@ -129,5 +134,27 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         /** FIXME: {@link ShellFacet} might be null due to lang designer, what to do then? */
         ShellFacet shellFacet = langImpl.facet(ShellFacet.class);
         shellStartSymbol = shellFacet.getShellStartSymbol();
+
+        initializeExecutionEnvironment(langImpl);
+    }
+
+    private void initializeExecutionEnvironment(ILanguageImpl langImpl)
+        throws InterpreterLoadException {
+        ITermFactory termFactory = termFactService.getGeneric();
+        IStrategoConstructor termConstr = termFactory.makeConstructor("ShellInit", 0);
+        IStrategoAppl shellInitAppl = termFactory.makeAppl(termConstr);
+        ImploderAttachment.putImploderAttachment(shellInitAppl, false, "ShellInit", null,
+                                                 null);
+        Value shellInitRule = polyglotEngine.findGlobalSymbol(RuleRegistry
+            .makeKey("init", termConstr.getName(), termConstr.getArity()));
+        try {
+            RuleResult ruleResult =
+                shellInitRule.execute(getProgramTerm(shellInitAppl)).as(RuleResult.class);
+            executionEnvironment = ruleResult.result;
+            rwSemanticComponents = ruleResult.components;
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException
+                 | IllegalAccessException | InvocationTargetException e) {
+            throw new InterpreterLoadException(e);
+        }
     }
 }
