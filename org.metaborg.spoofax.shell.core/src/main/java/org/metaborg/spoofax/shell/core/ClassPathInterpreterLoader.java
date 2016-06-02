@@ -1,6 +1,8 @@
 package org.metaborg.spoofax.shell.core;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -10,8 +12,10 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemContext;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemEntryPoint;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemLanguage;
-import org.metaborg.spoofax.shell.core.DynSemEvaluationStrategy.NonParser;
+import org.metaborg.meta.lang.dynsem.interpreter.ITermRegistry;
+import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
 
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.vm.PolyglotEngine;
 
 /**
@@ -21,15 +25,7 @@ import com.oracle.truffle.api.vm.PolyglotEngine;
  * the supported {@link DynSemLanguage#PARSER configuration parameter}.
  */
 public class ClassPathInterpreterLoader implements IInterpreterLoader {
-    private NonParser nonParser;
-
-    /**
-     * @param nonParser
-     *            The {@link NonParser} to inject as configuration parameter to the VM Builder.
-     */
-    public ClassPathInterpreterLoader(NonParser nonParser) {
-        this.nonParser = nonParser;
-    }
+    private String targetPackage;
 
     @Override
     public PolyglotEngine loadInterpreterForLanguage(ILanguageImpl langImpl)
@@ -42,10 +38,22 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
 
         DynSemEntryPoint entryPoint = getEntryPoint(dynSemProperties);
 
+        targetPackage = dynSemProperties.getProperty("target.package");
+        RuleRegistry ruleRegistry = entryPoint.getRuleRegistry();
+        ITermRegistry termRegistry = entryPoint.getTermRegistry();
+
         String mimeType = entryPoint.getMimeType();
-        return PolyglotEngine.newBuilder().config(mimeType, DynSemLanguage.PARSER, nonParser)
-            .config(mimeType, DynSemLanguage.RULE_REGISTRY, entryPoint.getRuleRegistry())
-            .config(mimeType, DynSemLanguage.TERM_REGISTRY, entryPoint.getTermRegistry()).build();
+        PolyglotEngine builtEngine =
+            PolyglotEngine.newBuilder().config(mimeType, DynSemLanguage.RULE_REGISTRY, ruleRegistry)
+                .config(mimeType, DynSemLanguage.TERM_REGISTRY, termRegistry).build();
+        try {
+            builtEngine
+                .eval(Source.fromReader(new InputStreamReader(entryPoint.getSpecificationTerm()),
+                                        "Evaluate to interpreter.").withMimeType(mimeType));
+        } catch (IOException e) {
+            throw new InterpreterLoadException(e);
+        }
+        return builtEngine;
     }
 
     private DynSemLanguage getDynSemLanguageSingleton(Properties dynSemProperties)
@@ -69,6 +77,11 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         } catch (InstantiationException | IllegalAccessException e) {
             throw new InterpreterLoadException(e);
         }
+    }
+
+    @Override
+    public String getTargetPackage() {
+        return targetPackage;
     }
 
     private Class<?> getGeneratedClass(Properties dynSemProperties, String className)

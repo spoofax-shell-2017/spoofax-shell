@@ -1,21 +1,30 @@
 package org.metaborg.spoofax.shell.core;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
+import java.lang.reflect.InvocationTargetException;
 
+import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.meta.lang.dynsem.interpreter.IDynSemLanguageParser;
+import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleResult;
+import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
+import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.spoofax.interpreter.core.Tools;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 
-import com.oracle.truffle.api.source.Source;
+import com.github.krukow.clj_lang.PersistentHashMap;
 import com.oracle.truffle.api.vm.PolyglotEngine;
 import com.oracle.truffle.api.vm.PolyglotEngine.Value;
 
@@ -23,9 +32,9 @@ import com.oracle.truffle.api.vm.PolyglotEngine.Value;
  * An {@link IEvaluationStrategy} for DynSem-based languages.
  */
 public class DynSemEvaluationStrategy implements IEvaluationStrategy {
-    private IInterpreterLoader interpLoader;
+    private final IInterpreterLoader interpLoader;
     private PolyglotEngine polyglotEngine;
-    private NonParser nonParser;
+    private String shellStartSymbol;
 
     /**
      * Construct a new {@link DynSemEvaluationStrategy}. This does not yet load the interpreter for
@@ -33,8 +42,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
      * {@link #evaluate(AnalyzeResult, IContext)} or {@link #evaluate(ParseResult, IContext)}.
      */
     public DynSemEvaluationStrategy() {
-        nonParser = new NonParser();
-        interpLoader = new ClassPathInterpreterLoader(nonParser);
+        interpLoader = new ClassPathInterpreterLoader();
     }
 
     @Override
@@ -44,86 +52,82 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
     @Override
     public IStrategoTerm evaluate(ParseResult parsed, IContext context) throws MetaborgException {
-        return evaluate(parsed.unit().input().text(), parsed.ast().get(), context.language());
+        return evaluate(parsed.ast().get(), context.language());
     }
 
     @Override
     public IStrategoTerm evaluate(AnalyzeResult analyzed, IContext context)
         throws MetaborgException {
-        return evaluate(analyzed.unit().input().input().text(), analyzed.ast().get(),
-                        context.language());
+        return evaluate(analyzed.ast().get(), context.language());
     }
 
-    private IStrategoTerm evaluate(String origSource, IStrategoTerm input, ILanguageImpl langImpl)
+    private IStrategoTerm evaluate(IStrategoTerm input, ILanguageImpl langImpl)
         throws MetaborgException {
         if (uninitialized()) {
             initialize(langImpl);
         }
-        nonParser.setCurrentTerm(input);
-        Value eval = null;
+
+        ITerm programTerm = null;
         try {
-            Source source = Source.fromNamedText(origSource, Integer.toHexString(input.hashCode()))
-                .withMimeType("application/x-simpl");
-            eval = polyglotEngine.eval(source);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            programTerm = getProgramTerm(input);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                 | InvocationTargetException cause) {
+            throw new MetaborgException("Error constructing program term from input.", cause);
         }
 
-        Value prog = polyglotEngine.findGlobalSymbol("INIT");
+        IStrategoConstructor inputCtor = ((IStrategoAppl) input).getConstructor();
+        String ctorName = inputCtor.getName();
+        int arity = inputCtor.getArity();
+
+        if (!Tools.isTermAppl(input)) {
+            throw new MetaborgException("Expected a StrategoAppl, but a \""
+                                        + input.getClass().getName() + "\" was found: "
+                                        + input.toString(1));
+        }
+        Value rule;
+        if (getSortForTerm(input) == shellStartSymbol) {
+            // Look up "-shell->" rule.
+            rule = polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
+        } else {
+            // Look up a "-shell_init->" rule.
+            rule = polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("init", ctorName, arity));
+        }
         try {
-            Callable<RuleResult> callable = new Callable<RuleResult>() {
-                @Override
-                public RuleResult call() throws Exception {
-                    return prog.execute().as(RuleResult.class);
-                }
-            };
-            RuleResult ruleResult = callable.call();
+            RuleResult ruleResult = rule.execute(programTerm).as(RuleResult.class);
             return new StrategoString(ruleResult.result.toString(), TermFactory.EMPTY_LIST,
                                       IStrategoTerm.IMMUTABLE);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+
+        } catch (IOException e) {
+            throw new MetaborgException("Input/output error while evaluating.", e);
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private ITerm getProgramTerm(IStrategoTerm input) throws ClassNotFoundException,
+        NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String termSort = getSortForTerm(input);
+        // Get the abstract class for the sort of the term.
+        Class<? extends ITerm> generatedTermClass = (Class<? extends ITerm>) ClassUtils
+            .getClass(interpLoader.getTargetPackage() + ".terms.I" + termSort + "Term");
+        return (ITerm) MethodUtils.invokeStaticMethod(generatedTermClass, "create", input);
+    }
+
+    private String getSortForTerm(IStrategoTerm input) {
+        ImploderAttachment termAttachment = input.getAttachment(ImploderAttachment.TYPE);
+        if (termAttachment == null) {
+            return null;
+        }
+        return termAttachment.getElementSort();
+    }
+
     private boolean uninitialized() {
-        return polyglotEngine == null;
+        return polyglotEngine == null && shellStartSymbol == null;
     }
 
     private void initialize(ILanguageImpl langImpl) throws InterpreterLoadException {
         polyglotEngine = interpLoader.loadInterpreterForLanguage(langImpl);
-    }
 
-    /**
-     * An {@link IDynSemLanguageParser} which returns just the {@link IStrategoTerm} which is set by
-     * the evaluation strategy. Since Truffle only supports programs parsed directly from source
-     * code, we need this workaround to avoid having to parse source code to {@link IStrategoTerm
-     * ASTs} again. Hence this class is called a {@link NonParser "non parser"}.
-     */
-    static class NonParser implements IDynSemLanguageParser {
-        private IStrategoTerm currentTerm;
-
-        /**
-         * @return the current term.
-         */
-        public IStrategoTerm getCurrentTerm() {
-            return currentTerm;
-        }
-
-        /**
-         * Sets the term to be returned the next time the parser is called through
-         * {@link PolyglotEngine#eval(Source)}.
-         *
-         * @param currentTerm
-         *            the current term to set.
-         */
-        public void setCurrentTerm(IStrategoTerm currentTerm) {
-            this.currentTerm = currentTerm;
-        }
-
-        @Override
-        public IStrategoTerm parse(Source src) {
-            return getCurrentTerm();
-        }
+        ShellFacet shellFacet = langImpl.facet(ShellFacet.class);
+        shellStartSymbol = shellFacet.getShellStartSymbol();
     }
 }
