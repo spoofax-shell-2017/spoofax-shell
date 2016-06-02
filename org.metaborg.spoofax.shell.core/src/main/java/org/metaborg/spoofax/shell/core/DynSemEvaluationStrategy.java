@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
@@ -24,7 +23,6 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 
-import com.github.krukow.clj_lang.PersistentHashMap;
 import com.oracle.truffle.api.vm.PolyglotEngine;
 import com.oracle.truffle.api.vm.PolyglotEngine.Value;
 
@@ -75,15 +73,16 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
             throw new MetaborgException("Error constructing program term from input.", cause);
         }
 
-        IStrategoConstructor inputCtor = ((IStrategoAppl) input).getConstructor();
-        String ctorName = inputCtor.getName();
-        int arity = inputCtor.getArity();
-
         if (!Tools.isTermAppl(input)) {
             throw new MetaborgException("Expected a StrategoAppl, but a \""
                                         + input.getClass().getName() + "\" was found: "
                                         + input.toString(1));
         }
+
+        IStrategoConstructor inputCtor = ((IStrategoAppl) input).getConstructor();
+        String ctorName = inputCtor.getName();
+        int arity = inputCtor.getArity();
+
         Value rule;
         if (getSortForTerm(input) == shellStartSymbol) {
             // Look up "-shell->" rule.
@@ -92,11 +91,11 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
             // Look up a "-shell_init->" rule.
             rule = polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("init", ctorName, arity));
         }
+
         try {
             RuleResult ruleResult = rule.execute(programTerm).as(RuleResult.class);
             return new StrategoString(ruleResult.result.toString(), TermFactory.EMPTY_LIST,
                                       IStrategoTerm.IMMUTABLE);
-
         } catch (IOException e) {
             throw new MetaborgException("Input/output error while evaluating.", e);
         }
@@ -121,12 +120,13 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     private boolean uninitialized() {
-        return polyglotEngine == null && shellStartSymbol == null;
+        return polyglotEngine == null || shellStartSymbol == null;
     }
 
     private void initialize(ILanguageImpl langImpl) throws InterpreterLoadException {
         polyglotEngine = interpLoader.loadInterpreterForLanguage(langImpl);
 
+        /** FIXME: {@link ShellFacet} might be null due to lang designer, what to do then? */
         ShellFacet shellFacet = langImpl.facet(ShellFacet.class);
         shellStartSymbol = shellFacet.getShellStartSymbol();
     }
