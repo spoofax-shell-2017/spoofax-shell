@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.output;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.syntax.IInputUnit;
+import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
@@ -29,6 +30,17 @@ public interface IResultFactory {
      * @return a {@link InputResult}
      */
     InputResult createInputResult(ILanguageImpl lang, FileObject file, String source);
+
+    /**
+     * Create an {@link InputResult} that can be passed to the Repl.
+     * @param lang         the language of this {@link InputResult}
+     * @param file         the {@link FileObject} containing the source
+     * @param source       the source
+     * @param parserConfig the parser configuration
+     * @return a {@link InputResult}
+     */
+    InputResult createInputResult(ILanguageImpl lang, FileObject file, String source,
+                                  JSGLRParserConfiguration parserConfig);
 
     /**
      * Create a {@link ParseResult} that can be passed to the Repl.
