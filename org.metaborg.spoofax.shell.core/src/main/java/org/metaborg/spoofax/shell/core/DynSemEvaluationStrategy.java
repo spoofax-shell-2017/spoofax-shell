@@ -2,8 +2,12 @@ package org.metaborg.spoofax.shell.core;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
@@ -73,6 +77,14 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
             initialize(langImpl);
         }
 
+        ITerm programTerm = toProgramTerm(input);
+
+        Value rule = lookupRuleForInput(input);
+
+        return invoke(rule, programTerm);
+    }
+
+    private ITerm toProgramTerm(IStrategoTerm input) throws MetaborgException {
         ITerm programTerm = null;
         try {
             programTerm = getProgramTerm(input);
@@ -80,7 +92,10 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
                  | InvocationTargetException cause) {
             throw new MetaborgException("Error constructing program term from input.", cause);
         }
+        return programTerm;
+    }
 
+    private Value lookupRuleForInput(IStrategoTerm input) throws MetaborgException {
         if (!Tools.isTermAppl(input)) {
             throw new MetaborgException("Expected a StrategoAppl, but a \""
                                         + input.getClass().getName() + "\" was found: "
@@ -94,11 +109,24 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         // Look up "-shell->" rule.
         Value rule =
             polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
+        return rule;
+    }
 
+    private IStrategoTerm invoke(Value rule, ITerm programTerm) throws MetaborgException {
         try {
-            RuleResult ruleResult =
-                rule.execute(programTerm, executionEnvironment, rwSemanticComponents)
-                    .as(RuleResult.class);
+            // Add the arguments.
+            List<Object> arguments = new ArrayList<Object>(2 + rwSemanticComponents.length);
+            arguments.add(programTerm);
+            arguments.add(executionEnvironment);
+            arguments.addAll(Arrays.asList(rwSemanticComponents));
+
+            // Execute the rule with the arguments, and update the execution environment.
+            RuleResult ruleResult = rule.execute(arguments.toArray()).as(RuleResult.class);
+            Object[] components = ruleResult.components;
+            executionEnvironment = components[0];
+            rwSemanticComponents = ArrayUtils.subarray(components, 1, components.length);
+
+            // Return the result as IStrategoTerm.
             return new StrategoString(ruleResult.result.toString(), TermFactory.EMPTY_LIST,
                                       IStrategoTerm.IMMUTABLE);
         } catch (IOException e) {
@@ -143,8 +171,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         ITermFactory termFactory = termFactService.getGeneric();
         IStrategoConstructor termConstr = termFactory.makeConstructor("ShellInit", 0);
         IStrategoAppl shellInitAppl = termFactory.makeAppl(termConstr);
-        ImploderAttachment.putImploderAttachment(shellInitAppl, false, "ShellInit", null,
-                                                 null);
+        ImploderAttachment.putImploderAttachment(shellInitAppl, false, "ShellInit", null, null);
         Value shellInitRule = polyglotEngine.findGlobalSymbol(RuleRegistry
             .makeKey("init", termConstr.getName(), termConstr.getArity()));
         try {
