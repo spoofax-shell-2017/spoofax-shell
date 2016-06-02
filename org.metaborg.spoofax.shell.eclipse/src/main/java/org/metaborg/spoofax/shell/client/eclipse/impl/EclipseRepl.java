@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.core.IRepl;
@@ -90,12 +90,16 @@ public class EclipseRepl implements IRepl, Observer<String> {
                 } catch (MetaborgException | CommandNotFoundException e) {
                     // TODO: use hooks directly so only hooks need to schedule things on the ui
                     // thread?
-                    Display.getDefault().asyncExec(new Runnable() {
+                    Job job = new UIJob("REPL Exception") {
                         @Override
-                        public void run() {
+                        public IStatus runInUIThread(IProgressMonitor monitor) {
                             display.displayError(new StyledText(Color.RED, e.getMessage()));
+                            return Status.OK_STATUS;
                         }
-                    });
+                    };
+                    job.setPriority(Job.SHORT);
+                    job.setSystem(true);
+                    job.schedule();
                     return Status.CANCEL_STATUS;
                 }
             }

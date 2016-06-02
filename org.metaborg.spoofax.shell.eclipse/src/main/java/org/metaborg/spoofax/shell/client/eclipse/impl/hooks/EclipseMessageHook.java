@@ -1,7 +1,12 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl.hooks;
 
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.ui.progress.UIJob;
 import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.eclipse.impl.EclipseRepl;
 import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.output.StyledText;
 
@@ -9,6 +14,9 @@ import com.google.inject.Inject;
 
 /**
  * An Eclipse-based implementation of {@link IMessageHook}.
+ *
+ * Note that hooks do not run in the UI thread, since they are automatically called by the
+ * {@link ISpoofaxCommand}s which are started by the {@link EclipseRepl} in its own thread.
  */
 public class EclipseMessageHook implements IMessageHook {
     private final IDisplay display;
@@ -26,13 +34,16 @@ public class EclipseMessageHook implements IMessageHook {
 
     @Override
     public void accept(StyledText message) {
-        // TODO: run this in UI thread in a nice way!
-        Display.getDefault().asyncExec(new Runnable() {
+        Job job = new UIJob("REPL Message Hook") {
             @Override
-            public void run() {
+            public IStatus runInUIThread(IProgressMonitor monitor) {
                 display.displayResult(message);
+                return Status.OK_STATUS;
             }
-        });
+        };
+        job.setPriority(Job.SHORT);
+        job.setSystem(true);
+        job.schedule();
     }
 
 }
