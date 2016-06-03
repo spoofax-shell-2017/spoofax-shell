@@ -78,9 +78,13 @@ public class EclipseDisplay implements IDisplay {
 
             styleRange.start = offset;
             styleRange.length = length;
-            styleRange.foreground = this.colorManager.getColor(awtToRGB(style.color()));
-            styleRange.background = this.colorManager.getColor(awtToRGB(style.backgroundColor()));
-
+            if (style.color() != null) {
+                styleRange.foreground = this.colorManager.getColor(awtToRGB(style.color()));
+            }
+            if (style.backgroundColor() != null) {
+                styleRange.background =
+                    this.colorManager.getColor(awtToRGB(style.backgroundColor()));
+            }
             if (style.bold()) {
                 styleRange.fontStyle |= SWT.BOLD;
             }
@@ -118,9 +122,6 @@ public class EclipseDisplay implements IDisplay {
     }
 
     private RGB awtToRGB(Color awt) {
-        if (awt == null) {
-            return ColorManager.getDefault();
-        }
         return new RGB(awt.getRed(), awt.getGreen(), awt.getBlue());
     }
 }
