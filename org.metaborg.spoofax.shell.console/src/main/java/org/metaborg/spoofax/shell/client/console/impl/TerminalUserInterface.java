@@ -22,6 +22,7 @@ import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IInputHistory;
+import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
@@ -143,14 +144,14 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     // -------------- IDisplay --------------
     @Override
-    public void displayResult(StyledText s) {
-        out.println(ansi(s));
+    public void displayResult(ISpoofaxResult<?> result) {
+        out.println(ansi(result.styled()));
         out.flush();
     }
 
     @Override
-    public void displayError(StyledText s) {
-        err.println(ansi(s));
+    public void displayMessage(StyledText message) {
+        err.println(ansi(message));
         err.flush();
     }
 

@@ -37,7 +37,7 @@ public class EclipseMessageHook implements IMessageHook {
         Job job = new UIJob("REPL Message Hook") {
             @Override
             public IStatus runInUIThread(IProgressMonitor monitor) {
-                display.displayResult(message);
+                display.displayMessage(message);
                 return Status.OK_STATUS;
             }
         };

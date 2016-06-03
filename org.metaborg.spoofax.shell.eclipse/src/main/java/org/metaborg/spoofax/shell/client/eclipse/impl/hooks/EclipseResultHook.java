@@ -37,7 +37,7 @@ public class EclipseResultHook implements IResultHook {
         Job job = new UIJob("REPL Result Hook") {
             @Override
             public IStatus runInUIThread(IProgressMonitor monitor) {
-                display.displayResult(result.styled());
+                display.displayResult(result);
                 return Status.OK_STATUS;
             }
         };

@@ -25,7 +25,7 @@ public class ConsoleResultHook implements IResultHook {
 
     @Override
     public void accept(ISpoofaxResult<?> result) {
-        this.display.displayResult(result.styled());
+        this.display.displayResult(result);
     }
 
 }

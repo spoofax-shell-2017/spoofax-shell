@@ -33,7 +33,7 @@ public final class Main {
         StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
             .append(new Style(Color.GREEN, Color.BLUE, true, true, true), "Spoofax")
             .append(Color.BLUE, " REPL");
-        display.displayResult(message);
+        display.displayMessage(message);
 
         ConsoleRepl repl = injector.getInstance(ConsoleRepl.class);
         repl.run();

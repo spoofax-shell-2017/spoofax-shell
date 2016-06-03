@@ -25,7 +25,7 @@ public class ConsoleMessageHook implements IMessageHook {
 
     @Override
     public void accept(StyledText message) {
-        this.display.displayResult(message);
+        this.display.displayMessage(message);
     }
 
 }

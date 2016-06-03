@@ -75,13 +75,13 @@ public class ConsoleRepl implements IRepl {
                 try {
                     eval(input);
                 } catch (CommandNotFoundException | MetaborgException e) {
-                    this.display.displayError(new StyledText(Color.RED, e.getMessage()));
+                    this.display.displayMessage(new StyledText(Color.RED, e.getMessage()));
                 }
             }
 
             this.editor.history().persistToDisk();
         } catch (IOException e) {
-            this.display.displayError(new StyledText(Color.RED, e.getMessage()));
+            this.display.displayMessage(new StyledText(Color.RED, e.getMessage()));
         }
     }
 

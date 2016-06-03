@@ -16,6 +16,7 @@ import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
+import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
@@ -97,7 +98,26 @@ public class EclipseDisplay implements IDisplay {
     }
 
     @Override
-    public void displayResult(StyledText message) {
+    public void displayResult(ISpoofaxResult<?> result) {
+        // TODO: use the information in the result to print better error messages.
+        IDocument doc = getDocument();
+        int offset = doc.getLength();
+        StyledText styled = result.styled();
+        String text = styled.toString();
+
+        // TODO: restore StyledText so that substrings aren't necessary anymore?
+        styled.getSource().forEach(e -> {
+            ISourceRegion region = e.region();
+            append(doc, offset,
+                   text.substring(region.startOffset(), region.endOffset() + 1) + '\n');
+            style(e.style(), offset, region.length());
+        });
+
+        scrollText();
+    }
+
+    @Override
+    public void displayMessage(StyledText message) {
         IDocument doc = getDocument();
         int offset = doc.getLength();
         String text = message.toString();
@@ -111,14 +131,6 @@ public class EclipseDisplay implements IDisplay {
         });
 
         scrollText();
-    }
-
-    // TODO: Since all markup happens in the message itself, why have a separate displayError
-    // method? However, if IResultHook passes on the ISpoofaxResult to IDisplay, then this separate
-    // method is indeed needed.
-    @Override
-    public void displayError(StyledText message) {
-        displayResult(message);
     }
 
     private RGB awtToRGB(Color awt) {

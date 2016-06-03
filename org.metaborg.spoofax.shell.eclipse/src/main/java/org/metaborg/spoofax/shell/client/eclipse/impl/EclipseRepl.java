@@ -79,7 +79,8 @@ public class EclipseRepl implements IRepl, Observer<String> {
         // highlighted.
         Color inputBackgroundColor = new Color(INPUT_RED, INPUT_GREEN, INPUT_BLUE);
         Style style = new Style(null, inputBackgroundColor, false, false, false);
-        this.display.displayResult(new StyledText(style, input));
+        // FIXME: Input is not really a "message"...
+        this.display.displayMessage(new StyledText(style, input));
     }
 
     private void runAsJob(final String input) {
@@ -95,7 +96,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
                     Job job = new UIJob("REPL Exception") {
                         @Override
                         public IStatus runInUIThread(IProgressMonitor monitor) {
-                            display.displayError(new StyledText(Color.RED, e.getMessage()));
+                            display.displayMessage(new StyledText(Color.RED, e.getMessage()));
                             return Status.OK_STATUS;
                         }
                     };

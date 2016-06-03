@@ -34,11 +34,11 @@ public class ConsoleMessageHookTest {
     }
 
     /**
-     * Tests if {@link IDisplay#displayResult(StyledText)} is called correctly.
+     * Tests if {@link IDisplay#displayMessage(StyledText)} is called correctly.
      */
     @Test
     public void testAccept() {
         hook.accept(text);
-        verify(display, times(1)).displayResult(text);
+        verify(display, times(1)).displayMessage(text);
     }
 }
