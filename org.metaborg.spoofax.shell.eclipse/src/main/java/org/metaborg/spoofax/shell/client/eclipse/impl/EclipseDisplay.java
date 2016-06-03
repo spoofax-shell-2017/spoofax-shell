@@ -12,7 +12,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
@@ -101,35 +100,32 @@ public class EclipseDisplay implements IDisplay {
     public void displayResult(ISpoofaxResult<?> result) {
         // TODO: use the information in the result to print better error messages.
         IDocument doc = getDocument();
-        int offset = doc.getLength();
-        StyledText styled = result.styled();
-        String text = styled.toString();
 
-        // TODO: restore StyledText so that substrings aren't necessary anymore?
-        styled.getSource().forEach(e -> {
-            ISourceRegion region = e.region();
-            append(doc, offset,
-                   text.substring(region.startOffset(), region.endOffset() + 1) + '\n');
-            style(e.style(), offset, region.length());
+        result.styled().getSource().forEach(e -> {
+            int offset = doc.getLength();
+
+            append(doc, offset, e.fragment());
+            style(e.style(), offset, e.region().length());
         });
 
+        append(doc, doc.getLength(), "\n");
         scrollText();
     }
 
     @Override
     public void displayMessage(StyledText message) {
         IDocument doc = getDocument();
-        int offset = doc.getLength();
-        String text = message.toString();
 
-        // TODO: restore StyledText so that substrings aren't necessary anymore?
         message.getSource().forEach(e -> {
-            ISourceRegion region = e.region();
-            append(doc, offset,
-                   text.substring(region.startOffset(), region.endOffset() + 1) + '\n');
-            style(e.style(), offset, region.length());
+            int offset = doc.getLength();
+
+            append(doc, offset, e.fragment());
+            style(e.style(), offset, e.region().length());
         });
 
+        // TODO: this always append a newline, which means there will be an empty line between input
+        // (which has its newline appended) and output.
+        append(doc, doc.getLength(), "\n");
         scrollText();
     }
 

@@ -2,6 +2,7 @@ package org.metaborg.spoofax.shell.output;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.metaborg.core.source.ISourceRegion;
@@ -18,8 +19,7 @@ import com.google.common.collect.Lists;
  * {@link IRegionStyle}.
  */
 public class StyledText {
-    private final List<IRegionStyle<?>> source;
-    private StringBuffer textBuffer;
+    private final List<IRegionStyle<String>> source;
 
     /**
      * Create a styled text from a string with no style.
@@ -53,18 +53,17 @@ public class StyledText {
      */
     public StyledText(IStyle style, String text) {
         this.source = Lists.newArrayList();
-        this.textBuffer = new StringBuffer();
 
         this.append(style, text);
     }
 
     /**
-     * Create a styled text from a list of styled Stratego terms.
+     * Create a styled text from a list of styled strings.
      *
      * @param sourceRegions
-     *            The list of styled Stratego terms.
+     *            The list of styled strings.
      */
-    public StyledText(Iterable<IRegionStyle<?>> sourceRegions) {
+    public StyledText(Iterable<IRegionStyle<String>> sourceRegions) {
         this.source = Lists.newArrayList(sourceRegions);
     }
 
@@ -73,7 +72,7 @@ public class StyledText {
      *
      * @return All the styled strings in this text.
      */
-    public List<IRegionStyle<?>> getSource() {
+    public List<IRegionStyle<String>> getSource() {
         return source;
     }
 
@@ -111,7 +110,7 @@ public class StyledText {
      * @return The styled text.
      */
     public StyledText append(IStyle style, String text) {
-        int start = this.textBuffer.length();
+        int start = this.toString().length();
         return this.append(new SourceRegion(start, start + text.length() - 1), style, text);
     }
 
@@ -127,8 +126,7 @@ public class StyledText {
      * @return The styled text.
      */
     private StyledText append(ISourceRegion region, IStyle style, String text) {
-        this.source.add(new RegionStyle<>(region, style, null));
-        this.textBuffer.append(text);
+        this.source.add(new RegionStyle<>(region, style, text));
 
         return this;
     }
@@ -171,6 +169,6 @@ public class StyledText {
 
     @Override
     public String toString() {
-        return textBuffer.toString();
+        return source.stream().map(e -> e.fragment()).collect(Collectors.joining());
     }
 }

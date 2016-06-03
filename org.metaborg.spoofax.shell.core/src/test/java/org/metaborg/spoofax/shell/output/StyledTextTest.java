@@ -23,10 +23,11 @@ public class StyledTextTest {
     @Test
     public void testString() {
         StyledText styledText = new StyledText("Hello world");
-        List<IRegionStyle<?>> source = styledText.getSource();
+        List<IRegionStyle<String>> source = styledText.getSource();
 
         assertEquals("Hello world", styledText.toString());
         assertEquals(1, source.size());
+        assertEquals("Hello world", source.get(0).fragment());
         assertNull(source.get(0).style());
     }
 
@@ -44,8 +45,10 @@ public class StyledTextTest {
         String part2 = "world";
 
         StyledText styledText = new StyledText(Color.RED, part1).append(part2);
-        List<IRegionStyle<?>> source = styledText.getSource();
+        List<IRegionStyle<String>> source = styledText.getSource();
 
+        assertEquals(part1, styledText.getSource().get(0).fragment());
+        assertEquals(part2, styledText.getSource().get(1).fragment());
         assertEquals(part1 + part2, styledText.toString());
         assertEquals(2, source.size());
         assertEquals(part1Start, source.get(0).region().startOffset());

@@ -162,12 +162,8 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     }
 
     private String ansi(StyledText styled) {
-        String text = styled.toString();
-
         Ansi ansi = Ansi.ansi();
         styled.getSource().forEach(e -> {
-            String fragment = text.substring(e.region().startOffset(), e.region().endOffset() + 1);
-
             if (e.style() != null) {
                 IStyle style = e.style();
                 optional(style.color(),           (c) -> c != null, (c) -> ansi.fg(findClosest(c)));
@@ -175,9 +171,9 @@ public class TerminalUserInterface implements IEditor, IDisplay {
                 optional(style.bold(),           (c) -> c, (c) -> ansi.bold());
                 optional(style.italic(),         (c) -> c, (c) -> ansi.a(Ansi.Attribute.ITALIC));
                 optional(style.underscore(),     (c) -> c, (c) -> ansi.a(Ansi.Attribute.UNDERLINE));
-                ansi.a(fragment).reset();
+                ansi.a(e.fragment()).reset();
             } else {
-                ansi.a(fragment);
+                ansi.a(e.fragment());
             }
         });
         return ansi.toString();
