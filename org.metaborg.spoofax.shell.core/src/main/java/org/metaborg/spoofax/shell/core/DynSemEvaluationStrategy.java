@@ -15,7 +15,6 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleResult;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
-import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
@@ -39,7 +38,6 @@ import com.oracle.truffle.api.vm.PolyglotEngine.Value;
 public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     private final IInterpreterLoader interpLoader;
     private PolyglotEngine polyglotEngine;
-    private String shellStartSymbol;
     private Object executionEnvironment;
     private Object[] rwSemanticComponents;
 
@@ -153,15 +151,11 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     private boolean uninitialized() {
-        return polyglotEngine == null || shellStartSymbol == null;
+        return polyglotEngine == null;
     }
 
     private void initialize(ILanguageImpl langImpl) throws InterpreterLoadException {
         polyglotEngine = interpLoader.loadInterpreterForLanguage(langImpl);
-
-        /** FIXME: {@link ShellFacet} might be null due to lang designer, what to do then? */
-        ShellFacet shellFacet = langImpl.facet(ShellFacet.class);
-        shellStartSymbol = shellFacet.getShellStartSymbol();
 
         initializeExecutionEnvironment(langImpl);
     }
