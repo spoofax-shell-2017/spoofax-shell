@@ -3,9 +3,11 @@ package org.metaborg.spoofax.shell.core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.language.ILanguageImpl;
@@ -55,9 +57,11 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
     private DynSemEntryPoint getEntryPoint(Properties dynSemProperties)
         throws InterpreterLoadException {
         try {
-            return (DynSemEntryPoint) getGeneratedClass(dynSemProperties, "EntryPoint")
-                .newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            Class<DynSemEntryPoint> entryPointClass =
+                this.<DynSemEntryPoint> getGeneratedClass(dynSemProperties, "EntryPoint");
+            return ConstructorUtils.invokeConstructor(entryPointClass);
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
+                 | InvocationTargetException e) {
             throw new InterpreterLoadException(e);
         }
     }
