@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.metaborg.core.MetaborgException;
