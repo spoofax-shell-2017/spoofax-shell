@@ -45,7 +45,7 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
                 .config(mimeType, DynSemLanguage.TERM_REGISTRY, termRegistry).build();
         try {
             InputStreamReader specTermReader =
-                new InputStreamReader(entryPoint.getSpecificationTerm());
+                new InputStreamReader(entryPoint.getSpecificationTerm(), "UTF-8");
             builtEngine.eval(Source.fromReader(specTermReader, "Evaluate to interpreter.")
                 .withMimeType(mimeType));
         } catch (IOException e) {

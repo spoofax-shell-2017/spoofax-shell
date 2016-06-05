@@ -59,10 +59,12 @@ public class ClassPathInterpreterLoaderTest {
     private static final String NO_EXCEPTION = "No exception should be thrown";
     protected static final String SPEC_TERM_CONSTANT = "specification term";
     protected ClassPathInterpreterLoader cpInterpLoader = new ClassPathInterpreterLoader();
-    protected static RuleRoot mockRuleRoot;
+    protected static final RuleRoot MOCK_RULE_ROOT = Mockito.mock(RuleRoot.class);
     protected ILanguageImpl mockLangImpl;
+    @SuppressWarnings("unused")
+    private static final TestCPLoaderLanguage LANG = TestCPLoaderLanguage.INSTANCE;
 
-    protected static boolean reachedLanguageParse = false;
+    private static boolean reachedLanguageParse = false;
     private Iterable<FileObject> langImplLocations;
     private String expectedExceptionMessage;
     private Class<?> expectedExceptionCauseClass;
@@ -254,7 +256,7 @@ public class ClassPathInterpreterLoaderTest {
                 engine.findGlobalSymbol(RuleRegistry.makeKey("testrule", "TestCtor", 0));
             DynSemRule testRule = testRuleValue.as(DynSemRule.class);
 
-            assertEquals(testRule.getRuleTarget(), mockRuleRoot);
+            assertEquals(testRule.getRuleTarget(), MOCK_RULE_ROOT);
 
             // Assert that the parse method of the test language class was reached.
             assertTrue(reachedLanguageParse);
@@ -297,7 +299,7 @@ public class ClassPathInterpreterLoaderTest {
 
         private static RuleRegistry mockRuleRegistry() {
             RuleRegistry mock = Mockito.mock(RuleRegistry.class);
-            Mockito.when(mock.lookupRule("testrule", "TestCtor", 0)).thenReturn(mockRuleRoot);
+            Mockito.when(mock.lookupRule("testrule", "TestCtor", 0)).thenReturn(MOCK_RULE_ROOT);
             return mock;
         }
 
