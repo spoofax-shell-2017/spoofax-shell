@@ -218,6 +218,9 @@
                 </dependencies-->
                 <configuration>
                     <verbose>true</verbose>
+                    <rulesets>
+                        <ruleset>./ruleset.xml</ruleset>
+                    </rulesets>
                 </configuration>
                 <executions>
                     <execution>

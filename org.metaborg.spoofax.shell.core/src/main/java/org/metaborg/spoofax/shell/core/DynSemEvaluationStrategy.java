@@ -157,10 +157,10 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     private void initialize(ILanguageImpl langImpl) throws InterpreterLoadException {
         polyglotEngine = interpLoader.loadInterpreterForLanguage(langImpl);
 
-        initializeExecutionEnvironment(langImpl);
+        initializeExecutionEnvironment();
     }
 
-    private void initializeExecutionEnvironment(ILanguageImpl langImpl)
+    private void initializeExecutionEnvironment()
         throws InterpreterLoadException {
         ITermFactory termFactory = termFactService.getGeneric();
         IStrategoConstructor termConstr = termFactory.makeConstructor("ShellInit", 0);
