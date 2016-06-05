@@ -1,5 +1,6 @@
 package org.metaborg.spoofax.shell.invoker;
 
+import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.commands.AnalyzeCommand;
@@ -34,9 +35,11 @@ public interface ICommandFactory {
      * @param project   The associated {@link IProject}
      * @param lang      The associated {@link ILanguageImpl}
      * @param analyzed  Indicates whether to analyze or not
+     * @param action      The associated {@link ITransformAction}
      * @return        an {@link TransformCommand}
      */
-    TransformCommand createTransform(IProject project, ILanguageImpl lang, boolean analyzed);
+    TransformCommand createTransform(IProject project, ILanguageImpl lang, ITransformAction action,
+                                     boolean analyzed);
 
     /**
      * Factory method for creating an evaluation command.

@@ -22,6 +22,7 @@ import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageDiscoveryRequest;
 import org.metaborg.core.language.ILanguageDiscoveryService;
 import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseException;
@@ -47,6 +48,7 @@ public class LanguageCommandTest {
     // Constructor mocks
     @Mock private ILanguageDiscoveryService langDiscoveryService;
     @Mock private IResourceService resourceService;
+    @Mock private IMenuService menuService;
     @Mock private ICommandInvoker invoker;
     @Mock private IProject project;
 
@@ -78,7 +80,8 @@ public class LanguageCommandTest {
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
             .thenReturn(Lists.newArrayList(lang));
 
-        langCommand = new LanguageCommand(langDiscoveryService, resourceService, invoker, project);
+        langCommand = new LanguageCommand(langDiscoveryService, resourceService, menuService,
+                                          invoker, project);
     }
 
     /**
@@ -154,6 +157,7 @@ public class LanguageCommandTest {
     public void testExecute() throws MetaborgException {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
+        when(menuService.menuItems(any())).thenReturn(Lists.newArrayList());
 
         String expected = "Loaded language lang";
         langCommand.execute("res:paplj.zip").accept(display);
@@ -171,6 +175,7 @@ public class LanguageCommandTest {
     public void testExecuteAnalyzed() throws MetaborgException {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
+        when(menuService.menuItems(any())).thenReturn(Lists.newArrayList());
         when(lang.hasFacet(AnalysisFacet.class)).thenReturn(true);
 
         String expected = "Loaded language lang";
