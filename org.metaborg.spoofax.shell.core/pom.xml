@@ -20,6 +20,16 @@
          required on TravisCI). -->
     <repositories>
         <repository>
+            <id>custom-snapshot-repo</id>
+            <url>http://fokkema-ict.nl/maven2</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>metaborg-snapshot-repo</id>
             <url>http://artifacts.metaborg.org/content/repositories/snapshots/</url>
             <releases>
