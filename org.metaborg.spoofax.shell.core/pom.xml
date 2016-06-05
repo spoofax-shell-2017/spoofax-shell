@@ -83,11 +83,6 @@
             <version>0.11</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>com.oracle.truffle</groupId>
-            <artifactId>truffle-dsl-processor</artifactId>
-            <version>0.11</version>
-        </dependency>
 
         <!-- From here on, all dependencies are inherited. -->
         <dependency>
@@ -163,6 +158,30 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- Generate sources from annotations. -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process-test</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/generated-sources/annotations</outputDirectory>
+                            <!--processor>com.oracle.truffle.dsl.processor.LanguageRegistrationProcessor</processor-->
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.oracle.truffle</groupId>
+                        <artifactId>truffle-dsl-processor</artifactId>
+                        <version>0.11</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
             <!-- Compile Java 8 sources. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -170,6 +189,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
             <!-- Checkstyle -->
