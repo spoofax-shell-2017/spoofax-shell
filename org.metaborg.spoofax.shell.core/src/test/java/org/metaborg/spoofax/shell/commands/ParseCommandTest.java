@@ -20,6 +20,7 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.syntax.ParseException;
+import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.hooks.IResultHook;
@@ -42,6 +43,7 @@ public class ParseCommandTest {
     private IResultHook resultHook;
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
+    @Mock private ShellFacet facet;
 
     @Mock private InputResult inputResult;
     @Mock private ParseResult parseResult;
@@ -60,8 +62,10 @@ public class ParseCommandTest {
 
         when(project.location()).thenReturn(sourceFile);
 
-        when(resultFactory.createInputResult(any(), any(), any())).thenReturn(inputResult);
+        when(resultFactory.createInputResult(any(), any(), any(), any())).thenReturn(inputResult);
         when(resultFactory.createParseResult(any())).thenReturn(parseResult);
+
+        when(lang.facet(ShellFacet.class)).thenReturn(facet);
 
         parseCommand = new ParseCommand(syntaxService, resultHook, resultFactory, project, lang);
     }
