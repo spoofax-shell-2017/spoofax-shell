@@ -20,9 +20,9 @@ import com.google.inject.assistedinject.Assisted;
 
 public class PTransformFunction extends AbstractFunction<ParseResult, TransformResult>{
 
-    private IContextService contextService;
-    private ISpoofaxTransformService transformService;
-    private ITransformAction action;
+    private final IContextService contextService;
+    private final ISpoofaxTransformService transformService;
+    private final ITransformAction action;
 
     /**
      * Instantiate a new {@link ParsedTransformCommand}.
@@ -54,11 +54,10 @@ public class PTransformFunction extends AbstractFunction<ParseResult, TransformR
 
     @Override
     public TransformResult execute(ParseResult arg) throws MetaborgException {
-        ISpoofaxParseUnit unit = arg.unit();
-        IContext context = contextService.get(unit.source(), project, lang);
+        IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
 
         Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> transform =
-            transformService.transform(unit, context, action.goal());
+            transformService.transform(arg.unit(), context, action.goal());
         return resultFactory.createTransformResult(transform.iterator().next());
     }
 }

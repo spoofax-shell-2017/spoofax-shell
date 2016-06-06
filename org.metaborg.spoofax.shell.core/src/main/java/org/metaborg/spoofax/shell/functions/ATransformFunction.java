@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.context.IContext;
+import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
@@ -19,12 +20,15 @@ import com.google.inject.assistedinject.Assisted;
 
 public class ATransformFunction extends AbstractFunction<AnalyzeResult, TransformResult>{
 
-    private ISpoofaxTransformService transformService;
-    private ITransformAction action;
+    private final IContextService contextService;
+    private final ISpoofaxTransformService transformService;
+    private final ITransformAction action;
 
     /**
      * Instantiate a new {@link AnalyzedTransformCommand}.
      *
+     * @param contextService
+     *            The {@link IContextService}.
      * @param transformService
      *            The {@link ISpoofaxTransformService}.
      * @param resultFactory
@@ -37,22 +41,23 @@ public class ATransformFunction extends AbstractFunction<AnalyzeResult, Transfor
      *            The {@link ITransformAction} that this command executes.
      */
     @Inject
-    public ATransformFunction(ISpoofaxTransformService transformService,
-                              IResultFactory resultFactory, @Assisted IProject project,
-                              @Assisted ILanguageImpl lang,
+    public ATransformFunction(IContextService contextService,
+                              ISpoofaxTransformService transformService,
+                              IResultFactory resultFactory,
+                              @Assisted IProject project, @Assisted ILanguageImpl lang,
                               @Assisted ITransformAction action) {
         super(resultFactory, project, lang);
+        this.contextService = contextService;
         this.transformService = transformService;
         this.action = action;
     }
 
     @Override
     public TransformResult execute(AnalyzeResult arg) throws MetaborgException {
-        ISpoofaxAnalyzeUnit unit = arg.unit();
-        IContext context = unit.context();
+        IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
 
         Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> transform =
-            transformService.transform(unit, context, action.goal());
+            transformService.transform(arg.unit(), context, action.goal());
         return resultFactory.createTransformResult(transform.iterator().next());
     }
 }
