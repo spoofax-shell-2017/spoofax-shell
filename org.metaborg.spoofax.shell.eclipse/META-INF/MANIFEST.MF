@@ -4,24 +4,18 @@ Bundle-Name: Spoofax Eclipse REPL
 Bundle-SymbolicName: org.metaborg.spoofax.shell.eclipse;singleton:=true
 Bundle-Version: 0.0.3.qualifier
 Bundle-Activator: org.metaborg.spoofax.shell.client.eclipse.Activator
-Require-Bundle: org.eclipse.core.jobs;bundle-version="3.7.0",
- org.eclipse.core.resources;bundle-version="3.10.1",
- org.eclipse.core.runtime;bundle-version="3.11.1",
- org.eclipse.jface;bundle-version="3.11.1",
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.11.1",
  org.eclipse.jface.text;bundle-version="3.10.0",
- org.eclipse.text;bundle-version="3.5.400",
  org.eclipse.ui;bundle-version="3.107.0",
- org.eclipse.ui.editors;bundle-version="3.9.0",
  org.metaborg.core;bundle-version="2.0.0",
  org.metaborg.spoofax.core;bundle-version="2.0.0",
- org.metaborg.spoofax.eclipse;bundle-version="2.0.0",
- org.metaborg.spoofax.eclipse.externaldeps;bundle-version="2.0.0",
  org.metaborg.spoofax.shell.core;bundle-version="0.0.3",
- org.metaborg.spoofax.eclipse.util;bundle-version="2.0.0",
- org.spoofax.terms;bundle-version="2.0.0"
+ org.metaborg.spoofax.eclipse.externaldeps;bundle-version="2.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: metaborg.org
-Export-Package: org.metaborg.spoofax.shell.client.eclipse
+Export-Package: org.metaborg.spoofax.shell.client.eclipse,
+ org.metaborg.spoofax.shell.client.eclipse.impl,
+ org.metaborg.spoofax.shell.client.eclipse.impl.hooks
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.metaborg.spoofax.eclipse,
  org.metaborg.spoofax.eclipse.externaldeps,
