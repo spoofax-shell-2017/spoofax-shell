@@ -26,16 +26,16 @@ import com.oracle.truffle.api.vm.PolyglotEngine;
  * the supported {@link DynSemLanguage#PARSER configuration parameter}.
  */
 public class ClassPathInterpreterLoader implements IInterpreterLoader {
+    private String langName;
     private String targetPackage;
 
     @Override
     public PolyglotEngine loadInterpreterForLanguage(ILanguageImpl langImpl)
         throws InterpreterLoadException {
-        Properties dynSemProperties = dynSemProperties(langImpl);
+        loadDynSemProperties(langImpl);
 
-        DynSemEntryPoint entryPoint = getEntryPoint(dynSemProperties);
+        DynSemEntryPoint entryPoint = getEntryPoint();
 
-        targetPackage = dynSemProperties.getProperty("target.package");
         RuleRegistry ruleRegistry = entryPoint.getRuleRegistry();
         ITermRegistry termRegistry = entryPoint.getTermRegistry();
 
@@ -54,11 +54,11 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         return builtEngine;
     }
 
-    private DynSemEntryPoint getEntryPoint(Properties dynSemProperties)
+    private DynSemEntryPoint getEntryPoint()
         throws InterpreterLoadException {
         try {
             Class<DynSemEntryPoint> entryPointClass =
-                this.<DynSemEntryPoint> getGeneratedClass(dynSemProperties, "EntryPoint");
+                this.<DynSemEntryPoint> getGeneratedClass("EntryPoint");
             return ConstructorUtils.invokeConstructor(entryPointClass);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
                  | InvocationTargetException e) {
@@ -72,10 +72,8 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Class<T> getGeneratedClass(Properties dynSemProperties, String className)
+    private <T> Class<T> getGeneratedClass(String className)
         throws InterpreterLoadException {
-        String targetPackage = dynSemProperties.getProperty("target.package");
-        String langName = dynSemProperties.getProperty("source.langname");
         try {
             return (Class<T>) ClassUtils.getClass(targetPackage + "." + langName + className);
         } catch (ClassNotFoundException e) {
@@ -83,8 +81,9 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         }
     }
 
-    /* Returns the dynsem.properties file parsed as a Properties object. */
-    private Properties dynSemProperties(ILanguageImpl langImpl) throws InterpreterLoadException {
+    /* Loads the required configurations from the dynsem.properties file parsed as a Properties
+     * object. */
+    private void loadDynSemProperties(ILanguageImpl langImpl) throws InterpreterLoadException {
         FileObject dynSemPropertiesFile = null;
         for (FileObject fo : langImpl.locations()) {
             try {
@@ -109,6 +108,9 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         } catch (Exception e) {
             throw new InterpreterLoadException("Error when trying to load \"dynsem.properties\".");
         }
-        return dynSemProperties;
+
+        langName = dynSemProperties.getProperty("source.langname");
+        targetPackage = dynSemProperties.getProperty("project.javapackage",
+                                                     langName + ".interpreter.generated");
     }
 }
