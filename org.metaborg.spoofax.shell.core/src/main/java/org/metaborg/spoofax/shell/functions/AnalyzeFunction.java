@@ -8,7 +8,6 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.shell.commands.AnalyzeCommand;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ParseResult;

@@ -8,6 +8,8 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
+import org.metaborg.spoofax.core.shell.ShellFacet;
+import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
@@ -95,8 +97,11 @@ public class CommandBuilder {
      */
     public Function<String, InputResult> input() {
         return wrap((String source) -> {
+            ShellFacet shellFacet = lang.facet(ShellFacet.class);
             FileObject file = project.location().resolveFile("temp");
-            return resultFactory.createInputResult(lang, file, source);
+            // FIXME: find a way to fall back to no start symbols
+            return resultFactory.createInputResult(lang, file, source,
+                new JSGLRParserConfiguration(shellFacet.getShellStartSymbol()));
         });
     }
 

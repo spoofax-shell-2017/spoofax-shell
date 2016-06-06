@@ -3,7 +3,6 @@ package org.metaborg.spoofax.shell.output;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.unit.IUnit;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**

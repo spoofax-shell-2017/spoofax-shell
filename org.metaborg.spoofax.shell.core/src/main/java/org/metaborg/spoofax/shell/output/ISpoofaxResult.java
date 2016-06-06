@@ -7,7 +7,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.unit.IUnit;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**

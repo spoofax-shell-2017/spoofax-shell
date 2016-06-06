@@ -11,7 +11,6 @@ import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Lists;
