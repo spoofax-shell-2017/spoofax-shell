@@ -145,7 +145,7 @@ public class ClassPathInterpreterLoaderTest {
                 dynSemProperties.createFile();
                 PrintWriter printWriter =
                     new PrintWriter(dynSemProperties.getContent().getOutputStream());
-                printWriter.println("target.package = org.metaborg.spoofax.shell.core");
+                printWriter.println("project.javapackage = org.metaborg.spoofax.shell.core");
                 printWriter
                     .println("source.langname = ClassPathInterpreterLoaderTest$TestCPLoader");
                 printWriter.flush();
@@ -214,7 +214,7 @@ public class ClassPathInterpreterLoaderTest {
                 dynSemProperties.createFile();
                 PrintWriter printWriter =
                     new PrintWriter(dynSemProperties.getContent().getOutputStream());
-                printWriter.println("target.package = non.existing.package");
+                printWriter.println("project.javapackage = non.existing.package");
                 printWriter.println("source.langname = NonExistingLanguage");
                 printWriter.flush();
                 printWriter.close();
