@@ -4,6 +4,7 @@ import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.commands.AnalyzeCommand;
+import org.metaborg.spoofax.shell.commands.CommandBuilder;
 import org.metaborg.spoofax.shell.commands.EvaluateCommand;
 import org.metaborg.spoofax.shell.commands.ParseCommand;
 import org.metaborg.spoofax.shell.commands.TransformCommand;
@@ -49,4 +50,6 @@ public interface ICommandFactory {
      * @return        an {@link EvaluateCommand}
      */
     EvaluateCommand createEvaluate(IProject project, ILanguageImpl lang, boolean analyzed);
+
+    CommandBuilder createBuilder(IProject project, ILanguageImpl lang);
 }

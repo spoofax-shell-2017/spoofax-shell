@@ -1,6 +1,7 @@
 package org.metaborg.spoofax.shell.commands;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
@@ -14,9 +15,9 @@ import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.shell.client.IHook;
-import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.output.TransformResult;
 
 import com.google.inject.Inject;
 
@@ -99,14 +100,22 @@ public class LanguageCommand implements IReplCommand {
         ILanguageImpl lang = load(resolveLanguage(args[0]));
         boolean analyze = lang.hasFacet(AnalyzerFacet.class);
 
+        CommandBuilder builder = invoker.getCommandFactory().createBuilder(project, lang);
+
         invoker.resetCommands();
-        ICommandFactory commandFactory = invoker.getCommandFactory();
-        invoker.addCommand("parse", commandFactory.createParse(project, lang));
+        invoker.addCommand("parse", builder.build(builder.parse(), "Parse the expression"));
         if (analyze) {
-            invoker.addCommand("analyze", commandFactory.createAnalyze(project, lang));
+            invoker.addCommand("analyze", builder.build(builder.analyze(), "Analyze the expression"));
         }
+
         new TransformVisitor(menuService).getActions(lang).forEach((key, action) -> {
-            invoker.addCommand(key, commandFactory.createTransform(project, lang, action, analyze));
+            Function<String, TransformResult> result;
+            if (analyze) {
+                result = builder.transformAnalyzed(action);
+            } else {
+                result = builder.transformParsed(action);
+            }
+            invoker.addCommand(key, builder.build(result, action.name()));
         });
 
         invoker.addCommand("eval", commandFactory.createEvaluate(project, lang, analyze));

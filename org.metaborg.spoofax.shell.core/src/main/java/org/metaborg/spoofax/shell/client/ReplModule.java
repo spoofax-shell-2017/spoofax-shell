@@ -16,6 +16,7 @@ import org.metaborg.spoofax.shell.core.ClassPathInterpreterLoader;
 import org.metaborg.spoofax.shell.core.DynSemEvaluationStrategy;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader;
+import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
@@ -82,6 +83,7 @@ public abstract class ReplModule extends SpoofaxModule {
             .implement(EvaluateResult.class, Names.named("parsed"), EvaluateResult.Parsed.class)
             .implement(EvaluateResult.class, Names.named("analyzed"), EvaluateResult.Analyzed.class)
             .build(IResultFactory.class));
+        install(new FactoryModuleBuilder().build(IFunctionFactory.class));
     }
 
     /**
