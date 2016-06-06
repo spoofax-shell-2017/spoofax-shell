@@ -38,17 +38,6 @@
             <artifactId>org.metaborg.spoofax.shell.core</artifactId>
             <version>0.0.3-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>org.metaborg</groupId>
-            <artifactId>org.metaborg.spoofax.eclipse</artifactId>
-            <version>${metaborg-version}</version>
-        </dependency>
-        <!-- This is actually a dependency of spoofax-eclipse itself! -->
-        <dependency>
-            <groupId>org.metaborg</groupId>
-            <artifactId>org.metaborg.spoofax.eclipse.util</artifactId>
-            <version>${metaborg-version}</version>
-        </dependency>
 
         <!-- From here on, all dependencies are inherited. -->
         <dependency>
@@ -62,20 +51,6 @@
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-core</artifactId>
-        </dependency>
-
-        <!-- Test dependencies. -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- From here on, all test dependencies are inherited. -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
 
