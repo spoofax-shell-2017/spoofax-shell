@@ -98,12 +98,20 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
                                         + input.toString(1));
         }
 
+        // First try "Cast" rules of the form "e : Expr --> ...".
+        Value rule = polyglotEngine
+            .findGlobalSymbol(RuleRegistry.makeKey("shell", '_' + getSortForTerm(input), 1));
+        if (rule != null) {
+            return rule;
+        }
+
         IStrategoConstructor inputCtor = ((IStrategoAppl) input).getConstructor();
         String ctorName = inputCtor.getName();
         int arity = inputCtor.getArity();
 
+        // Then try "Con" rules of the form "Add(_, _) --> ...".
         // Look up "-shell->" rule.
-        Value rule =
+        rule =
             polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
         return rule;
     }
