@@ -53,7 +53,7 @@ public class PTransformFunction extends AbstractFunction<ParseResult, TransformR
     }
 
     @Override
-    public TransformResult execute(ParseResult arg) throws MetaborgException {
+    public TransformResult apply(ParseResult arg) throws MetaborgException {
         IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
 
         Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> transform =

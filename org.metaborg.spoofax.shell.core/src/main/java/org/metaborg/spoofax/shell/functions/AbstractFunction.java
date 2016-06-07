@@ -12,7 +12,7 @@ import com.google.inject.Inject;
  * Command for processing a String as an expression in some language.
  *
  * @param <A>
- *            The argument type of the {@link #execute(A)} method.
+ *            The argument type of the {@link #apply(A)} method.
  * @param <R>
  */
 public abstract class AbstractFunction<A extends ISpoofaxResult<?>, R extends ISpoofaxResult<?>> {
@@ -37,5 +37,5 @@ public abstract class AbstractFunction<A extends ISpoofaxResult<?>, R extends IS
         this.lang = lang;
     }
 
-    public abstract R execute(A arg) throws MetaborgException;
+    public abstract R apply(A arg) throws MetaborgException;
 }

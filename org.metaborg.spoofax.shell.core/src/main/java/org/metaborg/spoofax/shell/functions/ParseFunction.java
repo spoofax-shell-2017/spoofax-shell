@@ -39,7 +39,7 @@ public class ParseFunction extends AbstractFunction<InputResult, ParseResult> {
     }
 
     @Override
-    public ParseResult execute(InputResult arg) throws MetaborgException {
+    public ParseResult apply(InputResult arg) throws MetaborgException {
         ISpoofaxParseUnit parse = syntaxService.parse(arg.unit());
         return resultFactory.createParseResult(parse);
     }

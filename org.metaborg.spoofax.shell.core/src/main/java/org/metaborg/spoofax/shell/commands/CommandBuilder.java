@@ -69,25 +69,25 @@ public class CommandBuilder {
 
     private Function<InputResult, ParseResult> parseFunction() {
         return wrap((InputResult input) -> {
-            return functionFactory.createParseFunction(project, lang).execute(input);
+            return functionFactory.createParseFunction(project, lang).apply(input);
         });
     }
 
     private Function<ParseResult, AnalyzeResult> analyzeFunction() {
         return wrap((ParseResult parse) -> {
-            return functionFactory.createAnalyzeFunction(project, lang).execute(parse);
+            return functionFactory.createAnalyzeFunction(project, lang).apply(parse);
         });
     }
 
     private Function<ParseResult, TransformResult> pTransformFunction(ITransformAction action) {
         return wrap((ParseResult parse) -> {
-            return functionFactory.createPTransformFunction(project, lang, action).execute(parse);
+            return functionFactory.createPTransformFunction(project, lang, action).apply(parse);
         });
     }
 
     private Function<AnalyzeResult, TransformResult> aTransformFunction(ITransformAction action) {
         return wrap((AnalyzeResult analyze) -> {
-            return functionFactory.createATransformFunction(project, lang, action).execute(analyze);
+            return functionFactory.createATransformFunction(project, lang, action).apply(analyze);
         });
     }
 

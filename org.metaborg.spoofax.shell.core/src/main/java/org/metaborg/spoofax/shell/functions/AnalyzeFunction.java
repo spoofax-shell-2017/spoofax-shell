@@ -47,7 +47,7 @@ public class AnalyzeFunction extends AbstractFunction<ParseResult, AnalyzeResult
     }
 
     @Override
-    public AnalyzeResult execute(ParseResult arg) throws MetaborgException {
+    public AnalyzeResult apply(ParseResult arg) throws MetaborgException {
         IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
 
         ISpoofaxAnalyzeUnit analyze;

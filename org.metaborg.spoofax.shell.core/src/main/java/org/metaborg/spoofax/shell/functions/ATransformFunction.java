@@ -53,7 +53,7 @@ public class ATransformFunction extends AbstractFunction<AnalyzeResult, Transfor
     }
 
     @Override
-    public TransformResult execute(AnalyzeResult arg) throws MetaborgException {
+    public TransformResult apply(AnalyzeResult arg) throws MetaborgException {
         IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
 
         Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> transform =
