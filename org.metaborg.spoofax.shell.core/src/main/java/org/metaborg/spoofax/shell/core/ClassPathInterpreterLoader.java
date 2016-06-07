@@ -13,6 +13,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemEntryPoint;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemLanguage;
+import org.metaborg.meta.lang.dynsem.interpreter.IDynSemLanguageParser;
 import org.metaborg.meta.lang.dynsem.interpreter.ITermRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
 
@@ -36,12 +37,14 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
 
         DynSemEntryPoint entryPoint = getEntryPoint();
 
+        IDynSemLanguageParser parser = entryPoint.getParser();
         RuleRegistry ruleRegistry = entryPoint.getRuleRegistry();
         ITermRegistry termRegistry = entryPoint.getTermRegistry();
 
         String mimeType = entryPoint.getMimeType();
         PolyglotEngine builtEngine =
-            PolyglotEngine.newBuilder().config(mimeType, DynSemLanguage.RULE_REGISTRY, ruleRegistry)
+            PolyglotEngine.newBuilder().config(mimeType, DynSemLanguage.PARSER, parser)
+                .config(mimeType, DynSemLanguage.RULE_REGISTRY, ruleRegistry)
                 .config(mimeType, DynSemLanguage.TERM_REGISTRY, termRegistry).build();
         try {
             InputStreamReader specTermReader =
@@ -82,6 +85,26 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
     /* Loads the required configurations from the dynsem.properties file parsed as a Properties
      * object. */
     private void loadDynSemProperties(ILanguageImpl langImpl) throws InterpreterLoadException {
+        FileObject dynSemPropertiesFile = findDynSemPropertiesFileForLanguage(langImpl);
+
+        Properties dynSemProperties = new Properties();
+        InputStream in;
+        try {
+            in = dynSemPropertiesFile.getContent().getInputStream();
+            dynSemProperties.load(in);
+        } catch (Exception e) {
+            throw new InterpreterLoadException("Error when trying to load \"dynsem.properties\".");
+        }
+
+        langName = dynSemProperties.getProperty("source.langname");
+        String groupId = dynSemProperties.getProperty("project.groupid");
+        String artifactId = dynSemProperties.getProperty("project.artifactid");
+        targetPackage = dynSemProperties.getProperty("project.javapackage",
+                                                     groupId + '.' + artifactId + ".generated");
+    }
+
+    private FileObject findDynSemPropertiesFileForLanguage(ILanguageImpl langImpl)
+        throws InterpreterLoadException {
         FileObject dynSemPropertiesFile = null;
         for (FileObject fo : langImpl.locations()) {
             try {
@@ -97,21 +120,6 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         if (dynSemPropertiesFile == null) {
             throw new InterpreterLoadException("Missing \"dynsem.properties\" file");
         }
-
-        Properties dynSemProperties = new Properties();
-        InputStream in;
-        try {
-            in = dynSemPropertiesFile.getContent().getInputStream();
-            dynSemProperties.load(in);
-        } catch (Exception e) {
-            throw new InterpreterLoadException("Error when trying to load \"dynsem.properties\".");
-        }
-
-        langName = dynSemProperties.getProperty("source.langname");
-        String groupId = dynSemProperties.getProperty("project.groupid");
-        String artifactId = dynSemProperties.getProperty("project.artifactid");
-        targetPackage =
-            dynSemProperties.getProperty("project.javapackage",
-                                         groupId + '.' + artifactId + ".generated");
+        return dynSemPropertiesFile;
     }
 }
