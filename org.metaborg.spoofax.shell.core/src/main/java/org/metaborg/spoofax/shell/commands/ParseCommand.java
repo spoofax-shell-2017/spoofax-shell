@@ -81,7 +81,12 @@ public class ParseCommand extends SpoofaxCommand {
             InputResult input = resultFactory
                 .createInputResult(lang, write(args[0]), args[0],
                                    new JSGLRParserConfiguration(shellFacet.getShellStartSymbol()));
-            resultHook.accept(parse(input));
+            try {
+                resultHook.accept(parse(input));
+            } catch (MetaborgException e) {
+                resultHook.accept(parse(resultFactory.createInputResult(lang, input.unit().source(),
+                                                                        input.unit().text())));
+            }
         } catch (IOException e) {
             throw new MetaborgException("Cannot write to temporary source file.");
         }
