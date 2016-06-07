@@ -24,7 +24,7 @@ import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
-import org.metaborg.spoofax.shell.client.hooks.IResultHook;
+import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -94,8 +94,6 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
      *            The {@link MenuService} used to retrieve actions.
      * @param commandFactory
      *            The {@link CommandFactory} to create {@link SpoofaxCommand}s.
-     * @param resultHook
-     *            The {@link IResultHook} to send results of successful evaluations to.
      * @param resultFactory
      *            The {@link ResultFactory}.
      * @param project
@@ -111,13 +109,12 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
                             ISpoofaxTransformService transformService,
                             IMenuService menuService,
                             ICommandFactory commandFactory,
-                            IResultHook resultHook,
                             IResultFactory resultFactory,
                             @Assisted IProject project,
                             @Assisted ILanguageImpl lang,
                             @Assisted boolean analyzed) {
         // CHECKSTYLE:ON: ParameterNumber
-        super(resultHook, resultFactory, project, lang);
+        super(resultFactory, project, lang);
         this.contextService = contextService;
         this.transformService = transformService;
         this.strategy = analyzed ? new Analyzed() : new Parsed();
@@ -140,6 +137,8 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
         IContext context = unit.context().orElse(contextService.get(unit.source(), project, lang));
         TransformResult result = strat.transform(context, unit, goal);
 
+        // TODO: pass the result to the client instead of throwing an exception -- The client needs
+        // the result in order to do fancy stuff.
         if (!result.valid()) {
             throw new MetaborgException("Invalid transform result!");
         }
@@ -147,7 +146,7 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
     }
 
     @Override
-    public void execute(String... args) throws MetaborgException {
+    public IHook execute(String... args) throws MetaborgException {
         String[] split = args[0].split("\\s+", 2);
         if (split.length < 1) {
             throw new MetaborgException("No transform goal specified.");
@@ -168,7 +167,8 @@ public class TransformCommand extends SpoofaxCommand implements IMenuItemVisitor
         try {
             InputResult input = resultFactory.createInputResult(lang, write(source), source);
             ParseResult parse = parseCommand.parse(input);
-            resultHook.accept(transform(strategy, parse, goal));
+            TransformResult result = transform(strategy, parse, goal);
+            return (display) -> display.displayResult(result);
         } catch (IOException e) {
             throw new MetaborgException("Cannot write to temporary source file.");
         }

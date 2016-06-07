@@ -27,11 +27,10 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.client.hooks.IResultHook;
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
-import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -46,10 +45,10 @@ public class AnalyzeCommandTest {
     @Mock private ISpoofaxAnalysisService analysisService;
     @Mock private ICommandFactory commandFactory;
     @Mock private IResultFactory resultFactory;
-    @Mock
-    private IResultHook resultHook;
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
+
+    @Mock private IDisplay display;
 
     @Mock private IContext context;
 
@@ -80,9 +79,8 @@ public class AnalyzeCommandTest {
         when(analysisService.analyze(any(), any())).thenReturn(spoofaxAnalyzeResult);
         when(resultFactory.createAnalyzeResult(any())).thenReturn(analyzeResult);
 
-        analyzeCommand = new AnalyzeCommand(contextService, analysisService,
-                                            commandFactory, resultHook, resultFactory, project,
-                                            lang);
+        analyzeCommand = new AnalyzeCommand(contextService, analysisService, commandFactory,
+                                            resultFactory, project, lang);
     }
 
     /**
@@ -125,8 +123,8 @@ public class AnalyzeCommandTest {
         when(analyzeResult.valid()).thenReturn(true);
 
         try {
-            analyzeCommand.execute("test");
-            verify(resultHook, times(1)).accept(any(ISpoofaxResult.class));
+            analyzeCommand.execute("test").accept(display);
+            verify(display, times(1)).displayResult(analyzeResult);
         } catch (MetaborgException e) {
             fail("Should not happen");
         }
@@ -141,7 +139,7 @@ public class AnalyzeCommandTest {
     public void testExecuteInvalid() throws MetaborgException, FileSystemException {
         when(analyzeResult.valid()).thenReturn(false);
 
-        analyzeCommand.execute("test");
-        verify(resultHook, never()).accept(any());
+        analyzeCommand.execute("test").accept(display);
+        verify(display, never()).displayResult(any());
     }
 }

@@ -9,8 +9,7 @@ import org.metaborg.core.project.SimpleProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.resource.ResourceService;
 import org.metaborg.spoofax.core.SpoofaxModule;
-import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
-import org.metaborg.spoofax.shell.client.hooks.IResultHook;
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
@@ -33,8 +32,7 @@ import com.google.inject.name.Names;
 
 /**
  * This class binds the core classes. It is intended to be subclassed by client implementations.
- * These subclasses should bind their implementations of {@link IRepl}, {@link IMessageHook} and
- * {@link IResultHook}.
+ * These subclasses should bind their implementations of {@link IRepl} and {@link IDisplay}.
  */
 public abstract class ReplModule extends SpoofaxModule {
 

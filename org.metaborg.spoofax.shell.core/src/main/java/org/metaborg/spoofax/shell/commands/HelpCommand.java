@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
+import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -17,20 +17,16 @@ import com.google.inject.Inject;
  * Shows descriptions of all commands, or one command if given.
  */
 public class HelpCommand implements IReplCommand {
-    private final IMessageHook messageHook;
     private final ICommandInvoker invoker;
 
     /**
      * Instantiates a new HelpCommand.
      *
-     * @param messageHook
-     *            The {@link IMessageHook} to send the help message to.
      * @param invoker
      *            The {@link ICommandInvoker}.
      */
     @Inject
-    public HelpCommand(IMessageHook messageHook, ICommandInvoker invoker) {
-        this.messageHook = messageHook;
+    public HelpCommand(ICommandInvoker invoker) {
         this.invoker = invoker;
     }
 
@@ -60,7 +56,7 @@ public class HelpCommand implements IReplCommand {
     }
 
     @Override
-    public void execute(String... args) throws MetaborgException {
+    public IHook execute(String... args) throws MetaborgException {
         try {
             Map<String, IReplCommand> commands;
             if (args.length > 0) {
@@ -70,7 +66,8 @@ public class HelpCommand implements IReplCommand {
                 commands = invoker.getCommands();
             }
 
-            messageHook.accept(new StyledText(formathelp(commands)));
+            return (display) -> display
+                .displayMessage(new StyledText(formathelp(commands)));
         } catch (CommandNotFoundException e) {
             throw new MetaborgException("Command not found: " + e.commandName());
         }

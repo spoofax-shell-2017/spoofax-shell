@@ -9,7 +9,7 @@ import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
-import org.metaborg.spoofax.shell.client.hooks.IResultHook;
+import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
@@ -81,8 +81,6 @@ public class EvaluateCommand extends SpoofaxCommand {
      *            The {@link IContextService}.
      * @param commandFactory
      *            The {@link ICommandFactory} for creating delegate commands.
-     * @param resultHook
-     *            Called upon success of evaluation of this command.
      * @param project
      *            The project in which this command should operate.
      * @param lang
@@ -91,11 +89,10 @@ public class EvaluateCommand extends SpoofaxCommand {
     @Inject
     // CHECKSTYLE.OFF: |
     public EvaluateCommand(IContextService contextService, ICommandFactory commandFactory,
-                           IResultFactory unitFactory, IResultHook resultHook,
-                           @Assisted IProject project, @Assisted ILanguageImpl lang,
-                           @Assisted boolean analyzed) {
+                           IResultFactory unitFactory, @Assisted IProject project,
+                           @Assisted ILanguageImpl lang, @Assisted boolean analyzed) {
         // CHECKSTYLE.ON: |
-        super(resultHook, unitFactory, project, lang);
+        super(unitFactory, project, lang);
         this.contextService = contextService;
         this.parseCommand = commandFactory.createParse(project, lang);
         this.analyzeCommand = commandFactory.createAnalyze(project, lang);
@@ -119,12 +116,12 @@ public class EvaluateCommand extends SpoofaxCommand {
     }
 
     @Override
-    public void execute(String... args) throws MetaborgException {
+    public IHook execute(String... args) throws MetaborgException {
         try {
             InputResult input = unitFactory.createInputResult(lang, write(args[0]), args[0]);
             ParseResult parse = parseCommand.parse(input);
             EvaluateResult result = this.evaluate(parse);
-            resultHook.accept(result);
+            return (display) -> display.displayResult(result);
         } catch (IOException e) {
             throw new MetaborgException("Cannot write to temporary source file.");
         }

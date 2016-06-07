@@ -12,7 +12,7 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
-import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
+import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -23,8 +23,6 @@ import com.google.inject.Inject;
  * Represents a command that loads a Spoofax language.
  */
 public class LanguageCommand implements IReplCommand {
-
-    private final IMessageHook messageHook;
     private final ILanguageDiscoveryService langDiscoveryService;
     private final IResourceService resourceService;
     private final ICommandInvoker invoker;
@@ -34,8 +32,6 @@ public class LanguageCommand implements IReplCommand {
     /**
      * Instantiate a {@link LanguageCommand}. Loads all commands applicable to a lanugage.
      *
-     * @param messageHook
-     *            the {@link IMessageHook} to send messages to.
      * @param langDiscoveryService
      *            the {@link ILanguageDiscoveryService}
      * @param resourceService
@@ -46,10 +42,9 @@ public class LanguageCommand implements IReplCommand {
      *            the associated {@link IProject}
      */
     @Inject
-    public LanguageCommand(IMessageHook messageHook, ILanguageDiscoveryService langDiscoveryService,
+    public LanguageCommand(ILanguageDiscoveryService langDiscoveryService,
                            IResourceService resourceService, ICommandInvoker invoker,
                            IProject project) { // FIXME: don't use the hardcoded @Provides
-        this.messageHook = messageHook;
         this.langDiscoveryService = langDiscoveryService;
         this.resourceService = resourceService;
         this.invoker = invoker;
@@ -81,7 +76,7 @@ public class LanguageCommand implements IReplCommand {
     }
 
     @Override
-    public void execute(String... args) throws MetaborgException {
+    public IHook execute(String... args) throws MetaborgException {
         if (args.length == 0 || args.length > 1) {
             throw new MetaborgException("Syntax: :lang <path>");
         }
@@ -101,7 +96,8 @@ public class LanguageCommand implements IReplCommand {
 
         invoker.addCommand("eval", commandFactory.createEvaluate(project, lang, analyze));
 
-        messageHook.accept(new StyledText("Loaded language" + lang));
+        return (display) -> display
+            .displayMessage(new StyledText("Loaded language " + lang));
     }
 
 }

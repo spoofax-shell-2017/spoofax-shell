@@ -23,9 +23,8 @@ import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.client.hooks.IResultHook;
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.output.IResultFactory;
-import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.mockito.Mock;
@@ -39,11 +38,11 @@ public class ParseCommandTest {
     // Constructor mocks
     @Mock private ISpoofaxSyntaxService syntaxService;
     @Mock private IResultFactory resultFactory;
-    @Mock
-    private IResultHook resultHook;
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
     @Mock private ShellFacet facet;
+
+    @Mock private IDisplay display;
 
     @Mock private InputResult inputResult;
     @Mock private ParseResult parseResult;
@@ -68,7 +67,7 @@ public class ParseCommandTest {
 
         when(lang.facet(ShellFacet.class)).thenReturn(facet);
 
-        parseCommand = new ParseCommand(syntaxService, resultHook, resultFactory, project, lang);
+        parseCommand = new ParseCommand(syntaxService, resultFactory, project, lang);
     }
 
     /**
@@ -111,8 +110,8 @@ public class ParseCommandTest {
         when(parseResult.valid()).thenReturn(true);
 
         try {
-            parseCommand.execute("test");
-            verify(resultHook, times(1)).accept(any(ISpoofaxResult.class));
+            parseCommand.execute("test").accept(display);
+            verify(display, times(1)).displayResult(parseResult);
         } catch (MetaborgException e) {
             fail("Should not happen");
         }
@@ -128,6 +127,6 @@ public class ParseCommandTest {
         when(parseResult.valid()).thenReturn(false);
 
         parseCommand.execute("test");
-        verify(resultHook, never()).accept(any());
+        verify(display, never()).displayResult(any());
     }
 }

@@ -12,7 +12,7 @@ import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.shell.client.hooks.IResultHook;
+import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -42,8 +42,6 @@ public class AnalyzeCommand extends SpoofaxCommand {
      *            The {@link IAnalysisService}
      * @param commandFactory
      *            The {@link ICommandFactory} used to create a {@link ParseCommand}.
-     * @param resultHook
-     *            The {@link IResultHook} to send results of successful evaluations to.
      * @param resultFactory
      *            The {@link ResultFactory}.
      * @param project
@@ -53,10 +51,9 @@ public class AnalyzeCommand extends SpoofaxCommand {
      */
     @Inject
     public AnalyzeCommand(IContextService contextService, ISpoofaxAnalysisService analysisService,
-                          ICommandFactory commandFactory, IResultHook resultHook,
-                          IResultFactory resultFactory, @Assisted IProject project,
-                          @Assisted ILanguageImpl lang) {
-        super(resultHook, resultFactory, project, lang);
+                          ICommandFactory commandFactory, IResultFactory resultFactory,
+                          @Assisted IProject project, @Assisted ILanguageImpl lang) {
+        super(resultFactory, project, lang);
         this.contextService = contextService;
         this.analysisService = analysisService;
         this.parseCommand = commandFactory.createParse(project, lang);
@@ -85,6 +82,8 @@ public class AnalyzeCommand extends SpoofaxCommand {
         }
         AnalyzeResult result = resultFactory.createAnalyzeResult(analyze);
 
+        // TODO: pass the result to the client instead of throwing an exception -- The client needs
+        // the result in order to do fancy stuff.
         if (!result.valid()) {
             throw new MetaborgException(result.messages().stream().map(IMessage::message)
                 .collect(Collectors.joining("\n")));
@@ -93,11 +92,12 @@ public class AnalyzeCommand extends SpoofaxCommand {
     }
 
     @Override
-    public void execute(String... args) throws MetaborgException {
+    public IHook execute(String... args) throws MetaborgException {
         try {
             InputResult input = resultFactory.createInputResult(lang, write(args[0]), args[0]);
             ParseResult parse = parseCommand.parse(input);
-            resultHook.accept(analyze(parse));
+            AnalyzeResult result = analyze(parse);
+            return (display) -> display.displayResult(result);
         } catch (IOException e) {
             throw new MetaborgException("Cannot write to temporary source file.");
         }

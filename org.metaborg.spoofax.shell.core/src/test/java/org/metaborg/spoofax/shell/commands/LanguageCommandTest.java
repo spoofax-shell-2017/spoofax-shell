@@ -25,9 +25,12 @@ import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.analysis.AnalysisFacet;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.StyledText;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -43,9 +46,10 @@ public class LanguageCommandTest {
     @Mock private ILanguageDiscoveryService langDiscoveryService;
     @Mock private IResourceService resourceService;
     @Mock private ICommandInvoker invoker;
-    @Mock
-    private IMessageHook messageHook;
     @Mock private IProject project;
+
+    @Mock private IDisplay display;
+    @Captor private ArgumentCaptor<StyledText> captor;
 
     @Mock private ICommandFactory commandFactory;
 
@@ -65,10 +69,9 @@ public class LanguageCommandTest {
         langloc = VFS.getManager().resolveFile("res:paplj.full");
         when(invoker.getCommandFactory()).thenReturn(commandFactory);
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
-        .thenReturn(Lists.newArrayList(lang));
+            .thenReturn(Lists.newArrayList(lang));
 
-        langCommand = new LanguageCommand(messageHook, langDiscoveryService, resourceService,
-                                          invoker, project);
+        langCommand = new LanguageCommand(langDiscoveryService, resourceService, invoker, project);
     }
 
     /**
@@ -145,10 +148,12 @@ public class LanguageCommandTest {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
-        langCommand.execute("res:paplj.full");
+        String expected = "Loaded language lang";
+        langCommand.execute("res:paplj.full").accept(display);
+        verify(display, times(1)).displayMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());
-        verify(messageHook, times(1)).accept(any());
+        assertEquals(expected, captor.getValue().toString());
     }
 
     /**
@@ -161,10 +166,12 @@ public class LanguageCommandTest {
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
         when(lang.hasFacet(AnalysisFacet.class)).thenReturn(true);
 
-        langCommand.execute("res:paplj.full");
+        String expected = "Loaded language lang";
+        langCommand.execute("res:paplj.full").accept(display);
+        verify(display, times(1)).displayMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());
-        verify(messageHook, times(1)).accept(any());
+        assertEquals(expected, captor.getValue().toString());
     }
 
 }

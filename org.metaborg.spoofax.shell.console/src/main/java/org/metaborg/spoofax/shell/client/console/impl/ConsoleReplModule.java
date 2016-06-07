@@ -12,11 +12,7 @@ import org.metaborg.spoofax.shell.client.ReplModule;
 import org.metaborg.spoofax.shell.client.console.commands.ExitCommand;
 import org.metaborg.spoofax.shell.client.console.impl.history.JLine2InputHistory;
 import org.metaborg.spoofax.shell.client.console.impl.history.JLine2PersistentInputHistory;
-import org.metaborg.spoofax.shell.client.console.impl.hooks.ConsoleMessageHook;
-import org.metaborg.spoofax.shell.client.console.impl.hooks.ConsoleResultHook;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
-import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
-import org.metaborg.spoofax.shell.client.hooks.IResultHook;
 
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -47,8 +43,6 @@ public class ConsoleReplModule extends ReplModule {
         bind(TerminalUserInterface.class).in(Singleton.class);
         bind(IEditor.class).to(TerminalUserInterface.class);
         bind(IDisplay.class).to(TerminalUserInterface.class);
-        bind(IMessageHook.class).to(ConsoleMessageHook.class);
-        bind(IResultHook.class).to(ConsoleResultHook.class);
 
         bind(InputStream.class).annotatedWith(Names.named("in")).toInstance(System.in);
         bind(OutputStream.class).annotatedWith(Names.named("out")).toInstance(System.out);

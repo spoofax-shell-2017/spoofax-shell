@@ -8,7 +8,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
-import org.metaborg.spoofax.shell.client.hooks.IResultHook;
+import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 
 import com.google.inject.Inject;
@@ -17,7 +17,6 @@ import com.google.inject.Inject;
  * Command for processing a String as an expression in some language.
  */
 public abstract class SpoofaxCommand implements IReplCommand {
-    protected IResultHook resultHook;
     protected IResultFactory resultFactory;
     protected IProject project;
     protected ILanguageImpl lang;
@@ -25,8 +24,6 @@ public abstract class SpoofaxCommand implements IReplCommand {
     /**
      * Instantiate a {@link SpoofaxCommand}.
      *
-     * @param resultHook
-     *            The {@link ResultHook<?>} to send results of successful evaluations to.
      * @param resultFactory
      *            The {@link ResulFactory}.
      * @param project
@@ -35,9 +32,7 @@ public abstract class SpoofaxCommand implements IReplCommand {
      *            The language to which this command applies.
      */
     @Inject
-    SpoofaxCommand(IResultHook resultHook, IResultFactory resultFactory,
-                   IProject project, ILanguageImpl lang) {
-        this.resultHook = resultHook;
+    SpoofaxCommand(IResultFactory resultFactory, IProject project, ILanguageImpl lang) {
         this.resultFactory = resultFactory;
         this.project = project;
         this.lang = lang;
@@ -60,5 +55,5 @@ public abstract class SpoofaxCommand implements IReplCommand {
     }
 
     @Override
-    public abstract void execute(String... args) throws MetaborgException;
+    public abstract IHook execute(String... args) throws MetaborgException;
 }

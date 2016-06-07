@@ -5,10 +5,6 @@ import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.client.ReplModule;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
-import org.metaborg.spoofax.shell.client.eclipse.impl.hooks.EclipseMessageHook;
-import org.metaborg.spoofax.shell.client.eclipse.impl.hooks.EclipseResultHook;
-import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
-import org.metaborg.spoofax.shell.client.hooks.IResultHook;
 
 import com.google.inject.Singleton;
 
@@ -37,12 +33,6 @@ public class EclipseReplModule extends ReplModule {
         bind(EclipseDisplay.class).in(Singleton.class);
 
         // bind(IEditor).to(EclipseEditor.class);
-
-        // Singleton so that all commands talk to the same hooks.
-        bind(IMessageHook.class).to(EclipseMessageHook.class);
-        bind(EclipseMessageHook.class).in(Singleton.class);
-        bind(IResultHook.class).to(EclipseResultHook.class);
-        bind(EclipseResultHook.class).in(Singleton.class);
     }
 
     @Override

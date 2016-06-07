@@ -14,8 +14,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.11.1",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: metaborg.org
 Export-Package: org.metaborg.spoofax.shell.client.eclipse,
- org.metaborg.spoofax.shell.client.eclipse.impl,
- org.metaborg.spoofax.shell.client.eclipse.impl.hooks
+ org.metaborg.spoofax.shell.client.eclipse.impl
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.metaborg.spoofax.eclipse,
  org.metaborg.spoofax.eclipse.externaldeps,
