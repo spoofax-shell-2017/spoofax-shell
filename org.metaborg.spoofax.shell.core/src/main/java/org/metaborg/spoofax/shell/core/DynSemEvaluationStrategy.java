@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
@@ -38,7 +37,6 @@ import com.oracle.truffle.api.vm.PolyglotEngine.Value;
 public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     private final IInterpreterLoader interpLoader;
     private PolyglotEngine polyglotEngine;
-    private Object executionEnvironment;
     private Object[] rwSemanticComponents;
 
     @Inject
@@ -113,16 +111,13 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     private IStrategoTerm invoke(Value rule, ITerm programTerm) throws MetaborgException {
         try {
             // Add the arguments.
-            List<Object> arguments = new ArrayList<Object>(2 + rwSemanticComponents.length);
+            List<Object> arguments = new ArrayList<Object>(1 + rwSemanticComponents.length);
             arguments.add(programTerm);
-            arguments.add(executionEnvironment);
             arguments.addAll(Arrays.asList(rwSemanticComponents));
 
             // Execute the rule with the arguments, and update the execution environment.
             RuleResult ruleResult = rule.execute(arguments.toArray()).as(RuleResult.class);
-            Object[] components = ruleResult.components;
-            executionEnvironment = components[0];
-            rwSemanticComponents = ArrayUtils.subarray(components, 1, components.length);
+            rwSemanticComponents = ruleResult.components;
 
             // Return the result as IStrategoTerm.
             return new StrategoString(ruleResult.result.toString(), TermFactory.EMPTY_LIST,
@@ -171,7 +166,6 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         try {
             RuleResult ruleResult =
                 shellInitRule.execute(getProgramTerm(shellInitAppl)).as(RuleResult.class);
-            executionEnvironment = ruleResult.result;
             rwSemanticComponents = ruleResult.components;
         } catch (IOException | ClassNotFoundException | NoSuchMethodException
                  | IllegalAccessException | InvocationTargetException e) {
