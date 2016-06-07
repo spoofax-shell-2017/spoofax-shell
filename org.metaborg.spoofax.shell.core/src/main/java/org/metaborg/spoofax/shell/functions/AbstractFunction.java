@@ -1,6 +1,5 @@
 package org.metaborg.spoofax.shell.functions;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -15,7 +14,8 @@ import com.google.inject.Inject;
  *            The argument type of the {@link #apply(A)} method.
  * @param <R>
  */
-public abstract class AbstractFunction<A extends ISpoofaxResult<?>, R extends ISpoofaxResult<?>> {
+public abstract class AbstractFunction<A extends ISpoofaxResult<?>, R extends ISpoofaxResult<?>>
+implements FunctionThrows<A, R> {
     protected final IResultFactory resultFactory;
     protected final IProject project;
     protected final ILanguageImpl lang;
@@ -36,6 +36,4 @@ public abstract class AbstractFunction<A extends ISpoofaxResult<?>, R extends IS
         this.project = project;
         this.lang = lang;
     }
-
-    public abstract R apply(A arg) throws MetaborgException;
 }

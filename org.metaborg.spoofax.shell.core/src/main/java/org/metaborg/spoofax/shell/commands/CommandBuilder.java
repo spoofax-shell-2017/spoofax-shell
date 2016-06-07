@@ -11,6 +11,7 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.shell.client.IHook;
+import org.metaborg.spoofax.shell.functions.FunctionThrows;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -24,23 +25,19 @@ import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * Builds commands by composing several smaller functional interfaces.
+ * @param <R> the return type of the created command
  */
-public class CommandBuilder {
-    private IResultFactory resultFactory;
-    private IFunctionFactory functionFactory;
-    private ILanguageImpl lang;
-    private IProject project;
+public class CommandBuilder<R extends ISpoofaxResult<?>> {
+    private final IResultFactory resultFactory;
+    private final IFunctionFactory functionFactory;
+    private final ILanguageImpl lang;
+    private final IProject project;
+
+    private final String description;
+    private final Function<String, R> function;
 
     /**
-     * @param <A>
-     * @param <R>
-     */
-    private interface FunctionThrows<A, R> {
-        R apply(A t) throws MetaborgException, IOException;
-    }
-
-    /**
-     *
+     * Constructs a new {@link CommandBuilder} from the given parameters.
      * @param resultFactory    the {@link IResultFactory}
      * @param functionFactory  the {@link IFunctionFactory}
      * @param project          the {@link IProject} associated with all created commands
@@ -53,14 +50,44 @@ public class CommandBuilder {
         this.functionFactory = functionFactory;
         this.project = project;
         this.lang = lang;
+        this.description = null;
+        this.function = null;
     }
 
-    private <A, R> Function<A, R> wrap(FunctionThrows<A, R> function) {
-        return (A input) -> {
+    /**
+    * Constructs a new {@link CommandBuilder} from a parent.
+    * @param parent       the parent {@link CommandBuilder}
+    * @param description  the description of the created command
+    * @param function     the function the created command will execute
+    */
+    private CommandBuilder(CommandBuilder<?> parent, String description,
+                           Function<String, R> function) {
+        this.resultFactory = parent.resultFactory;
+        this.functionFactory = parent.functionFactory;
+        this.project = parent.project;
+        this.lang = parent.lang;
+        this.description = description;
+        this.function = function;
+    }
+
+    private <B, S> Function<B, S> wrap(FunctionThrows<B, S> function) {
+        return (B input) -> {
             try {
                 return function.apply(input);
             } catch (MetaborgException e) {
                 throw new RuntimeException(e);
+            }
+        };
+    }
+
+    private Function<String, InputResult> inputFunction(ILanguageImpl lang) {
+        return (source) -> {
+            try {
+                ShellFacet shellFacet = lang.facet(ShellFacet.class);
+                FileObject file = project.location().resolveFile("temp");
+                // FIXME: find a way to fall back to no start symbols
+                return resultFactory.createInputResult(lang, file, source,
+                    new JSGLRParserConfiguration(shellFacet.getShellStartSymbol()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -93,59 +120,68 @@ public class CommandBuilder {
 
     /**
      * Returns a function that creates an {@link InputResult} from a String.
-     * @return a {@link Function}
+     * @return the builder
      */
-    public Function<String, InputResult> input() {
-        return wrap((String source) -> {
-            ShellFacet shellFacet = lang.facet(ShellFacet.class);
-            FileObject file = project.location().resolveFile("temp");
-            // FIXME: find a way to fall back to no start symbols
-            return resultFactory.createInputResult(lang, file, source,
-                new JSGLRParserConfiguration(shellFacet.getShellStartSymbol()));
-        });
+    public CommandBuilder<InputResult> input() {
+        return new CommandBuilder<>(this, description, inputFunction(lang));
     }
 
     /**
      * Returns a function that creates a {@link ParseResult} from a String.
-     * @return a {@link Function}
+     * @return the builder
      */
-    public Function<String, ParseResult> parse() {
-        return input().andThen(parseFunction());
+    public CommandBuilder<ParseResult> parse() {
+        return new CommandBuilder<>(this, description, inputFunction(lang)
+                .andThen(parseFunction()));
     }
 
     /**
      * Returns a function that creates a {@link AnalyzeResult} from a String.
-     * @return a {@link Function}
+     * @return the builder
      */
-    public Function<String, AnalyzeResult> analyze() {
-        return parse().andThen(analyzeFunction());
+    public CommandBuilder<AnalyzeResult> analyze() {
+        return new CommandBuilder<>(this, description, inputFunction(lang)
+                .andThen(parseFunction())
+                .andThen(analyzeFunction()));
     }
 
     /**
      * Returns a function that creates a parsed {@link TransformResult} from a String.
      * @param action  the associated {@link ITransformAction}
-     * @return a {@link Function}
+     * @return the builder
      */
-    public Function<String, TransformResult> transformParsed(ITransformAction action) {
-        return parse().andThen(pTransformFunction(action));
+    public CommandBuilder<TransformResult> transformParsed(ITransformAction action) {
+        return new CommandBuilder<>(this, description, inputFunction(lang)
+                .andThen(parseFunction())
+                .andThen(pTransformFunction(action)));
     }
 
     /**
      * Returns a function that creates an analyzed {@link TransformResult} from a String.
      * @param action  the associated {@link ITransformAction}
-     * @return a {@link Function}
+     * @return the builder
      */
-    public Function<String, TransformResult> transformAnalyzed(ITransformAction action) {
-        return analyze().andThen(aTransformFunction(action));
+    public CommandBuilder<TransformResult> transformAnalyzed(ITransformAction action) {
+        return new CommandBuilder<>(this, description, inputFunction(lang)
+                .andThen(parseFunction())
+                .andThen(analyzeFunction())
+                .andThen(aTransformFunction(action)));
+    }
+
+    /**
+     * Sets the description of the created command.
+     * @param description  the description of the command
+     * @return the builder
+     */
+    public CommandBuilder<R> description(String description) {
+        return new CommandBuilder<>(this, description, function);
     }
 
     /**
      * Returns an {@link IReplCommand} given a function.
-     * @param function  the {@link Function}
-     * @param desc      the description of the command
      * @return an {@link IReplCommand}
      */
-    public IReplCommand build(Function<String, ? extends ISpoofaxResult<?>> function, String desc) {
+    public IReplCommand build() {
         return new IReplCommand() {
             @Override
             public IHook execute(String... arg) throws MetaborgException {
@@ -154,7 +190,7 @@ public class CommandBuilder {
 
             @Override
             public String description() {
-                return desc;
+                return description;
             }
         };
     }

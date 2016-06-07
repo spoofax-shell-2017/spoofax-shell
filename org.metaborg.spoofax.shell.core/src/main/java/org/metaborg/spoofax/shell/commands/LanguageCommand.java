@@ -1,7 +1,6 @@
 package org.metaborg.spoofax.shell.commands;
 
 import java.util.Set;
-import java.util.function.Function;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
@@ -15,9 +14,9 @@ import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.shell.client.IHook;
+import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
-import org.metaborg.spoofax.shell.output.TransformResult;
 
 import com.google.inject.Inject;
 
@@ -31,6 +30,7 @@ public class LanguageCommand implements IReplCommand {
     private final ICommandInvoker invoker;
     private final IProject project;
     private ILanguageImpl lang;
+    private IFunctionFactory factory;
 
     /**
      * Instantiate a {@link LanguageCommand}. Loads all commands applicable to a lanugage.
@@ -41,6 +41,8 @@ public class LanguageCommand implements IReplCommand {
      *            the {@link IResourceService}
      * @param invoker
      *            the {@link ICommandInvoker}
+     * @param factory
+     *            the {@link IFunctionFactory}
      * @param menuService
      *            the {@link IMenuService}
      * @param project
@@ -49,12 +51,13 @@ public class LanguageCommand implements IReplCommand {
     @Inject
     public LanguageCommand(ILanguageDiscoveryService langDiscoveryService,
                            IResourceService resourceService, IMenuService menuService,
-                           ICommandInvoker invoker,
+                           ICommandInvoker invoker, IFunctionFactory factory,
                            IProject project) { // FIXME: don't use the hardcoded @Provides
         this.langDiscoveryService = langDiscoveryService;
         this.resourceService = resourceService;
         this.menuService = menuService;
         this.invoker = invoker;
+        this.factory = factory;
         this.project = project;
     }
 
@@ -100,22 +103,21 @@ public class LanguageCommand implements IReplCommand {
         ILanguageImpl lang = load(resolveLanguage(args[0]));
         boolean analyze = lang.hasFacet(AnalyzerFacet.class);
 
-        CommandBuilder builder = invoker.getCommandFactory().createBuilder(project, lang);
-
+        CommandBuilder<?> builder = factory.createBuilder(project, lang);
         invoker.resetCommands();
-        invoker.addCommand("parse", builder.build(builder.parse(), "Parse the expression"));
+        invoker.addCommand("parse", builder.parse().description("Parse the expression").build());
         if (analyze) {
-            invoker.addCommand("analyze", builder.build(builder.analyze(), "Analyze the expression"));
+            IReplCommand command = builder.analyze().description("Analyze the expression").build();
+            invoker.addCommand("analyze", command);
         }
 
         new TransformVisitor(menuService).getActions(lang).forEach((key, action) -> {
-            Function<String, TransformResult> result;
             if (analyze) {
-                result = builder.transformAnalyzed(action);
+                builder.transformAnalyzed(action);
             } else {
-                result = builder.transformParsed(action);
+                builder.transformParsed(action);
             }
-            invoker.addCommand(key, builder.build(result, action.name()));
+            invoker.addCommand(key, builder.description(action.name()).build());
         });
 
         invoker.addCommand("eval", commandFactory.createEvaluate(project, lang, analyze));

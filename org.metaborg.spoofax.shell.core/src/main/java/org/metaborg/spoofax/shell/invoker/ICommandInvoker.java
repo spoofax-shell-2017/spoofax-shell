@@ -62,12 +62,6 @@ public interface ICommandInvoker {
     void addCommand(String name, IReplCommand command);
 
     /**
-     * Get the command factory.
-     * @return an {@link ICommandFactory}
-     */
-    ICommandFactory getCommandFactory();
-
-    /**
      * Get a list of all available commands.
      * @return a {@link Map} from command name to {@link IReplCommand}
      */
