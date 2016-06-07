@@ -2,7 +2,11 @@ package org.metaborg.spoofax.shell.client.eclipse;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.metaborg.spoofax.shell.client.eclipse.impl.EclipseReplModule;
 import org.osgi.framework.BundleContext;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 /**
  * The Activator class controls the plugin's life cycle. It is instantiated by Eclipse
@@ -10,21 +14,31 @@ import org.osgi.framework.BundleContext;
  * {@link AbstractUIPlugin#AbstractUIPlugin()} for more information.
  *
  * Currently its use is to keep track of certain objects that need to be available for the plugin.
- * In the future, it can be used as entry points to the REPL for commands and actions.
  */
 public class Activator extends AbstractUIPlugin {
     private static Activator plugin;
+    private static Injector injector;
 
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        Activator.plugin = this;
+        setActivator(this);
+        setInjector(Guice.createInjector(new EclipseReplModule()));
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        Activator.plugin = null;
+        setInjector(null);
+        setActivator(null);
         super.stop(context);
+    }
+
+    private static void setActivator(Activator activator) {
+        Activator.plugin = activator;
+    }
+
+    private static void setInjector(Injector injector) {
+        Activator.injector = injector;
     }
 
     /**
@@ -34,6 +48,15 @@ public class Activator extends AbstractUIPlugin {
      */
     public static Activator getDefault() {
         return plugin;
+    }
+
+    /**
+     * Return the shared {@link Injector} instance.
+     *
+     * @return The shared {@link Injector} instance.
+     */
+    public static Injector getInjector() {
+        return injector;
     }
 
     /**
@@ -55,4 +78,5 @@ public class Activator extends AbstractUIPlugin {
     public static ImageDescriptor getImageDescriptor(String path) {
         return imageDescriptorFromPlugin(getPluginID(), path);
     }
+
 }

@@ -9,13 +9,15 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.style.Style;
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
 
-import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 
 import rx.Observer;
 
@@ -31,19 +33,19 @@ public class EclipseRepl implements IRepl, Observer<String> {
     private static final int INPUT_RED = 232;
     private static final int INPUT_GREEN = 242;
     private static final int INPUT_BLUE = 254;
-    private final EclipseDisplay display;
+    private final IDisplay display;
     private final ICommandInvoker invoker;
 
     /**
      * Instantiates a new EclipseRepl.
      *
-     * @param display
-     *            The {@link EclipseDisplay} to print results to.
      * @param invoker
      *            The {@link ICommandInvoker} for executing user input.
+     * @param display
+     *            The {@link EclipseDisplay} to send results to.
      */
-    @Inject
-    public EclipseRepl(EclipseDisplay display, ICommandInvoker invoker) {
+    @AssistedInject
+    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display) {
         this.display = display;
         this.invoker = invoker;
     }

@@ -12,7 +12,8 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.metaborg.spoofax.shell.client.IEditor;
 
-import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -44,8 +45,8 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      *            A {@link Composite} control which will be the parent of this EclipseEditor.
      *            (cannot be {@code null}).
      */
-    @Inject
-    public EclipseEditor(Composite parent) {
+    @AssistedInject
+    public EclipseEditor(@Assisted Composite parent) {
         this.document = new Document();
         this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
         this.input.setDocument(document);
