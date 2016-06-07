@@ -4,11 +4,13 @@ import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.VFS;
@@ -56,6 +58,8 @@ public class LanguageCommandTest {
     @Mock private ILanguageComponent langcomp;
     @Mock private ILanguageImpl lang;
 
+    @Mock private FileName fileName;
+
     private FileObject langloc;
     private LanguageCommand langCommand;
 
@@ -66,7 +70,10 @@ public class LanguageCommandTest {
      */
     @Before
     public void setup() throws FileSystemException, ParseException {
-        langloc = VFS.getManager().resolveFile("res:paplj.full");
+        langloc = VFS.getManager().resolveFile("res:paplj.zip");
+
+        when(resourceService.resolveToName(anyString())).thenReturn(fileName);
+        when(fileName.getExtension()).thenReturn("zip");
         when(invoker.getCommandFactory()).thenReturn(commandFactory);
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
             .thenReturn(Lists.newArrayList(lang));
@@ -149,7 +156,7 @@ public class LanguageCommandTest {
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
         String expected = "Loaded language lang";
-        langCommand.execute("res:paplj.full").accept(display);
+        langCommand.execute("res:paplj.zip").accept(display);
         verify(display, times(1)).displayMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());
@@ -167,7 +174,7 @@ public class LanguageCommandTest {
         when(lang.hasFacet(AnalysisFacet.class)).thenReturn(true);
 
         String expected = "Loaded language lang";
-        langCommand.execute("res:paplj.full").accept(display);
+        langCommand.execute("res:paplj.zip").accept(display);
         verify(display, times(1)).displayMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());

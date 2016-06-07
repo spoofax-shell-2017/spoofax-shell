@@ -75,14 +75,22 @@ public class LanguageCommand implements IReplCommand {
         return lang;
     }
 
+    // FIXME: there really should be a better way to go about this. Perhaps Apache Tika?
+    private FileObject resolveLanguage(String path) {
+        String extension = resourceService.resolveToName(path).getExtension();
+        if (extension.equals("zip")) {
+            return resourceService.resolve(extension + ":" + path + "!/");
+        }
+        return resourceService.resolve(path);
+    }
+
     @Override
     public IHook execute(String... args) throws MetaborgException {
         if (args.length == 0 || args.length > 1) {
             throw new MetaborgException("Syntax: :lang <path>");
         }
 
-        FileObject resolve = resourceService.resolve("zip:" + args[0] + "!/");
-        ILanguageImpl lang = load(resolve);
+        ILanguageImpl lang = load(resolveLanguage(args[0]));
         boolean analyze = lang.hasFacet(AnalyzerFacet.class);
 
         invoker.resetCommands();
