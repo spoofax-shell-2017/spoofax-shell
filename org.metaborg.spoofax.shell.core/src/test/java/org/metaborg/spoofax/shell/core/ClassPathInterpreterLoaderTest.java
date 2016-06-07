@@ -248,9 +248,6 @@ public class ClassPathInterpreterLoaderTest {
             assertEquals(expectedExceptionMessage, NO_EXCEPTION);
             assertNull(expectedExceptionCauseClass);
 
-            // Test whether the target.package property was loaded.
-            assertEquals(cpInterpLoader.getTargetPackage(), "org.metaborg.spoofax.shell.core");
-
             // Test finding a rule.
             Value testRuleValue =
                 engine.findGlobalSymbol(RuleRegistry.makeKey("testrule", "TestCtor", 0));

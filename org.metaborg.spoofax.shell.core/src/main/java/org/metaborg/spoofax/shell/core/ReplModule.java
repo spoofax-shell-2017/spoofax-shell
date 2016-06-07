@@ -13,8 +13,10 @@ import org.metaborg.spoofax.shell.commands.ExitCommand;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
+import org.metaborg.spoofax.shell.core.ClassPathInterpreterLoader;
 import org.metaborg.spoofax.shell.core.DynSemEvaluationStrategy;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
+import org.metaborg.spoofax.shell.core.IInterpreterLoader;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
@@ -52,6 +54,7 @@ public class ReplModule extends SpoofaxModule {
      *            The {@link MapBinder} for binding the strategies to their names.
      */
     protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
+        bind(IInterpreterLoader.class).to(ClassPathInterpreterLoader.class);
         evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
     }
 

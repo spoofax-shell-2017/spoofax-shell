@@ -1,13 +1,10 @@
 package org.metaborg.spoofax.shell.core;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
@@ -18,6 +15,7 @@ import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.util.StrategoUtil;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -36,19 +34,26 @@ import com.oracle.truffle.api.vm.PolyglotEngine.Value;
  */
 public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     private final IInterpreterLoader interpLoader;
+    private final ITermFactoryService termFactService;
+
     private PolyglotEngine polyglotEngine;
     private Object[] rwSemanticComponents;
-
-    @Inject
-    private ITermFactoryService termFactService;
 
     /**
      * Construct a new {@link DynSemEvaluationStrategy}. This does not yet load the interpreter for
      * the language. Rather, this is done when first invoking
      * {@link #evaluate(AnalyzeResult, IContext)} or {@link #evaluate(ParseResult, IContext)}.
+     *
+     * @param interpLoader
+     *            The loader for a generated DynSem interpreter.
+     * @param termFactService
+     *            The {@link ITermFactoryService} for retrieving an {@link ITermFactory}.
      */
-    public DynSemEvaluationStrategy() {
-        interpLoader = new ClassPathInterpreterLoader();
+    @Inject
+    public DynSemEvaluationStrategy(IInterpreterLoader interpLoader,
+                                    ITermFactoryService termFactService) {
+        this.interpLoader = interpLoader;
+        this.termFactService = termFactService;
     }
 
     @Override
@@ -75,7 +80,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
         IStrategoTerm desugared = desugar(input);
 
-        ITerm programTerm = toProgramTerm(desugared);
+        ITerm programTerm = interpLoader.getProgramTerm(desugared);
 
         Value rule = lookupRuleForInput(desugared);
 
@@ -84,20 +89,8 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
     private IStrategoTerm desugar(IStrategoTerm input) {
         IStrategoTerm desugared = interpLoader.getTransformer().transform(input);
-        ImploderAttachment.putImploderAttachment(desugared, false, getSortForTerm(input), null,
-                                                 null);
+        StrategoUtil.setSortForTerm(desugared, StrategoUtil.getSortForTerm(input));
         return desugared;
-    }
-
-    private ITerm toProgramTerm(IStrategoTerm input) throws MetaborgException {
-        ITerm programTerm = null;
-        try {
-            programTerm = getProgramTerm(input);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                 | InvocationTargetException cause) {
-            throw new MetaborgException("Error constructing program term from input.", cause);
-        }
-        return programTerm;
     }
 
     private Value lookupRuleForInput(IStrategoTerm input) throws MetaborgException {
@@ -108,8 +101,8 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         }
 
         // First try "Cast" rules of the form "e : Expr --> ...".
-        Value rule = polyglotEngine
-            .findGlobalSymbol(RuleRegistry.makeKey("shell", '_' + getSortForTerm(input), 1));
+        Value rule = polyglotEngine.findGlobalSymbol(RuleRegistry
+            .makeKey("shell", '_' + StrategoUtil.getSortForTerm(input), 1));
         if (rule != null) {
             return rule;
         }
@@ -143,24 +136,6 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private ITerm getProgramTerm(IStrategoTerm input) throws ClassNotFoundException,
-        NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        String termSort = getSortForTerm(input);
-        // Get the abstract class for the sort of the term.
-        Class<? extends ITerm> generatedTermClass = (Class<? extends ITerm>) ClassUtils
-            .getClass(interpLoader.getTargetPackage() + ".terms.I" + termSort + "Term");
-        return (ITerm) MethodUtils.invokeStaticMethod(generatedTermClass, "create", input);
-    }
-
-    private String getSortForTerm(IStrategoTerm input) {
-        ImploderAttachment termAttachment = input.getAttachment(ImploderAttachment.TYPE);
-        if (termAttachment == null) {
-            return null;
-        }
-        return termAttachment.getElementSort();
-    }
-
     private boolean uninitialized() {
         return polyglotEngine == null;
     }
@@ -180,11 +155,10 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         Value shellInitRule = polyglotEngine.findGlobalSymbol(RuleRegistry
             .makeKey("init", termConstr.getName(), termConstr.getArity()));
         try {
-            RuleResult ruleResult =
-                shellInitRule.execute(getProgramTerm(shellInitAppl)).as(RuleResult.class);
+            RuleResult ruleResult = shellInitRule
+                .execute(interpLoader.getProgramTerm(shellInitAppl)).as(RuleResult.class);
             rwSemanticComponents = ruleResult.components;
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException
-                 | IllegalAccessException | InvocationTargetException e) {
+        } catch (IOException e) {
             throw new InterpreterLoadException(e);
         }
     }

@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.language.ILanguageImpl;
@@ -16,7 +17,10 @@ import org.metaborg.meta.lang.dynsem.interpreter.DynSemLanguage;
 import org.metaborg.meta.lang.dynsem.interpreter.IDynSemLanguageParser;
 import org.metaborg.meta.lang.dynsem.interpreter.ITermRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
+import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
+import org.metaborg.spoofax.shell.util.StrategoUtil;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.vm.PolyglotEngine;
@@ -60,6 +64,27 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         return builtEngine;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public ITerm getProgramTerm(IStrategoTerm input) throws InterpreterLoadException {
+        try {
+            String termSort = StrategoUtil.getSortForTerm(input);
+            // Get the abstract class for the sort of the term.
+            Class<? extends ITerm> generatedTermClass = (Class<? extends ITerm>) ClassUtils
+                .getClass(targetPackage + ".terms.I" + termSort + "Term");
+            return (ITerm) MethodUtils.invokeStaticMethod(generatedTermClass, "create", input);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                 | InvocationTargetException cause) {
+            throw new InterpreterLoadException("Error constructing program term from input.",
+                                               cause);
+        }
+    }
+
+    @Override
+    public ITermTransformer getTransformer() {
+        return transformer;
+    }
+
     private DynSemEntryPoint getEntryPoint() throws InterpreterLoadException {
         try {
             Class<DynSemEntryPoint> entryPointClass =
@@ -69,11 +94,6 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
                  | InvocationTargetException e) {
             throw new InterpreterLoadException(e);
         }
-    }
-
-    @Override
-    public String getTargetPackage() {
-        return targetPackage;
     }
 
     @SuppressWarnings("unchecked")
@@ -124,10 +144,5 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
             throw new InterpreterLoadException("Missing \"dynsem.properties\" file");
         }
         return dynSemPropertiesFile;
-    }
-
-    @Override
-    public ITermTransformer getTransformer() {
-        return transformer;
     }
 }
