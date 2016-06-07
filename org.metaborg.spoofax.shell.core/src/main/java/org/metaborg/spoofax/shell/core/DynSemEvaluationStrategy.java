@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
@@ -97,27 +99,46 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         if (!Tools.isTermAppl(input)) {
             throw new MetaborgException("Expected a StrategoAppl, but a "
                                         + input.getClass().getSimpleName() + " was found: \""
-                                        + input.toString(1) + '\"');
+                                        + input.toString(1) + "\".");
         }
 
-        // First try "Cast" rules of the form "e : Expr --> ...".
-        Value rule = polyglotEngine.findGlobalSymbol(RuleRegistry
-            .makeKey("shell", '_' + StrategoUtil.getSortForTerm(input), 1));
+        // First try "Cast" rules of the form "e : Expr --> ...". Silently continue if no sort can
+        // be retrieved from the term.
+        Value rule = lookupCastRule(input);
         if (rule != null) {
             return rule;
         }
 
+        // Then try "Con" rules of the form "Add(_, _) --> ...".
+        // Look up "-shell->" rule.
+        rule = lookupConRule(input);
+
+        if (rule == null) {
+            String extraMessage =
+                StrategoUtil.getSortForTerm(input) == null ? " No sort found for term." : "";
+            throw new MetaborgException("No shell rule found to be applied to term \""
+                                        + input.toString(1) + "\"." + extraMessage);
+        }
+        return rule;
+    }
+
+    private @Nullable Value lookupCastRule(IStrategoTerm input) {
+        Value rule = null;
+        String termSort = StrategoUtil.getSortForTerm(input);
+        if (termSort != null) {
+            rule =
+                polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", '_' + termSort, 1));
+        }
+        return rule;
+    }
+
+    private @Nullable Value lookupConRule(IStrategoTerm input) {
         IStrategoConstructor inputCtor = ((IStrategoAppl) input).getConstructor();
         String ctorName = inputCtor.getName();
         int arity = inputCtor.getArity();
 
-        // Then try "Con" rules of the form "Add(_, _) --> ...".
-        // Look up "-shell->" rule.
-        rule = polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
-        if (rule == null) {
-            throw new MetaborgException("No shell rule found to be applied to term \""
-                                        + input.toString(1) + '\"');
-        }
+        Value rule =
+            polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
         return rule;
     }
 

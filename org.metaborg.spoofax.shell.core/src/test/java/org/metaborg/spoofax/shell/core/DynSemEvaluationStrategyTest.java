@@ -80,8 +80,7 @@ public class DynSemEvaluationStrategyTest {
      */
     @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> inputAndRuleParameters() {
-        ITermFactoryService termFactService = INJECTOR.getInstance(ITermFactoryService.class);
-        ITermFactory termFact = termFactService.getGeneric();
+        ITermFactory termFact = INJECTOR.getInstance(ITermFactoryService.class).getGeneric();
         IStrategoAppl existingTerm =
             termFact.makeAppl(termFact.makeConstructor("Add", 2),
                               termFact.makeInt(DEFAULT_SHELL_RULE_ANSWER - 2), termFact.makeInt(2));
@@ -93,6 +92,7 @@ public class DynSemEvaluationStrategyTest {
         StrategoUtil.setSortForTerm(nonExistingRuleForTerm, "Expr");
 
         IStrategoTerm wrongTypeTerm = termFact.makeList();
+        IStrategoTerm noSortTerm = termFact.makeAppl(termFact.makeConstructor("Thing", 0));
 
         //@formatter:off
         return Arrays
@@ -100,10 +100,14 @@ public class DynSemEvaluationStrategyTest {
                                      { "shell/Add/2", existingTerm, NO_EXCEPTION },
                                      { "shell/noSuchRule/2", nonExistingRuleForTerm,
                                        "No shell rule found to be applied "
-                                       + "to term \"nonExistingRuleForTerm(0,0)\"" },
+                                       + "to term \"nonExistingRuleForTerm(0,0)\"." },
                                      { "shell/wrongArgumentType/0", wrongTypeTerm,
                                        "Expected a StrategoAppl, but a "
-                                       + "StrategoList was found: \"[]\"" } });
+                                       + "StrategoList was found: \"[]\"." },
+                                     { "shell/_Expr/1", noSortTerm,
+                                       "No shell rule found to be applied "
+                                       + "to term \"Thing\". No sort found for term." },
+                                     { "shell/Thing/0", noSortTerm, NO_EXCEPTION }});
         //@formatter:on
     }
 
