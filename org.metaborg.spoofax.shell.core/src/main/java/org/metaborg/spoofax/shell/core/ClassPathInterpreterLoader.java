@@ -54,8 +54,7 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         return builtEngine;
     }
 
-    private DynSemEntryPoint getEntryPoint()
-        throws InterpreterLoadException {
+    private DynSemEntryPoint getEntryPoint() throws InterpreterLoadException {
         try {
             Class<DynSemEntryPoint> entryPointClass =
                 this.<DynSemEntryPoint> getGeneratedClass("EntryPoint");
@@ -72,8 +71,7 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Class<T> getGeneratedClass(String className)
-        throws InterpreterLoadException {
+    private <T> Class<T> getGeneratedClass(String className) throws InterpreterLoadException {
         try {
             return (Class<T>) ClassUtils.getClass(targetPackage + "." + langName + className);
         } catch (ClassNotFoundException e) {
@@ -110,7 +108,10 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         }
 
         langName = dynSemProperties.getProperty("source.langname");
-        targetPackage = dynSemProperties.getProperty("project.javapackage",
-                                                     langName + ".interpreter.generated");
+        String groupId = dynSemProperties.getProperty("project.groupid");
+        String artifactId = dynSemProperties.getProperty("project.artifactid");
+        targetPackage =
+            dynSemProperties.getProperty("project.javapackage",
+                                         groupId + '.' + artifactId + ".generated");
     }
 }
