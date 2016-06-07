@@ -51,7 +51,7 @@ public class ExitCommandTest {
      */
     @Test
     public void testExecute() {
-        exitCommand.execute(new String[] { });
+        exitCommand.execute(new String[] { }).accept(display);
         verify(repl, times(1)).setRunning(false);
         verify(display, never()).displayMessage(any());
     }

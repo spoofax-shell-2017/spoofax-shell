@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.style.Style;
+import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -84,29 +85,32 @@ public class EclipseRepl implements IRepl, Observer<String> {
     }
 
     private void runAsJob(final String input) {
-        Job job = new Job("Spoofax REPL") {
+        Job job = new Job("Spoofax REPL evaluation job") {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 try {
-                    eval(input);
+                    runAsUIJob(eval(input));
                     return Status.OK_STATUS;
                 } catch (MetaborgException | CommandNotFoundException e) {
-                    // TODO: use hooks directly so only hooks need to schedule things on the ui
-                    // thread?
-                    Job job = new UIJob("REPL Exception") {
-                        @Override
-                        public IStatus runInUIThread(IProgressMonitor monitor) {
-                            display.displayMessage(new StyledText(Color.RED, e.getMessage()));
-                            return Status.OK_STATUS;
-                        }
-                    };
-                    job.setPriority(Job.SHORT);
-                    job.setSystem(true);
-                    job.schedule();
+                    StyledText message = new StyledText(Color.RED, e.getMessage());
+                    runAsUIJob((display) -> display.displayMessage(message));
                     return Status.CANCEL_STATUS;
                 }
             }
         };
+        job.setSystem(true);
+        job.schedule();
+    }
+
+    private void runAsUIJob(IHook hook) {
+        Job job = new UIJob("Spoofax REPL display job") {
+            @Override
+            public IStatus runInUIThread(IProgressMonitor arg0) {
+                hook.accept(display);
+                return Status.OK_STATUS;
+            }
+        };
+        job.setPriority(Job.SHORT);
         job.setSystem(true);
         job.schedule();
     }

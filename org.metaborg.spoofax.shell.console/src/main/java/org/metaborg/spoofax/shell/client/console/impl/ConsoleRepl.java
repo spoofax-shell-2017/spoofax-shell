@@ -73,7 +73,7 @@ public class ConsoleRepl implements IRepl {
             setRunning(true);
             while (running && (input = editor.getInput()) != null) {
                 try {
-                    eval(input);
+                    eval(input).accept(display);
                 } catch (CommandNotFoundException | MetaborgException e) {
                     this.display.displayMessage(new StyledText(Color.RED, e.getMessage()));
                 }

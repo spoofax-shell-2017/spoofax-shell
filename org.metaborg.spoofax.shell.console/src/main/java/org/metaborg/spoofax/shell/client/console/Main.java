@@ -26,6 +26,7 @@ public final class Main {
      *            The path to a language implementation location, using any URI supported by Apache
      *            VFS.
      */
+    // TODO: make the argument work again.
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ConsoleReplModule());
         IDisplay display = injector.getInstance(IDisplay.class);

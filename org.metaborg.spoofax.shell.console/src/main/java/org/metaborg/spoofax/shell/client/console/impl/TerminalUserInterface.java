@@ -145,14 +145,13 @@ public class TerminalUserInterface implements IEditor, IDisplay {
     // -------------- IDisplay --------------
     @Override
     public void displayResult(ISpoofaxResult<?> result) {
-        out.println(ansi(result.styled()));
-        out.flush();
+        displayMessage(result.styled());
     }
 
     @Override
     public void displayMessage(StyledText message) {
-        err.println(ansi(message));
-        err.flush();
+        out.println(ansi(message));
+        out.flush();
     }
 
     private <T> void optional(T t, Function<T, Boolean> check, Consumer<T> accept) {

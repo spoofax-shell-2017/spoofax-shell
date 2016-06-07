@@ -32,8 +32,9 @@ public class ExitCommand implements IReplCommand {
 
     @Override
     public IHook execute(String... args) {
-        replProvider.get().setRunning(false);
+        ConsoleRepl repl = replProvider.get();
         return (display) -> {
+            repl.setRunning(false);
         };
     }
 }
