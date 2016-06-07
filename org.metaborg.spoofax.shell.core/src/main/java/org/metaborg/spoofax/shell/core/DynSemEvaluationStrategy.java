@@ -73,11 +73,20 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
             initialize(langImpl);
         }
 
-        ITerm programTerm = toProgramTerm(input);
+        IStrategoTerm desugared = desugar(input);
 
-        Value rule = lookupRuleForInput(input);
+        ITerm programTerm = toProgramTerm(desugared);
+
+        Value rule = lookupRuleForInput(desugared);
 
         return invoke(rule, programTerm);
+    }
+
+    private IStrategoTerm desugar(IStrategoTerm input) {
+        IStrategoTerm desugared = interpLoader.getTransformer().transform(input);
+        ImploderAttachment.putImploderAttachment(desugared, false, getSortForTerm(input), null,
+                                                 null);
+        return desugared;
     }
 
     private ITerm toProgramTerm(IStrategoTerm input) throws MetaborgException {
@@ -111,8 +120,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
         // Then try "Con" rules of the form "Add(_, _) --> ...".
         // Look up "-shell->" rule.
-        rule =
-            polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
+        rule = polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
         return rule;
     }
 

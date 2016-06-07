@@ -16,6 +16,7 @@ import org.metaborg.meta.lang.dynsem.interpreter.DynSemLanguage;
 import org.metaborg.meta.lang.dynsem.interpreter.IDynSemLanguageParser;
 import org.metaborg.meta.lang.dynsem.interpreter.ITermRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
+import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
 
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.vm.PolyglotEngine;
@@ -29,6 +30,7 @@ import com.oracle.truffle.api.vm.PolyglotEngine;
 public class ClassPathInterpreterLoader implements IInterpreterLoader {
     private String langName;
     private String targetPackage;
+    private ITermTransformer transformer;
 
     @Override
     public PolyglotEngine loadInterpreterForLanguage(ILanguageImpl langImpl)
@@ -37,6 +39,7 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
 
         DynSemEntryPoint entryPoint = getEntryPoint();
 
+        transformer = entryPoint.getTransformer();
         IDynSemLanguageParser parser = entryPoint.getParser();
         RuleRegistry ruleRegistry = entryPoint.getRuleRegistry();
         ITermRegistry termRegistry = entryPoint.getTermRegistry();
@@ -121,5 +124,10 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
             throw new InterpreterLoadException("Missing \"dynsem.properties\" file");
         }
         return dynSemPropertiesFile;
+    }
+
+    @Override
+    public ITermTransformer getTransformer() {
+        return transformer;
     }
 }

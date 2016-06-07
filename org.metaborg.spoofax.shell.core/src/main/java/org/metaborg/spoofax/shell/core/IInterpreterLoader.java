@@ -2,6 +2,8 @@ package org.metaborg.spoofax.shell.core;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.vm.PolyglotEngine;
 
@@ -16,7 +18,8 @@ public interface IInterpreterLoader {
      * @param langImpl
      *            A language implementation with a DynSem specification.
      * @return The DynSem entrypoint for the interpreter.
-     * @throws InterpreterLoadException When loading results in an error.
+     * @throws InterpreterLoadException
+     *             When loading results in an error.
      */
     PolyglotEngine loadInterpreterForLanguage(ILanguageImpl langImpl)
         throws InterpreterLoadException;
@@ -27,19 +30,29 @@ public interface IInterpreterLoader {
     String getTargetPackage();
 
     /**
+     * Returns the transformer which optionally transforms a given {@link IStrategoTerm} before
+     * evaluation. By default this is the {@link ITermTransformer.IDENTITY identity transformation}.
+     *
+     * @return The {@link ITermTransformer} that is applied before evaluation.
+     */
+    ITermTransformer getTransformer();
+
+    /**
      * Exception thrown when loading results in an error.
      */
     class InterpreterLoadException extends MetaborgException {
 
         /**
-         * @param e The reason for this exception.
+         * @param e
+         *            The reason for this exception.
          */
         InterpreterLoadException(Exception e) {
             super(e);
         }
 
         /**
-         * @param string The message for this exception.
+         * @param string
+         *            The message for this exception.
          */
         InterpreterLoadException(String string) {
             super(string);
