@@ -9,6 +9,7 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.assistedinject.Assisted;
@@ -29,6 +30,29 @@ public class TransformResult extends AbstractSpoofaxResult<ISpoofaxTransformUnit
     public TransformResult(IStrategoCommon common,
                            @Assisted ISpoofaxTransformUnit<?> unit) {
         super(common, unit);
+    }
+    /**
+     * Create a {@link TransformResult} from a {@link ParseResult}.
+     * @param common      the {@link IStrategoCommon} service
+     * @param unitService the {@link ISpoofaxUnitService}
+     * @param prevResult  the previous {@link ParseResult}
+     */
+    @AssistedInject
+    public TransformResult(IStrategoCommon common, ISpoofaxUnitService unitService,
+                           @Assisted ParseResult prevResult) {
+        super(common, unitService.emptyTransformUnit(prevResult.unit(), null, null));
+    }
+
+    /**
+     * Create a {@link TransformResult} from a {@link AnalyzeResult}.
+     * @param common      the {@link IStrategoCommon} service
+     * @param unitService the {@link ISpoofaxUnitService}
+     * @param prevResult  the previous {@link AnalyzeResult}
+     */
+    @AssistedInject
+    public TransformResult(IStrategoCommon common, ISpoofaxUnitService unitService,
+                           @Assisted AnalyzeResult prevResult) {
+        super(common, unitService.emptyTransformUnit(prevResult.unit(), null, null));
     }
 
     // Duplication here and in AnalyzeResult is intentional since no common ancestor of

@@ -9,6 +9,7 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.assistedinject.Assisted;
@@ -29,6 +30,18 @@ public class AnalyzeResult extends AbstractSpoofaxResult<ISpoofaxAnalyzeUnit> {
     public AnalyzeResult(IStrategoCommon common,
                          @Assisted ISpoofaxAnalyzeUnit unit) {
         super(common, unit);
+    }
+
+    /**
+     * Create a {@link AnalyzeResult} from a {@link ParseResult}.
+     * @param common      the {@link IStrategoCommon} service
+     * @param unitService the {@link ISpoofaxUnitService}
+     * @param prevResult  the previous {@link ParseResult}
+     */
+    @AssistedInject
+    public AnalyzeResult(IStrategoCommon common, ISpoofaxUnitService unitService,
+                         @Assisted ParseResult prevResult) {
+        super(common, unitService.emptyAnalyzeUnit(prevResult.unit(), null));
     }
 
     // Duplication here and in TransformResult is intentional since no common ancestor of

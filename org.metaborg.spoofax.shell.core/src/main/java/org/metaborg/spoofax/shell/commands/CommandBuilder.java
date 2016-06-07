@@ -1,7 +1,8 @@
 package org.metaborg.spoofax.shell.commands;
 
+import java.awt.Color;
 import java.io.IOException;
-import java.util.function.Function;
+import java.util.Objects;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
@@ -11,13 +12,13 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.shell.client.IHook;
-import org.metaborg.spoofax.shell.functions.FunctionThrows;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.StyledText;
 import org.metaborg.spoofax.shell.output.TransformResult;
 
 import com.google.inject.assistedinject.Assisted;
@@ -34,7 +35,21 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
     private final IProject project;
 
     private final String description;
-    private final Function<String, R> function;
+    private final Throwing<String, R> function;
+
+    /**
+     * Reimplements java's Function class with exceptions.
+     * @param <A>
+     * @param <B>
+     */
+    private interface Throwing<A, B> {
+        default <C> Throwing<A, C> andThen(Throwing<? super B, ? extends C> after) {
+            Objects.requireNonNull(after);
+            return (A a) -> after.apply(apply(a));
+        };
+
+        B apply(A a) throws MetaborgException, IOException;
+    }
 
     /**
      * Constructs a new {@link CommandBuilder} from the given parameters.
@@ -61,7 +76,7 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
     * @param function     the function the created command will execute
     */
     private CommandBuilder(CommandBuilder<?> parent, String description,
-                           Function<String, R> function) {
+                           Throwing<String, R> function) {
         this.resultFactory = parent.resultFactory;
         this.functionFactory = parent.functionFactory;
         this.project = parent.project;
@@ -70,17 +85,7 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
         this.function = function;
     }
 
-    private <B, S> Function<B, S> wrap(FunctionThrows<B, S> function) {
-        return (B input) -> {
-            try {
-                return function.apply(input);
-            } catch (MetaborgException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
-    private Function<String, InputResult> inputFunction(ILanguageImpl lang) {
+    private Throwing<String, InputResult> inputFunction(ILanguageImpl lang) {
         return (source) -> {
             try {
                 ShellFacet shellFacet = lang.facet(ShellFacet.class);
@@ -94,28 +99,28 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
         };
     }
 
-    private Function<InputResult, ParseResult> parseFunction() {
-        return wrap((InputResult input) -> {
+    private Throwing<InputResult, ParseResult> parseFunction() {
+        return (InputResult input) -> {
             return functionFactory.createParseFunction(project, lang).apply(input);
-        });
+        };
     }
 
-    private Function<ParseResult, AnalyzeResult> analyzeFunction() {
-        return wrap((ParseResult parse) -> {
+    private Throwing<ParseResult, AnalyzeResult> analyzeFunction() {
+        return (ParseResult parse) -> {
             return functionFactory.createAnalyzeFunction(project, lang).apply(parse);
-        });
+        };
     }
 
-    private Function<ParseResult, TransformResult> pTransformFunction(ITransformAction action) {
-        return wrap((ParseResult parse) -> {
+    private Throwing<ParseResult, TransformResult> pTransformFunction(ITransformAction action) {
+        return (ParseResult parse) -> {
             return functionFactory.createPTransformFunction(project, lang, action).apply(parse);
-        });
+        };
     }
 
-    private Function<AnalyzeResult, TransformResult> aTransformFunction(ITransformAction action) {
-        return wrap((AnalyzeResult analyze) -> {
+    private Throwing<AnalyzeResult, TransformResult> aTransformFunction(ITransformAction action) {
+        return (AnalyzeResult analyze) -> {
             return functionFactory.createATransformFunction(project, lang, action).apply(analyze);
-        });
+        };
     }
 
     /**
@@ -185,7 +190,13 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
         return new IReplCommand() {
             @Override
             public IHook execute(String... arg) throws MetaborgException {
-                return (display) -> display.displayResult(function.apply(arg[0]));
+                return (display) -> {
+                    try {
+                        display.displayResult(function.apply(arg[0]));
+                    } catch (IOException | MetaborgException e) {
+                        display.displayMessage(new StyledText(Color.RED, e.getMessage()));
+                    }
+                };
             }
 
             @Override

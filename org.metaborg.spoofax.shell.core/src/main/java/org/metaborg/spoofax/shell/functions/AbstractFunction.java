@@ -1,5 +1,6 @@
 package org.metaborg.spoofax.shell.functions;
 
+import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -35,5 +36,13 @@ implements FunctionThrows<A, R> {
         this.resultFactory = resultFactory;
         this.project = project;
         this.lang = lang;
+    }
+
+    protected abstract R valid(A a) throws MetaborgException;
+    protected abstract R invalid(A a) throws MetaborgException;
+
+    @Override
+    public R apply(A a) throws MetaborgException {
+        return a.valid() ? valid(a) : invalid(a);
     }
 }

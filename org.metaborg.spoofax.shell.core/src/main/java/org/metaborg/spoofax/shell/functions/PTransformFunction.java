@@ -53,11 +53,16 @@ public class PTransformFunction extends AbstractFunction<ParseResult, TransformR
     }
 
     @Override
-    public TransformResult apply(ParseResult arg) throws MetaborgException {
+    public TransformResult valid(ParseResult arg) throws MetaborgException {
         IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
 
         Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> transform =
             transformService.transform(arg.unit(), context, action.goal());
         return resultFactory.createTransformResult(transform.iterator().next());
+    }
+
+    @Override
+    protected TransformResult invalid(ParseResult arg) throws MetaborgException {
+        return resultFactory.emptyTransformResult(arg);
     }
 }
