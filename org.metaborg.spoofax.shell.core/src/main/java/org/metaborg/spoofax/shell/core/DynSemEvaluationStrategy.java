@@ -95,9 +95,9 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
     private Value lookupRuleForInput(IStrategoTerm input) throws MetaborgException {
         if (!Tools.isTermAppl(input)) {
-            throw new MetaborgException("Expected a StrategoAppl, but a \""
-                                        + input.getClass().getName() + "\" was found: "
-                                        + input.toString(1));
+            throw new MetaborgException("Expected a StrategoAppl, but a "
+                                        + input.getClass().getSimpleName() + " was found: \""
+                                        + input.toString(1) + '\"');
         }
 
         // First try "Cast" rules of the form "e : Expr --> ...".
@@ -114,6 +114,10 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         // Then try "Con" rules of the form "Add(_, _) --> ...".
         // Look up "-shell->" rule.
         rule = polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
+        if (rule == null) {
+            throw new MetaborgException("No shell rule found to be applied to term \""
+                                        + input.toString(1) + '\"');
+        }
         return rule;
     }
 
