@@ -3,12 +3,16 @@ package org.metaborg.spoofax.shell.util;
 import javax.annotation.Nullable;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import org.spoofax.jsglr.client.imploder.Token;
 
 /**
  * Contains utility functions for dealing with {@link IStrategoTerm}s.
  */
 public final class StrategoUtil {
+    private static final Token BOGUS_TOKEN = new Token(null, 0, 0, 0, 0, 0,
+                                                       IToken.TK_NO_TOKEN_KIND);
 
     /* private due to checkstyle. */
     private StrategoUtil() {
@@ -22,7 +26,7 @@ public final class StrategoUtil {
      */
     public static void setSortForTerm(IStrategoTerm term, String sort) {
         ImploderAttachment.putImploderAttachment(term, false,
-                                                 sort, null, null);
+                                                 sort, BOGUS_TOKEN, BOGUS_TOKEN);
     }
 
     /**

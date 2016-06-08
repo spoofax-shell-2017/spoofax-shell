@@ -23,7 +23,6 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 
@@ -176,7 +175,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         ITermFactory termFactory = termFactService.getGeneric();
         IStrategoConstructor termConstr = termFactory.makeConstructor("ShellInit", 0);
         IStrategoAppl shellInitAppl = termFactory.makeAppl(termConstr);
-        ImploderAttachment.putImploderAttachment(shellInitAppl, false, "ShellInit", null, null);
+        StrategoUtil.setSortForTerm(shellInitAppl, "ShellInit");
         Value shellInitRule = polyglotEngine.findGlobalSymbol(RuleRegistry
             .makeKey("init", termConstr.getName(), termConstr.getArity()));
         try {
