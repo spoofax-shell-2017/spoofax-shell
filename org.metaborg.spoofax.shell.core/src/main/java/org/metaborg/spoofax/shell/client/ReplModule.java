@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.core;
+package org.metaborg.spoofax.shell.client;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
@@ -14,6 +14,10 @@ import org.metaborg.spoofax.shell.client.hooks.IResultHook;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
+import org.metaborg.spoofax.shell.core.ClassPathInterpreterLoader;
+import org.metaborg.spoofax.shell.core.DynSemEvaluationStrategy;
+import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
+import org.metaborg.spoofax.shell.core.IInterpreterLoader;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;

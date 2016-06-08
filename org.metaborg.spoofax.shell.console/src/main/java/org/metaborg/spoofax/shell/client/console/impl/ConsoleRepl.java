@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
-import org.metaborg.spoofax.shell.core.IRepl;
+import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;

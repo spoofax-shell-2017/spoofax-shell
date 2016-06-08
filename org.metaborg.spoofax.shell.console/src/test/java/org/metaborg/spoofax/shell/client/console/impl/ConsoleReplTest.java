@@ -20,8 +20,8 @@ import java.io.UnsupportedEncodingException;
 import org.junit.Test;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.client.IEditor;
+import org.metaborg.spoofax.shell.client.ReplModule;
 import org.metaborg.spoofax.shell.client.console.commands.ExitCommand;
-import org.metaborg.spoofax.shell.core.ReplModule;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 

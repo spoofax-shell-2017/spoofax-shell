@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.core;
+package org.metaborg.spoofax.shell.client;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.commands.IReplCommand;

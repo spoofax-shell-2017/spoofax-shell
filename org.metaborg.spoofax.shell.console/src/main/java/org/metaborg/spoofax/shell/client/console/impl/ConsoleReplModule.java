@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IInputHistory;
+import org.metaborg.spoofax.shell.client.IRepl;
+import org.metaborg.spoofax.shell.client.ReplModule;
 import org.metaborg.spoofax.shell.client.console.commands.ExitCommand;
 import org.metaborg.spoofax.shell.client.console.impl.history.JLine2InputHistory;
 import org.metaborg.spoofax.shell.client.console.impl.history.JLine2PersistentInputHistory;
@@ -15,8 +17,6 @@ import org.metaborg.spoofax.shell.client.console.impl.hooks.ConsoleResultHook;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.client.hooks.IResultHook;
-import org.metaborg.spoofax.shell.core.IRepl;
-import org.metaborg.spoofax.shell.core.ReplModule;
 
 import com.google.inject.Provides;
 import com.google.inject.Singleton;

@@ -2,13 +2,13 @@ package org.metaborg.spoofax.shell.client.eclipse.impl;
 
 import org.eclipse.swt.widgets.Composite;
 import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IRepl;
+import org.metaborg.spoofax.shell.client.ReplModule;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
 import org.metaborg.spoofax.shell.client.eclipse.impl.hooks.EclipseMessageHook;
 import org.metaborg.spoofax.shell.client.eclipse.impl.hooks.EclipseResultHook;
 import org.metaborg.spoofax.shell.client.hooks.IMessageHook;
 import org.metaborg.spoofax.shell.client.hooks.IResultHook;
-import org.metaborg.spoofax.shell.core.IRepl;
-import org.metaborg.spoofax.shell.core.ReplModule;
 
 import com.google.inject.Singleton;
 

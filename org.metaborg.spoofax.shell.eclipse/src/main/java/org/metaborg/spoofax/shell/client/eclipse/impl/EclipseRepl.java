@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.style.Style;
-import org.metaborg.spoofax.shell.core.IRepl;
+import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
