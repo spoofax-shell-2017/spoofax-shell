@@ -8,7 +8,9 @@ import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
-import org.metaborg.spoofax.shell.core.EvaluateUnit;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+
+import com.google.inject.name.Named;
 
 /**
  * Factory that creates {@link ISpoofaxResult}.
@@ -65,9 +67,20 @@ public interface IResultFactory {
 
     /**
      * Create an {@link EvaluateResult} that can be passed to the Repl.
-     * @param unit the wrapped {@link EvaluateUnit}
+     * @param parsed the wrapped {@link ParseResult}
+     * @param result the result of the evaluation.
      * @return a {@link EvaluateResult}
      */
-    EvaluateResult createEvaluateResult(EvaluateUnit<?> unit);
+    @Named("parsed")
+    EvaluateResult createEvaluateResult(ParseResult parsed, IStrategoTerm result);
+
+    /**
+     * Create an {@link EvaluateResult} that can be passed to the Repl.
+     * @param analyzed the wrapped {@link AnalyzeResult}
+     * @param result the result of the evaluation.
+     * @return a {@link EvaluateResult}
+     */
+    @Named("analyzed")
+    EvaluateResult createEvaluateResult(AnalyzeResult analyzed, IStrategoTerm result);
 
 }

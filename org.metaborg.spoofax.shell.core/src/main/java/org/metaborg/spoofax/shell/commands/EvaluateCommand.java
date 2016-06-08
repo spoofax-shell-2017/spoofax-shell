@@ -9,10 +9,6 @@ import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
-import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.core.unit.UnitWrapper;
-import org.metaborg.spoofax.shell.core.EvaluateUnit;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.metaborg.spoofax.shell.hooks.IResultHook;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
@@ -61,12 +57,7 @@ public class EvaluateCommand extends SpoofaxCommand {
             throws MetaborgException {
             AnalyzeResult analyzed = analyzeCommand.analyze(parsed);
             IStrategoTerm ast = evalStrategy.evaluate(analyzed, context);
-            // TODO: Normally this is done in the unit service, but since this is my own Unit this
-            // is not possible.
-            EvaluateUnit<ISpoofaxAnalyzeUnit> unit =
-                new EvaluateUnit<ISpoofaxAnalyzeUnit>(((UnitWrapper) analyzed.unit()).unit, ast,
-                                                      context, analyzed.unit());
-            return unitFactory.createEvaluateResult(unit);
+            return unitFactory.createEvaluateResult(analyzed, ast);
         }
     }
 
@@ -79,10 +70,7 @@ public class EvaluateCommand extends SpoofaxCommand {
                                                 IEvaluationStrategy evalStrategy)
             throws MetaborgException {
             IStrategoTerm ast = evalStrategy.evaluate(parsed, context);
-            EvaluateUnit<ISpoofaxParseUnit> unit =
-                new EvaluateUnit<ISpoofaxParseUnit>(((UnitWrapper) parsed.unit()).unit, ast,
-                                                    context, parsed.unit());
-            return unitFactory.createEvaluateResult(unit);
+            return unitFactory.createEvaluateResult(parsed, ast);
         }
     }
 
@@ -103,8 +91,7 @@ public class EvaluateCommand extends SpoofaxCommand {
     @Inject
     // CHECKSTYLE.OFF: |
     public EvaluateCommand(IContextService contextService, ICommandFactory commandFactory,
-                           IResultFactory unitFactory,
-                           IResultHook resultHook,
+                           IResultFactory unitFactory, IResultHook resultHook,
                            @Assisted IProject project, @Assisted ILanguageImpl lang,
                            @Assisted boolean analyzed) {
         // CHECKSTYLE.ON: |

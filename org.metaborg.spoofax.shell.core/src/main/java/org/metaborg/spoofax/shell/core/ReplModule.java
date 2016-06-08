@@ -16,6 +16,7 @@ import org.metaborg.spoofax.shell.commands.LanguageCommand;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
+import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 
 import com.google.common.io.Files;
@@ -23,6 +24,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.MapBinder;
+import com.google.inject.name.Names;
 
 /**
  * Client library bindings.
@@ -73,7 +75,10 @@ public class ReplModule extends SpoofaxModule {
         bindEvalStrategies(evalStrategyBinder);
 
         install(new FactoryModuleBuilder().build(ICommandFactory.class));
-        install(new FactoryModuleBuilder().build(IResultFactory.class));
+        install(new FactoryModuleBuilder()
+            .implement(EvaluateResult.class, Names.named("parsed"), EvaluateResult.Parsed.class)
+            .implement(EvaluateResult.class, Names.named("analyzed"), EvaluateResult.Analyzed.class)
+            .build(IResultFactory.class));
     }
 
     /**
@@ -84,12 +89,13 @@ public class ReplModule extends SpoofaxModule {
      * @param projectService
      *            the Spoofax {@link ISimpleProjectService}
      * @return an {@link IProject}
-     * @throws MetaborgException when creating a project failed
+     * @throws MetaborgException
+     *             when creating a project failed
      */
     @Provides
     protected IProject project(IResourceService resourceService,
                                ISimpleProjectService projectService)
-            throws MetaborgException {
+        throws MetaborgException {
         FileObject resolve = resourceService.resolve(Files.createTempDir());
         return projectService.create(resolve);
     }
