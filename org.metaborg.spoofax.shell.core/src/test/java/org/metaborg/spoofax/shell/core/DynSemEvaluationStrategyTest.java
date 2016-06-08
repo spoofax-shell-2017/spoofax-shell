@@ -1,13 +1,12 @@
 package org.metaborg.spoofax.shell.core;
 
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyMap;
-import static org.mockito.Mockito.anyString;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -94,21 +93,17 @@ public class DynSemEvaluationStrategyTest {
         IStrategoTerm wrongTypeTerm = termFact.makeList();
         IStrategoTerm noSortTerm = termFact.makeAppl(termFact.makeConstructor("Thing", 0));
 
-        //@formatter:off
-        return Arrays
-            .asList(new Object[][] { { "shell/_Expr/1", existingTerm, NO_EXCEPTION },
-                                     { "shell/Add/2", existingTerm, NO_EXCEPTION },
-                                     { "shell/noSuchRule/2", nonExistingRuleForTerm,
-                                       "No shell rule found to be applied "
-                                       + "to term \"nonExistingRuleForTerm(0,0)\"." },
-                                     { "shell/wrongArgumentType/0", wrongTypeTerm,
-                                       "Expected a StrategoAppl, but a "
-                                       + "StrategoList was found: \"[]\"." },
-                                     { "shell/_Expr/1", noSortTerm,
-                                       "No shell rule found to be applied "
-                                       + "to term \"Thing\". No sort found for term." },
-                                     { "shell/Thing/0", noSortTerm, NO_EXCEPTION }});
-        //@formatter:on
+        return Arrays.asList(new Object[][] {
+            { "shell/_Expr/1", existingTerm, NO_EXCEPTION },
+            { "shell/Add/2", existingTerm, NO_EXCEPTION },
+            { "shell/noSuchRule/2", nonExistingRuleForTerm, "No shell rule found to be applied "
+                    + "to term \"nonExistingRuleForTerm(0,0)\"." },
+            { "shell/wrongArgumentType/0", wrongTypeTerm, "Expected a StrategoAppl, but a "
+                    + "StrategoList was found: \"[]\"." },
+            { "shell/_Expr/1", noSortTerm, "No shell rule found to be applied "
+                    + "to term \"Thing\". No sort found for term." },
+            { "shell/Thing/0", noSortTerm, NO_EXCEPTION }
+        });
     }
 
     /**
@@ -136,7 +131,7 @@ public class DynSemEvaluationStrategyTest {
     /**
      * An {@link IInterpreterLoader} that returns a mock interpreter.
      */
-    final class MockInterpreterLoader implements IInterpreterLoader {
+    static final class MockInterpreterLoader implements IInterpreterLoader {
         private String ruleKey;
 
         private MockInterpreterLoader(String ruleKey) {
@@ -150,7 +145,6 @@ public class DynSemEvaluationStrategyTest {
             throws InterpreterLoadException {
             try {
                 PolyglotEngine mockInterpreter = mock(PolyglotEngine.class);
-                when(mockInterpreter.findGlobalSymbol(anyString())).thenReturn(null);
 
                 // Mock the init rule.
                 Value mockInitRuleResult = when(mock(Value.class).as(RuleResult.class))
