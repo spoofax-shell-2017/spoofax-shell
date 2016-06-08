@@ -136,7 +136,7 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
                     break;
                 }
             } catch (FileSystemException e) {
-                // Keep looking.
+                continue;
             }
         }
 
