@@ -111,11 +111,9 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         FileObject dynSemPropertiesFile = findDynSemPropertiesFileForLanguage(langImpl);
 
         Properties dynSemProperties = new Properties();
-        InputStream in;
-        try {
-            in = dynSemPropertiesFile.getContent().getInputStream();
+        try (InputStream in = dynSemPropertiesFile.getContent().getInputStream()) {
             dynSemProperties.load(in);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new InterpreterLoadException("Error when trying to load \"dynsem.properties\".");
         }
 
