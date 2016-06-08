@@ -62,6 +62,7 @@ public class ParseCommandTest {
 
         when(project.location()).thenReturn(sourceFile);
 
+        when(resultFactory.createInputResult(any(), any(), any())).thenReturn(inputResult);
         when(resultFactory.createInputResult(any(), any(), any(), any())).thenReturn(inputResult);
         when(resultFactory.createParseResult(any())).thenReturn(parseResult);
 

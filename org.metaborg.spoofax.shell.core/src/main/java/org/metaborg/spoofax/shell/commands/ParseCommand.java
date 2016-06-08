@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.commands;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
@@ -77,15 +78,17 @@ public class ParseCommand extends SpoofaxCommand {
     @Override
     public void execute(String... args) throws MetaborgException {
         try {
+            String source = args[0];
+            FileObject file = write(args[0]);
             ShellFacet shellFacet = lang.facet(ShellFacet.class);
+
             InputResult input = resultFactory
-                .createInputResult(lang, write(args[0]), args[0],
+                .createInputResult(lang, file, source,
                                    new JSGLRParserConfiguration(shellFacet.getShellStartSymbol()));
             try {
                 resultHook.accept(parse(input));
             } catch (MetaborgException e) {
-                resultHook.accept(parse(resultFactory.createInputResult(lang, input.unit().source(),
-                                                                        input.unit().text())));
+                resultHook.accept(parse(resultFactory.createInputResult(lang, file, source)));
             }
         } catch (IOException e) {
             throw new MetaborgException("Cannot write to temporary source file.");
