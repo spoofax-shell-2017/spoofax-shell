@@ -20,6 +20,16 @@
          required on TravisCI). -->
     <repositories>
         <repository>
+            <id>custom-snapshot-repo</id>
+            <url>http://fokkema-ict.nl/maven2</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>metaborg-snapshot-repo</id>
             <url>http://artifacts.metaborg.org/content/repositories/snapshots/</url>
             <releases>
@@ -57,6 +67,22 @@
             <artifactId>org.strategoxt.strj</artifactId>
             <version>${metaborg-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.metaborg.meta.interpreter.framework</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.metaborg.meta.lang.dynsem.interpreter</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.truffle</groupId>
+            <artifactId>truffle-api</artifactId>
+            <version>0.11</version>
+            <type>jar</type>
+        </dependency>
 
         <!-- From here on, all dependencies are inherited. -->
         <dependency>
@@ -89,7 +115,7 @@
             <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
-        
+
         <!-- From here on, all test dependencies are inherited. -->
         <dependency>
             <groupId>junit</groupId>
@@ -132,6 +158,30 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- Generate sources from annotations. -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process-test</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/generated-sources/annotations</outputDirectory>
+                            <!--processor>com.oracle.truffle.dsl.processor.LanguageRegistrationProcessor</processor-->
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.oracle.truffle</groupId>
+                        <artifactId>truffle-dsl-processor</artifactId>
+                        <version>0.11</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
             <!-- Compile Java 8 sources. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -139,6 +189,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
             <!-- Checkstyle -->

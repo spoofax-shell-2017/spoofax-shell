@@ -99,6 +99,8 @@ public class LanguageCommand implements IReplCommand {
             invoker.addCommand("analyze", commandFactory.createAnalyze(project, lang));
         }
 
+        invoker.addCommand("eval", commandFactory.createEvaluate(project, lang, analyze));
+
         messageHook.accept(new StyledText("Loaded language" + lang));
     }
 
