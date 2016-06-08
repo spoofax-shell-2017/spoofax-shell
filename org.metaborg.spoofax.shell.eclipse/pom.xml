@@ -32,25 +32,17 @@
         </repository>
     </repositories>
 
+    <!-- List dependencies that are unavailable in the target platform. -->
     <dependencies>
         <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.shell.core</artifactId>
             <version>0.0.3-SNAPSHOT</version>
         </dependency>
-
-        <!-- From here on, all dependencies are inherited. -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-vfs2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.rxjava</groupId>
-            <artifactId>rxjava-core</artifactId>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.metaborg.spoofax.shell.eclipse.externaldeps</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

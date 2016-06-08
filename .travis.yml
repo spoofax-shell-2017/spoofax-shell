@@ -14,4 +14,5 @@ install: true
 script:
   cd org.metaborg.spoofax.shell.core && mvn clean install &&
   cd ../org.metaborg.spoofax.shell.console && mvn clean verify &&
+  cd ../org.metaborg.spoofax.shell.eclipse.externaldeps && mvn clean install &&
   cd ../org.metaborg.spoofax.shell.eclipse && mvn clean verify
