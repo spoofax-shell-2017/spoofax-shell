@@ -22,13 +22,15 @@ public interface IRepl {
      *
      * @param input
      *            The input to send for evaluation.
-     * @return An {@link IHook} to process the result of the evaluation.
+     * @return An {@link IResult} to process the result of the evaluation, or {@code null} when an
+     *         empty input would be executed.
      * @throws MetaborgException
      *             When something goes wrong during execution.
      * @throws CommandNotFoundException
      *             When the command could not be found.
      */
-    default IHook eval(String input) throws MetaborgException, CommandNotFoundException {
+    // TODO: return Optional?
+    default IResult eval(String input) throws MetaborgException, CommandNotFoundException {
         input = input.trim();
         if (input.length() == 0) {
             return (display) -> {

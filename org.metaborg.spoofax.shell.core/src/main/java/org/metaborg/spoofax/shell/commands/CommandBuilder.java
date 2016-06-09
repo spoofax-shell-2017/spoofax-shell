@@ -1,25 +1,23 @@
 package org.metaborg.spoofax.shell.commands;
 
-import java.awt.Color;
-import java.io.IOException;
-import java.util.Objects;
-
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
-import org.metaborg.spoofax.shell.client.IHook;
+import org.metaborg.spoofax.shell.client.IResult;
+import org.metaborg.spoofax.shell.functions.FailableFunction;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
+import org.metaborg.spoofax.shell.output.ExceptionResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
-import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
-import org.metaborg.spoofax.shell.output.StyledText;
 import org.metaborg.spoofax.shell.output.TransformResult;
 
 import com.google.inject.assistedinject.Assisted;
@@ -27,37 +25,30 @@ import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * Builds commands by composing several smaller functional interfaces.
- * @param <R> the return type of the created command
+ *
+ * @param <R>
+ *            the return type of the created command
  */
-public class CommandBuilder<R extends ISpoofaxResult<?>> {
+public class CommandBuilder<R extends IResult> {
     private final IResultFactory resultFactory;
     private final IFunctionFactory functionFactory;
     private final ILanguageImpl lang;
     private final IProject project;
 
     private final String description;
-    private final Throwing<String, R> function;
-
-    /**
-     * Reimplements java's Function class with exceptions.
-     * @param <A>
-     * @param <B>
-     */
-    private interface Throwing<A, B> {
-        default <C> Throwing<A, C> andThen(Throwing<? super B, ? extends C> after) {
-            Objects.requireNonNull(after);
-            return (A a) -> after.apply(apply(a));
-        };
-
-        B apply(A a) throws MetaborgException, IOException;
-    }
+    private final FailableFunction<String, R, IResult> function;
 
     /**
      * Constructs a new {@link CommandBuilder} from the given parameters.
-     * @param resultFactory    the {@link IResultFactory}
-     * @param functionFactory  the {@link IFunctionFactory}
-     * @param project          the {@link IProject} associated with all created commands
-     * @param lang             the {@link ILanguageImpl} associated with all created commands
+     *
+     * @param resultFactory
+     *            the {@link IResultFactory}
+     * @param functionFactory
+     *            the {@link IFunctionFactory}
+     * @param project
+     *            the {@link IProject} associated with all created commands
+     * @param lang
+     *            the {@link ILanguageImpl} associated with all created commands
      */
     @AssistedInject
     public CommandBuilder(IResultFactory resultFactory, IFunctionFactory functionFactory,
@@ -71,13 +62,17 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
     }
 
     /**
-    * Constructs a new {@link CommandBuilder} from a parent.
-    * @param parent       the parent {@link CommandBuilder}
-    * @param description  the description of the created command
-    * @param function     the function the created command will execute
-    */
+     * Constructs a new {@link CommandBuilder} from a parent.
+     *
+     * @param parent
+     *            the parent {@link CommandBuilder}
+     * @param description
+     *            the description of the created command
+     * @param function
+     *            the function the created command will execute
+     */
     private CommandBuilder(CommandBuilder<?> parent, String description,
-                           Throwing<String, R> function) {
+                           FailableFunction<String, R, IResult> function) {
         this.resultFactory = parent.resultFactory;
         this.functionFactory = parent.functionFactory;
         this.project = parent.project;
@@ -86,44 +81,53 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
         this.function = function;
     }
 
-    private Throwing<String, InputResult> inputFunction(ILanguageImpl lang) {
+    private FailableFunction<String, InputResult, IResult> inputFunction(ILanguageImpl lang) {
         return (source) -> {
             ShellFacet shellFacet = lang.facet(ShellFacet.class);
-            FileObject file = project.location().resolveFile("temp");
-            // FIXME: find a way to fall back to no start symbols
-            return resultFactory.createInputResult(lang, file, source,
-                new JSGLRParserConfiguration(shellFacet.getShellStartSymbol()));
+            FileObject file;
+            try {
+                file = project.location().resolveFile("temp");
+            } catch (FileSystemException e) {
+                return FailOrSuccessResult.failed(new ExceptionResult(e));
+            }
+            return FailOrSuccessResult.ofSpoofaxResult(resultFactory
+                .createInputResult(lang, file, source,
+                                   new JSGLRParserConfiguration(shellFacet.getShellStartSymbol())));
         };
     }
 
-    private ParseResult parseFunction(InputResult input) throws MetaborgException {
-        return functionFactory.createParseFunction(project, lang).apply(input);
+    private FailableFunction<String, ParseResult, IResult> parseFunction() {
+        return inputFunction(lang)
+            .kleisliCompose(functionFactory.createParseFunction(project, lang));
     }
 
-    private AnalyzeResult analyzeFunction(ParseResult parse) throws MetaborgException {
-        return functionFactory.createAnalyzeFunction(project, lang).apply(parse);
+    private FailableFunction<String, AnalyzeResult, IResult> analyzeFunction() {
+        return parseFunction().kleisliCompose(functionFactory.createAnalyzeFunction(project, lang));
     }
 
-    private TransformResult pTransformFunction(ParseResult parse, ITransformAction action)
-            throws MetaborgException {
-        return functionFactory.createPTransformFunction(project, lang, action).apply(parse);
+    private FailableFunction<String, TransformResult, IResult>
+        pTransformFunction(ITransformAction action) {
+        return parseFunction()
+            .kleisliCompose(functionFactory.createPTransformFunction(project, lang, action));
     }
 
-    private TransformResult aTransformFunction(AnalyzeResult analyze, ITransformAction action)
-            throws MetaborgException {
-        return functionFactory.createATransformFunction(project, lang, action).apply(analyze);
+    private FailableFunction<String, TransformResult, IResult>
+        aTransformFunction(ITransformAction action) {
+        return analyzeFunction()
+            .kleisliCompose(functionFactory.createATransformFunction(project, lang, action));
     }
 
-    private EvaluateResult pEvaluateFunction(ParseResult parse) throws MetaborgException {
-        return functionFactory.createPEvalFunction(project, lang).apply(parse);
+    private FailableFunction<String, EvaluateResult, IResult> pEvaluateFunction() {
+        return parseFunction().kleisliCompose(functionFactory.createPEvalFunction(project, lang));
     }
 
-    private EvaluateResult aEvaluateFunction(AnalyzeResult parse) throws MetaborgException {
-        return functionFactory.createAEvalFunction(project, lang).apply(parse);
+    private FailableFunction<String, EvaluateResult, IResult> aEvaluateFunction() {
+        return analyzeFunction().kleisliCompose(functionFactory.createAEvalFunction(project, lang));
     }
 
     /**
      * Returns a function that creates an {@link InputResult} from a String.
+     *
      * @return the builder
      */
     public CommandBuilder<InputResult> input() {
@@ -132,62 +136,67 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
 
     /**
      * Returns a function that creates a {@link ParseResult} from a String.
+     *
      * @return the builder
      */
     public CommandBuilder<ParseResult> parse() {
-        return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(this::parseFunction));
+        return new CommandBuilder<ParseResult>(this, description, parseFunction());
     }
 
     /**
      * Returns a function that creates a {@link AnalyzeResult} from a String.
+     *
      * @return the builder
      */
     public CommandBuilder<AnalyzeResult> analyze() {
-        return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(this::parseFunction)
-                .andThen(this::analyzeFunction));
+        return new CommandBuilder<>(this, description, analyzeFunction());
     }
 
     /**
      * Returns a function that creates a parsed {@link TransformResult} from a String.
-     * @param action  the associated {@link ITransformAction}
+     *
+     * @param action
+     *            the associated {@link ITransformAction}
      * @return the builder
      */
     public CommandBuilder<TransformResult> transformParsed(ITransformAction action) {
-        return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(this::parseFunction)
-                .andThen((parse) -> pTransformFunction(parse, action)));
+        return new CommandBuilder<>(this, description, pTransformFunction(action));
     }
 
     /**
      * Returns a function that creates an analyzed {@link TransformResult} from a String.
-     * @param action  the associated {@link ITransformAction}
+     *
+     * @param action
+     *            the associated {@link ITransformAction}
      * @return the builder
      */
     public CommandBuilder<TransformResult> transformAnalyzed(ITransformAction action) {
-        return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(this::parseFunction)
-                .andThen(this::analyzeFunction)
-                .andThen((analyze) -> aTransformFunction(analyze, action)));
+        return new CommandBuilder<>(this, description, aTransformFunction(action));
     }
 
+    /**
+     * Returns a function that creates a parsed {@link EvaluateResult} from a String.
+     *
+     * @return the builder
+     */
     public CommandBuilder<EvaluateResult> evalParsed() {
-        return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(this::parseFunction)
-                .andThen(this::pEvaluateFunction));
+        return new CommandBuilder<>(this, description, pEvaluateFunction());
     }
 
+    /**
+     * Returns a function that creates an analyzed {@link EvaluateResult} from a String.
+     *
+     * @return the builder
+     */
     public CommandBuilder<EvaluateResult> evalAnalyzed() {
-        return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(this::parseFunction)
-                .andThen(this::analyzeFunction)
-                .andThen(this::aEvaluateFunction));
+        return new CommandBuilder<>(this, description, aEvaluateFunction());
     }
 
     /**
      * Sets the description of the created command.
-     * @param description  the description of the command
+     *
+     * @param description
+     *            the description of the command
      * @return the builder
      */
     public CommandBuilder<R> description(String description) {
@@ -196,19 +205,14 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
 
     /**
      * Returns an {@link IReplCommand} given a function.
+     *
      * @return an {@link IReplCommand}
      */
     public IReplCommand build() {
         return new IReplCommand() {
             @Override
-            public IHook execute(String... arg) throws MetaborgException {
-                return (display) -> {
-                    try {
-                        display.displayResult(function.apply(arg[0]));
-                    } catch (IOException | MetaborgException e) {
-                        display.displayMessage(new StyledText(Color.RED, e.getMessage()));
-                    }
-                };
+            public IResult execute(String... arg) throws MetaborgException {
+                return function.apply(arg[0]);
             }
 
             @Override

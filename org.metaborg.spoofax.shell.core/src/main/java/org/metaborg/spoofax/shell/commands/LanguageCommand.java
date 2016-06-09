@@ -15,7 +15,7 @@ import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
-import org.metaborg.spoofax.shell.client.IHook;
+import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -98,7 +98,7 @@ public class LanguageCommand implements IReplCommand {
     }
 
     @Override
-    public IHook execute(String... args) throws MetaborgException {
+    public IResult execute(String... args) throws MetaborgException {
         if (args.length == 0 || args.length > 1) {
             throw new MetaborgException("Syntax: :lang <path>");
         }
@@ -126,7 +126,7 @@ public class LanguageCommand implements IReplCommand {
         });
 
         return (display) -> display
-            .displayMessage(new StyledText("Loaded language " + lang));
+            .visitMessage(new StyledText("Loaded language " + lang));
     }
 
 }

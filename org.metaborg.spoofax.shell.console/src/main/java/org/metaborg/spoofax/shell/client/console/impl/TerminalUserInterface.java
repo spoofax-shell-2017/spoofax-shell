@@ -19,9 +19,10 @@ import org.fusesource.jansi.Ansi;
 import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IInputHistory;
+import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
@@ -31,9 +32,9 @@ import com.google.inject.name.Named;
 import jline.console.ConsoleReader;
 
 /**
- * A terminal UI which is both an {@link IEditor} and an {@link IDisplay}.
+ * A terminal UI which is both an {@link IEditor} and an {@link IResultVisitor}.
  */
-public class TerminalUserInterface implements IEditor, IDisplay {
+public class TerminalUserInterface implements IEditor, IResultVisitor {
     private final ConsoleReader reader;
     private final ArrayList<String> lines;
     private final PrintWriter out;
@@ -144,14 +145,24 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     // -------------- IDisplay --------------
     @Override
-    public void displayResult(ISpoofaxResult<?> result) {
-        displayMessage(result.styled());
+    public void visitResult(ISpoofaxResult<?> result) {
+        visitMessage(result.styled());
     }
 
     @Override
-    public void displayMessage(StyledText message) {
+    public void visitMessage(StyledText message) {
         out.println(ansi(message));
         out.flush();
+    }
+
+    @Override
+    public void visitFailure(FailResult errorResult) {
+        visitMessage(errorResult.getCause().styled());
+    }
+
+    @Override
+    public void visitException(Throwable thrown) {
+        visitMessage(new StyledText(Color.RED, thrown.getMessage()));
     }
 
     private <T> void optional(T t, Function<T, Boolean> check, Consumer<T> accept) {

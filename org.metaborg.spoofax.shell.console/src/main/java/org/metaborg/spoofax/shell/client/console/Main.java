@@ -3,7 +3,7 @@ package org.metaborg.spoofax.shell.client.console;
 import java.awt.Color;
 
 import org.metaborg.core.style.Style;
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleReplModule;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -29,12 +29,12 @@ public final class Main {
     // TODO: make the argument work again.
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ConsoleReplModule());
-        IDisplay display = injector.getInstance(IDisplay.class);
+        IResultVisitor display = injector.getInstance(IResultVisitor.class);
 
         StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
             .append(new Style(Color.GREEN, Color.BLUE, true, true, true), "Spoofax")
             .append(Color.BLUE, " REPL");
-        display.displayMessage(message);
+        display.visitMessage(message);
 
         ConsoleRepl repl = injector.getInstance(ConsoleRepl.class);
         repl.run();

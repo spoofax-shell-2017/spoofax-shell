@@ -1,6 +1,6 @@
 package org.metaborg.spoofax.shell.client.console.commands;
 
-import org.metaborg.spoofax.shell.client.IHook;
+import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 
@@ -31,7 +31,7 @@ public class ExitCommand implements IReplCommand {
     }
 
     @Override
-    public IHook execute(String... args) {
+    public IResult execute(String... args) {
         ConsoleRepl repl = replProvider.get();
         return (display) -> {
             repl.setRunning(false);

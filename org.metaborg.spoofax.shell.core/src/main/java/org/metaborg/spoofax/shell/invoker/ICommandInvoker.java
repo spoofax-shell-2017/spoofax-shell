@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.shell.client.IHook;
+import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 /**
@@ -34,13 +34,13 @@ public interface ICommandInvoker {
      *
      * @param optionallyPrefixedCommandName
      *            The name of the {@link IReplCommand} to be executed.
-     * @return An {@link IHook} to process the result of the executed command.
+     * @return An {@link IResult} to process the result of the executed command.
      * @throws CommandNotFoundException
      *             When the command could not be found.
      * @throws MetaborgException
      *             When something goes wrong during execution
      */
-    default IHook execute(String optionallyPrefixedCommandName)
+    default IResult execute(String optionallyPrefixedCommandName)
         throws CommandNotFoundException, MetaborgException {
         if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {
             String[] split = optionallyPrefixedCommandName.split("\\s+", 2);

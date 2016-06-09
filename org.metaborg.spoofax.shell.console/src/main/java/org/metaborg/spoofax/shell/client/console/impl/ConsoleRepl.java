@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.io.IOException;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 public class ConsoleRepl implements IRepl {
     private final ICommandInvoker invoker;
     private final IEditor editor;
-    private final IDisplay display;
+    private final IResultVisitor display;
     private boolean running;
 
     /**
@@ -31,12 +31,12 @@ public class ConsoleRepl implements IRepl {
      * @param editor
      *            The {@link IEditor} for receiving input.
      * @param display
-     *            The {@link IDisplay} for displaying results.
+     *            The {@link IResultVisitor} for displaying results.
      * @param invoker
      *            The {@link ICommandInvoker} for executing user input.
      */
     @Inject
-    public ConsoleRepl(IEditor editor, IDisplay display, ICommandInvoker invoker) {
+    public ConsoleRepl(IEditor editor, IResultVisitor display, ICommandInvoker invoker) {
         this.invoker = invoker;
         this.editor = editor;
         this.display = display;
@@ -75,13 +75,13 @@ public class ConsoleRepl implements IRepl {
                 try {
                     eval(input).accept(display);
                 } catch (CommandNotFoundException | MetaborgException e) {
-                    this.display.displayMessage(new StyledText(Color.RED, e.getMessage()));
+                    this.display.visitMessage(new StyledText(Color.RED, e.getMessage()));
                 }
             }
 
             this.editor.history().persistToDisk();
         } catch (IOException e) {
-            this.display.displayMessage(new StyledText(Color.RED, e.getMessage()));
+            this.display.visitMessage(new StyledText(Color.RED, e.getMessage()));
         }
     }
 

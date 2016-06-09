@@ -7,9 +7,9 @@ import org.metaborg.spoofax.shell.commands.CommandBuilder;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 /**
- * Factory for creating a {@link CommandBuilder} and {@link AbstractFunction}.
+ * Factory for creating a {@link CommandBuilder} and {@link AbstractSpoofaxFunction}.
  * The {@link CommandBuilder} composes an {@link IReplCommand}
- * from several {@link AbstractFunction}.
+ * from several {@link AbstractSpoofaxFunction}.
  */
 public interface IFunctionFactory {
     /**
@@ -54,7 +54,7 @@ public interface IFunctionFactory {
     /**
      * Factory method for creating a {@link CommandBuilder}.
      * The {@link CommandBuilder} composes an {@link IReplCommand}
-     * from several {@link AbstractFunction}
+     * from several {@link AbstractSpoofaxFunction}
      * @param project   The associated {@link IProject}
      * @param lang      The associated {@link ILanguageImpl}
      * @return          an {@link CommandBuilder}

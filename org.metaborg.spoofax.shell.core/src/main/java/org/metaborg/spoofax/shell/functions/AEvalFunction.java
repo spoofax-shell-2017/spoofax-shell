@@ -2,14 +2,15 @@ package org.metaborg.spoofax.shell.functions;
 
 import java.util.Map;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
+import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -20,7 +21,7 @@ import com.google.inject.assistedinject.Assisted;
 /**
  * Represents an evaluate command sent to Spoofax.
  */
-public class AEvalFunction extends AbstractFunction<AnalyzeResult, EvaluateResult> {
+public class AEvalFunction extends AbstractSpoofaxFunction<AnalyzeResult, EvaluateResult> {
     private IContextService contextService;
 
     @Inject
@@ -40,24 +41,19 @@ public class AEvalFunction extends AbstractFunction<AnalyzeResult, EvaluateResul
      */
     @Inject
     public AEvalFunction(IContextService contextService, IResultFactory resultFactory,
-                             @Assisted IProject project, @Assisted ILanguageImpl lang) {
+                         @Assisted IProject project, @Assisted ILanguageImpl lang) {
         super(resultFactory, project, lang);
         this.contextService = contextService;
     }
 
     @Override
-    public EvaluateResult valid(AnalyzeResult arg) throws MetaborgException {
-        IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
+    protected FailOrSuccessResult<EvaluateResult, IResult> applyThrowing(AnalyzeResult a)
+        throws Exception {
+        IContext context = a.context().orElse(contextService.get(a.source(), project, lang));
         ShellFacet facet = context.language().facet(ShellFacet.class);
         IEvaluationStrategy evalStrategy = evaluationStrategies.get(facet.getEvaluationMethod());
-        IStrategoTerm result = evalStrategy.evaluate(arg, context);
+        IStrategoTerm result = evalStrategy.evaluate(a, context);
 
-        return resultFactory.createEvaluateResult(arg, result);
-    }
-
-    @Override
-    public EvaluateResult invalid(AnalyzeResult arg) {
-        // FIXME:
-        return null;
+        return FailOrSuccessResult.ofSpoofaxResult(resultFactory.createEvaluateResult(a, result));
     }
 }

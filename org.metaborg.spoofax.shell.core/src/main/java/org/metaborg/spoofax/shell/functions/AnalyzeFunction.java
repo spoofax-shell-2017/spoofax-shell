@@ -1,6 +1,5 @@
 package org.metaborg.spoofax.shell.functions;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.core.analysis.IAnalysisService;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
@@ -8,7 +7,9 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.util.concurrent.IClosableLock;
@@ -19,7 +20,7 @@ import com.google.inject.assistedinject.Assisted;
 /**
  * Represents a parse command sent to Spoofax.
  */
-public class AnalyzeFunction extends AbstractFunction<ParseResult, AnalyzeResult> {
+public class AnalyzeFunction extends AbstractSpoofaxFunction<ParseResult, AnalyzeResult> {
     private final IContextService contextService;
     private final ISpoofaxAnalysisService analysisService;
 
@@ -47,17 +48,13 @@ public class AnalyzeFunction extends AbstractFunction<ParseResult, AnalyzeResult
     }
 
     @Override
-    public AnalyzeResult valid(ParseResult arg) throws MetaborgException {
-        IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
+    protected FailOrSuccessResult<AnalyzeResult, IResult> applyThrowing(ParseResult a)
+        throws Exception {
+        IContext context = a.context().orElse(contextService.get(a.source(), project, lang));
         ISpoofaxAnalyzeUnit analyze;
         try (IClosableLock lock = context.write()) {
-            analyze = analysisService.analyze(arg.unit(), context).result();
+            analyze = analysisService.analyze(a.unit(), context).result();
         }
-        return resultFactory.createAnalyzeResult(analyze);
-    }
-
-    @Override
-    protected AnalyzeResult invalid(ParseResult arg) throws MetaborgException {
-        return resultFactory.emptyAnalyzeResult(arg);
+        return FailOrSuccessResult.ofSpoofaxResult(resultFactory.createAnalyzeResult(analyze));
     }
 }

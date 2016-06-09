@@ -49,6 +49,9 @@ public class ParseResult extends AbstractSpoofaxResult<ISpoofaxParseUnit> {
 
     @Override
     public StyledText styled() {
+        if (!valid()) {
+            return new StyledText(messages().toString());
+        }
         return toString(unit().ast());
     }
 

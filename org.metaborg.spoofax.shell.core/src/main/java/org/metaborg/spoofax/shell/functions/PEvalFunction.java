@@ -8,7 +8,10 @@ import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
+import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
+import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ParseResult;
@@ -20,7 +23,7 @@ import com.google.inject.assistedinject.Assisted;
 /**
  * Represents an evaluate command sent to Spoofax.
  */
-public class PEvalFunction extends AbstractFunction<ParseResult, EvaluateResult> {
+public class PEvalFunction extends AbstractSpoofaxFunction<ParseResult, EvaluateResult> {
     private IContextService contextService;
 
     @Inject
@@ -46,18 +49,13 @@ public class PEvalFunction extends AbstractFunction<ParseResult, EvaluateResult>
     }
 
     @Override
-    public EvaluateResult valid(ParseResult arg) throws MetaborgException {
-        IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
+    protected FailOrSuccessResult<EvaluateResult, IResult> applyThrowing(ParseResult a)
+        throws Exception {
+        IContext context = a.context().orElse(contextService.get(a.source(), project, lang));
         ShellFacet facet = context.language().facet(ShellFacet.class);
         IEvaluationStrategy evalStrategy = evaluationStrategies.get(facet.getEvaluationMethod());
-        IStrategoTerm result = evalStrategy.evaluate(arg, context);
+        IStrategoTerm result = evalStrategy.evaluate(a, context);
 
-        return resultFactory.createEvaluateResult(arg, result);
-    }
-
-    @Override
-    public EvaluateResult invalid(ParseResult arg) {
-        // FIXME:
-        return null;
+        return FailOrSuccessResult.ofSpoofaxResult(resultFactory.createEvaluateResult(a, result));
     }
 }

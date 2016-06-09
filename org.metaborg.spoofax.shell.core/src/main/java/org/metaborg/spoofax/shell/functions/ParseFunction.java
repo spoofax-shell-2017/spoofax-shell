@@ -1,11 +1,13 @@
 package org.metaborg.spoofax.shell.functions;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
+import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.syntax.SpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.shell.client.IResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
@@ -16,7 +18,7 @@ import com.google.inject.assistedinject.Assisted;
 /**
  * Represents a parse command sent to Spoofax.
  */
-public class ParseFunction extends AbstractFunction<InputResult, ParseResult> {
+public class ParseFunction extends AbstractSpoofaxFunction<InputResult, ParseResult> {
     private final ISpoofaxSyntaxService syntaxService;
 
     /**
@@ -33,19 +35,21 @@ public class ParseFunction extends AbstractFunction<InputResult, ParseResult> {
      */
     @Inject
     public ParseFunction(ISpoofaxSyntaxService syntaxService, IResultFactory resultFactory,
-                        @Assisted IProject project, @Assisted ILanguageImpl lang) {
+                         @Assisted IProject project, @Assisted ILanguageImpl lang) {
         super(resultFactory, project, lang);
         this.syntaxService = syntaxService;
     }
 
     @Override
-    public ParseResult valid(InputResult arg) throws MetaborgException {
-        ISpoofaxParseUnit parse = syntaxService.parse(arg.unit());
-        return resultFactory.createParseResult(parse);
-    }
-
-    @Override
-    protected ParseResult invalid(InputResult arg) throws MetaborgException {
-        return valid(arg);
+    protected FailOrSuccessResult<ParseResult, IResult> applyThrowing(InputResult a)
+        throws Exception {
+        ISpoofaxParseUnit parse;
+        try {
+            parse = syntaxService.parse(a.unit());
+        } catch (ParseException e) {
+            // TODO: Retry parsing here.
+            return FailOrSuccessResult.failed(a);
+        }
+        return FailOrSuccessResult.ofSpoofaxResult(resultFactory.createParseResult(parse));
     }
 }

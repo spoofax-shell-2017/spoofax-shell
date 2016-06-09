@@ -9,9 +9,9 @@ import org.metaborg.spoofax.shell.commands.IReplCommand;
  * that hooks are returned is to allow the client to process it wherever and whenever it needs.
  */
 @FunctionalInterface
-public interface IHook extends Consumer<IDisplay> {
+public interface IResult extends Consumer<IResultVisitor> {
 
     @Override
-    void accept(IDisplay display);
+    void accept(IResultVisitor visitor);
 
 }

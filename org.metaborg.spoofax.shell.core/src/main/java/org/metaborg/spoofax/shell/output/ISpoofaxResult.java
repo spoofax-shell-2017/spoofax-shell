@@ -7,6 +7,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.unit.IUnit;
+import org.metaborg.spoofax.shell.client.IResult;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
@@ -14,7 +16,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * Wraps Spoofax {@link IUnit} of various types.
  * @param <T> the wrapped subtype of {@link IUnit}
  */
-public interface ISpoofaxResult<T extends IUnit> {
+public interface ISpoofaxResult<T extends IUnit> extends IResult {
     /**
      * Returns the ast of this unit as a {@link IStrategoTerm} if present.
      * @return a {@link IStrategoTerm} or null
@@ -56,4 +58,9 @@ public interface ISpoofaxResult<T extends IUnit> {
      * @return a boolean
      */
     boolean valid();
+
+    @Override
+    default void accept(IResultVisitor visitor) {
+        visitor.visitResult(this);
+    }
 }

@@ -11,6 +11,8 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
+import org.metaborg.spoofax.shell.client.IResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
@@ -18,7 +20,7 @@ import org.metaborg.spoofax.shell.output.TransformResult;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-public class PTransformFunction extends AbstractFunction<ParseResult, TransformResult>{
+public class PTransformFunction extends AbstractSpoofaxFunction<ParseResult, TransformResult> {
 
     private final IContextService contextService;
     private final ISpoofaxTransformService transformService;
@@ -43,9 +45,8 @@ public class PTransformFunction extends AbstractFunction<ParseResult, TransformR
     @Inject
     public PTransformFunction(IContextService contextService,
                               ISpoofaxTransformService transformService,
-                              IResultFactory resultFactory,
-                              @Assisted IProject project, @Assisted ILanguageImpl lang,
-                              @Assisted ITransformAction action) {
+                              IResultFactory resultFactory, @Assisted IProject project,
+                              @Assisted ILanguageImpl lang, @Assisted ITransformAction action) {
         super(resultFactory, project, lang);
         this.contextService = contextService;
         this.transformService = transformService;
@@ -53,16 +54,13 @@ public class PTransformFunction extends AbstractFunction<ParseResult, TransformR
     }
 
     @Override
-    public TransformResult valid(ParseResult arg) throws MetaborgException {
-        IContext context = arg.context().orElse(contextService.get(arg.source(), project, lang));
+    protected FailOrSuccessResult<TransformResult, IResult> applyThrowing(ParseResult a)
+        throws MetaborgException {
+        IContext context = a.context().orElse(contextService.get(a.source(), project, lang));
 
         Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> transform =
-            transformService.transform(arg.unit(), context, action.goal());
-        return resultFactory.createTransformResult(transform.iterator().next());
-    }
-
-    @Override
-    protected TransformResult invalid(ParseResult arg) throws MetaborgException {
-        return resultFactory.emptyTransformResult(arg);
+            transformService.transform(a.unit(), context, action.goal());
+        return FailOrSuccessResult
+            .ofSpoofaxResult(resultFactory.createTransformResult(transform.iterator().next()));
     }
 }

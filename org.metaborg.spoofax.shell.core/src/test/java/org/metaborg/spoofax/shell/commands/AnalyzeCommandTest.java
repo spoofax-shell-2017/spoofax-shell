@@ -27,7 +27,7 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.invoker.ICommandFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -48,7 +48,7 @@ public class AnalyzeCommandTest {
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
 
-    @Mock private IDisplay display;
+    @Mock private IResultVisitor display;
 
     @Mock private IContext context;
 
@@ -124,7 +124,7 @@ public class AnalyzeCommandTest {
 
         try {
             analyzeCommand.execute("test").accept(display);
-            verify(display, times(1)).displayResult(analyzeResult);
+            verify(display, times(1)).visitResult(analyzeResult);
         } catch (MetaborgException e) {
             fail("Should not happen");
         }
@@ -140,6 +140,6 @@ public class AnalyzeCommandTest {
         when(analyzeResult.valid()).thenReturn(false);
 
         analyzeCommand.execute("test").accept(display);
-        verify(display, never()).displayResult(any());
+        verify(display, never()).visitResult(any());
     }
 }

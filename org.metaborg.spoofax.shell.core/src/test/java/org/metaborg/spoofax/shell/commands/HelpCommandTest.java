@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -33,7 +33,7 @@ public class HelpCommandTest {
     // Constructor mocks
     @Mock private ICommandInvoker invoker;
 
-    @Mock private IDisplay display;
+    @Mock private IResultVisitor display;
     @Captor private ArgumentCaptor<StyledText> captor;
 
     // Command mocks
@@ -95,7 +95,7 @@ public class HelpCommandTest {
     public void testCommandSingleLine() throws MetaborgException {
         String expected = "name-1 test-1";
         helpCommand.execute("name-1").accept(display);
-        verify(display, times(1)).displayMessage(captor.capture());
+        verify(display, times(1)).visitMessage(captor.capture());
         assertEquals(expected, captor.getValue().toString());
     }
 
@@ -110,7 +110,7 @@ public class HelpCommandTest {
         String expected = "name-2 test-2\n"
                         + "       test-2";
         helpCommand.execute("name-2").accept(display);
-        verify(display, times(1)).displayMessage(captor.capture());
+        verify(display, times(1)).visitMessage(captor.capture());
         assertEquals(expected, captor.getValue().toString());
     }
 
@@ -126,7 +126,7 @@ public class HelpCommandTest {
                         + "name-2 test-2\n"
                         + "       test-2";
         helpCommand.execute(new String[0]).accept(display);
-        verify(display, times(1)).displayMessage(captor.capture());
+        verify(display, times(1)).visitMessage(captor.capture());
         assertEquals(expected, captor.getValue().toString());
     }
 

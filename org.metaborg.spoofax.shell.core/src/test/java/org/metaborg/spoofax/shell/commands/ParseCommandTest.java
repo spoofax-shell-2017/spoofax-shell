@@ -23,7 +23,7 @@ import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
@@ -42,7 +42,7 @@ public class ParseCommandTest {
     @Mock private ILanguageImpl lang;
     @Mock private ShellFacet facet;
 
-    @Mock private IDisplay display;
+    @Mock private IResultVisitor display;
 
     @Mock private InputResult inputResult;
     @Mock private ParseResult parseResult;
@@ -111,7 +111,7 @@ public class ParseCommandTest {
 
         try {
             parseCommand.execute("test").accept(display);
-            verify(display, times(1)).displayResult(parseResult);
+            verify(display, times(1)).visitResult(parseResult);
         } catch (MetaborgException e) {
             fail("Should not happen");
         }
@@ -127,6 +127,6 @@ public class ParseCommandTest {
         when(parseResult.valid()).thenReturn(false);
 
         parseCommand.execute("test");
-        verify(display, never()).displayResult(any());
+        verify(display, never()).visitResult(any());
     }
 }
