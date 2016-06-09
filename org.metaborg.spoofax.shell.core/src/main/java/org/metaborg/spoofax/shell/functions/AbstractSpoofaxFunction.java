@@ -19,8 +19,7 @@ import com.google.inject.Inject;
  *            The type of a successful {@link ISpoofaxResult}.
  */
 //@formatter:off
-public abstract class AbstractSpoofaxFunction<In extends ISpoofaxResult<?>,
-                                              Success extends ISpoofaxResult<?>>
+public abstract class AbstractSpoofaxFunction<In, Success extends ISpoofaxResult<?>>
         implements FailableFunction<In, Success, IResult> {
 //@formatter:on
     protected final IResultFactory resultFactory;

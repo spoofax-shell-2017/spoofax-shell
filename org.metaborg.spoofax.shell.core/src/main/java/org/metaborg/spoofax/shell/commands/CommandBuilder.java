@@ -1,21 +1,15 @@
 package org.metaborg.spoofax.shell.commands;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
-import org.metaborg.spoofax.core.shell.ShellFacet;
-import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.functions.FailableFunction;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
+import org.metaborg.spoofax.shell.functions.InputFunction;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
-import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
-import org.metaborg.spoofax.shell.output.ExceptionResult;
-import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
@@ -30,7 +24,6 @@ import com.google.inject.assistedinject.AssistedInject;
  *            the return type of the created command
  */
 public class CommandBuilder<R extends IResult> {
-    private final IResultFactory resultFactory;
     private final IFunctionFactory functionFactory;
     private final ILanguageImpl lang;
     private final IProject project;
@@ -41,8 +34,6 @@ public class CommandBuilder<R extends IResult> {
     /**
      * Constructs a new {@link CommandBuilder} from the given parameters.
      *
-     * @param resultFactory
-     *            the {@link IResultFactory}
      * @param functionFactory
      *            the {@link IFunctionFactory}
      * @param project
@@ -51,9 +42,8 @@ public class CommandBuilder<R extends IResult> {
      *            the {@link ILanguageImpl} associated with all created commands
      */
     @AssistedInject
-    public CommandBuilder(IResultFactory resultFactory, IFunctionFactory functionFactory,
-                          @Assisted IProject project, @Assisted ILanguageImpl lang) {
-        this.resultFactory = resultFactory;
+    public CommandBuilder(IFunctionFactory functionFactory, @Assisted IProject project,
+                          @Assisted ILanguageImpl lang) {
         this.functionFactory = functionFactory;
         this.project = project;
         this.lang = lang;
@@ -73,7 +63,6 @@ public class CommandBuilder<R extends IResult> {
      */
     private CommandBuilder(CommandBuilder<?> parent, String description,
                            FailableFunction<String, R, IResult> function) {
-        this.resultFactory = parent.resultFactory;
         this.functionFactory = parent.functionFactory;
         this.project = parent.project;
         this.lang = parent.lang;
@@ -81,23 +70,12 @@ public class CommandBuilder<R extends IResult> {
         this.function = function;
     }
 
-    private FailableFunction<String, InputResult, IResult> inputFunction(ILanguageImpl lang) {
-        return (source) -> {
-            ShellFacet shellFacet = lang.facet(ShellFacet.class);
-            FileObject file;
-            try {
-                file = project.location().resolveFile("temp");
-            } catch (FileSystemException e) {
-                return FailOrSuccessResult.failed(new ExceptionResult(e));
-            }
-            return FailOrSuccessResult.ofSpoofaxResult(resultFactory
-                .createInputResult(lang, file, source,
-                                   new JSGLRParserConfiguration(shellFacet.getShellStartSymbol())));
-        };
+    private InputFunction inputFunction() {
+        return functionFactory.createInputFunction(project, lang);
     }
 
     private FailableFunction<String, ParseResult, IResult> parseFunction() {
-        return inputFunction(lang)
+        return inputFunction()
             .kleisliCompose(functionFactory.createParseFunction(project, lang));
     }
 
@@ -131,7 +109,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<InputResult> input() {
-        return new CommandBuilder<>(this, description, inputFunction(lang));
+        return new CommandBuilder<>(this, description, inputFunction());
     }
 
     /**

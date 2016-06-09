@@ -12,6 +12,15 @@ import org.metaborg.spoofax.shell.commands.IReplCommand;
  * from several {@link AbstractSpoofaxFunction}.
  */
 public interface IFunctionFactory {
+
+    /**
+     * Factory method for creating a {@link InputFunction}.
+     * @param project  The associated {@link IProject}
+     * @param lang     The associated {@link ILanguageImpl}
+     * @return         a {@link InputFunction}
+     */
+    InputFunction createInputFunction(IProject project, ILanguageImpl lang);
+
     /**
      * Factory method for creating a {@link ParseFunction}.
      * @param project  The associated {@link IProject}
@@ -39,7 +48,7 @@ public interface IFunctionFactory {
                                                 ITransformAction action);
 
     /**
-     * Factory method for creating a {@link ATransformFunction} from an {@link AnalyzeFunction}.
+     * Factory method for creating an {@link ATransformFunction} from an {@link AnalyzeFunction}.
      * @param project   The associated {@link IProject}
      * @param lang      The associated {@link ILanguageImpl}
      * @param action    The associated {@link ITransformAction}
@@ -48,13 +57,27 @@ public interface IFunctionFactory {
     ATransformFunction createATransformFunction(IProject project, ILanguageImpl lang,
                                                 ITransformAction action);
 
+    /**
+     * Factory method for creating a {@link PEvalFunction} from a {@link ParseFunction}.
+     * @param project   The associated {@link IProject}
+     * @param lang      The associated {@link ILanguageImpl}
+     * @return          an {@link PEvalFunction}
+     */
     PEvalFunction createPEvalFunction(IProject project, ILanguageImpl lang);
+
+    /**
+     * Factory method for creating an {@link AEvalFunction} from an {@link AnalyzeFunction}.
+     * @param project   The associated {@link IProject}
+     * @param lang      The associated {@link ILanguageImpl}
+     * @return          an {@link AEvalFunction}
+     */
     AEvalFunction createAEvalFunction(IProject project, ILanguageImpl lang);
 
     /**
      * Factory method for creating a {@link CommandBuilder}.
      * The {@link CommandBuilder} composes an {@link IReplCommand}
-     * from several {@link AbstractSpoofaxFunction}
+     * from several {@link AbstractSpoofaxFunction}s.
+     *
      * @param project   The associated {@link IProject}
      * @param lang      The associated {@link ILanguageImpl}
      * @return          an {@link CommandBuilder}
