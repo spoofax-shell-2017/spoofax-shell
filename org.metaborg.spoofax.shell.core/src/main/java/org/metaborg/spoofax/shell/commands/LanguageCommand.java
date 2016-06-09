@@ -1,9 +1,11 @@
 package org.metaborg.spoofax.shell.commands;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.analysis.AnalyzerFacet;
 import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageDiscoveryRequest;
@@ -17,6 +19,7 @@ import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.output.TransformResult;
 
 import com.google.inject.Inject;
 
@@ -102,25 +105,25 @@ public class LanguageCommand implements IReplCommand {
 
         ILanguageImpl lang = load(resolveLanguage(args[0]));
         boolean analyze = lang.hasFacet(AnalyzerFacet.class);
-
         CommandBuilder<?> builder = factory.createBuilder(project, lang);
+        Function<ITransformAction, CommandBuilder<TransformResult>> transform;
+
         invoker.resetCommands();
         invoker.addCommand("parse", builder.parse().description("Parse the expression").build());
         if (analyze) {
-            IReplCommand command = builder.analyze().description("Analyze the expression").build();
-            invoker.addCommand("analyze", command);
+            invoker.addCommand("analyze", builder.analyze()
+                               .description("Analyze the expression").build());
+            invoker.addCommand("eval", builder.evalAnalyzed()
+                               .description("Evaluate an analyzed expression").build());
+            transform = (action) -> builder.transformAnalyzed(action);
+        } else {
+            invoker.addCommand("eval", builder.evalParsed()
+                               .description("Evaluate a parsed expression").build());
+            transform = (action) -> builder.transformParsed(action);
         }
-
         new TransformVisitor(menuService).getActions(lang).forEach((key, action) -> {
-            if (analyze) {
-                builder.transformAnalyzed(action);
-            } else {
-                builder.transformParsed(action);
-            }
-            invoker.addCommand(key, builder.description(action.name()).build());
+            invoker.addCommand(key, transform.apply(action).description(action.name()).build());
         });
-
-        invoker.addCommand("eval", commandFactory.createEvaluate(project, lang, analyze));
 
         return (display) -> display
             .displayMessage(new StyledText("Loaded language " + lang));

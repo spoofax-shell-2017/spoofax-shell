@@ -48,6 +48,9 @@ public interface IFunctionFactory {
     ATransformFunction createATransformFunction(IProject project, ILanguageImpl lang,
                                                 ITransformAction action);
 
+    PEvalFunction createPEvalFunction(IProject project, ILanguageImpl lang);
+    AEvalFunction createAEvalFunction(IProject project, ILanguageImpl lang);
+
     /**
      * Factory method for creating a {@link CommandBuilder}.
      * The {@link CommandBuilder} composes an {@link IReplCommand}

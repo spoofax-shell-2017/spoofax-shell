@@ -7,14 +7,14 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.unit.IUnit;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
-import org.metaborg.spoofax.shell.commands.EvaluateCommand;
+import org.metaborg.spoofax.shell.functions.PEvalFunction;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * The result of the execution of an {@link EvaluateCommand}.
+ * The result of the execution of an {@link PEvalFunction}.
  */
 public abstract class EvaluateResult extends AbstractSpoofaxResult<IUnit> {
     private AbstractSpoofaxResult<?> wrappedDelegate;

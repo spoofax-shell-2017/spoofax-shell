@@ -14,6 +14,7 @@ import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
+import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.InputResult;
@@ -113,6 +114,14 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
         return functionFactory.createATransformFunction(project, lang, action).apply(analyze);
     }
 
+    private EvaluateResult pEvaluateFunction(ParseResult parse) throws MetaborgException {
+        return functionFactory.createPEvalFunction(project, lang).apply(parse);
+    }
+
+    private EvaluateResult aEvaluateFunction(AnalyzeResult parse) throws MetaborgException {
+        return functionFactory.createAEvalFunction(project, lang).apply(parse);
+    }
+
     /**
      * Returns a function that creates an {@link InputResult} from a String.
      * @return the builder
@@ -161,6 +170,19 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
                 .andThen(this::parseFunction)
                 .andThen(this::analyzeFunction)
                 .andThen((analyze) -> aTransformFunction(analyze, action)));
+    }
+
+    public CommandBuilder<EvaluateResult> evalParsed() {
+        return new CommandBuilder<>(this, description, inputFunction(lang)
+                .andThen(this::parseFunction)
+                .andThen(this::pEvaluateFunction));
+    }
+
+    public CommandBuilder<EvaluateResult> evalAnalyzed() {
+        return new CommandBuilder<>(this, description, inputFunction(lang)
+                .andThen(this::parseFunction)
+                .andThen(this::analyzeFunction)
+                .andThen(this::aEvaluateFunction));
     }
 
     /**
