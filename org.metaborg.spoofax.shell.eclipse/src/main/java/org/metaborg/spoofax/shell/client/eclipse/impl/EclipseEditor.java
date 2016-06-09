@@ -1,5 +1,7 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
+import java.util.List;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -12,6 +14,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.metaborg.spoofax.shell.client.IEditor;
 
+import com.google.common.collect.Lists;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
@@ -29,14 +32,14 @@ import rx.Subscriber;
  *
  * Note that this class should always be run in and accessed from the UI thread!
  */
-// FIXME: Make IEditor? Or drop IDisplay from EclipseDisplay?
+// FIXME: Make IEditor?
 public class EclipseEditor extends KeyAdapter implements ModifyListener {
     private final SourceViewer input;
     // TODO: Use ReplDocument to provide custom partitioning? Perhaps more something for the output
     // as opposed to input. Should be relatively easy for output to at least partition different
     // input/output combinations.
     private final IDocument document;
-    private Subscriber<? super String> observer;
+    private final List<Subscriber<? super String>> observers;
 
     /**
      * Instantiates a new EclipseEditor.
@@ -51,6 +54,7 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
         this.input.setDocument(document);
         this.input.getTextWidget().addKeyListener(this);
+        this.observers = Lists.newArrayList();
     }
 
     /**
@@ -68,15 +72,24 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      * @return A new {@link Observable} from this editor.
      */
     public Observable<String> asObservable() {
-        // FIXME: Allow more than one observer of this editor instance.
         return Observable.create(s -> {
-            EclipseEditor.this.observer = s;
+            EclipseEditor.this.observers.add(s);
         });
+    }
+
+    /**
+     * Remove the passed {@link Subscriber} from this editor's observers.
+     *
+     * @param observer
+     *            The {@link Subscriber} to remove.
+     */
+    public void removeObserver(Subscriber<? super String> observer) {
+        this.observers.remove(observer);
     }
 
     private void enterPressed() {
         String text = document.get();
-        this.observer.onNext(text);
+        this.observers.forEach(o -> o.onNext(text));
         this.document.set("");
     }
 
