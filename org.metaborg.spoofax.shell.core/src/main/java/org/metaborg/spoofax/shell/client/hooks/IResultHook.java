@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.hooks;
+package org.metaborg.spoofax.shell.client.hooks;
 
 import java.util.function.Consumer;
 

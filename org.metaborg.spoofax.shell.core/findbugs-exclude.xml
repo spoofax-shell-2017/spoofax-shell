@@ -1,7 +1,0 @@
-<FindBugsFilter>
-    <Match>
-        <Class name="org.metaborg.spoofax.shell.core.ReplTest" />
-        <Method name="testExitCommand" />
-        <Bug pattern="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" />
-    </Match>
-</FindBugsFilter>

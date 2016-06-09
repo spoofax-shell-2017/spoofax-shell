@@ -1,5 +1,7 @@
 package org.metaborg.spoofax.shell.client.console.impl;
 
+import static org.metaborg.spoofax.shell.client.console.AnsiColors.findClosest;
+
 import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -9,15 +11,18 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.fusesource.jansi.Ansi;
 import org.metaborg.core.completion.ICompletionService;
+import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.client.console.AnsiColors;
-import org.metaborg.spoofax.shell.client.console.IDisplay;
-import org.metaborg.spoofax.shell.client.console.IEditor;
-import org.metaborg.spoofax.shell.client.console.IInputHistory;
+import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IEditor;
+import org.metaborg.spoofax.shell.client.IInputHistory;
+import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
@@ -103,28 +108,33 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     // -------------- IEditor --------------
     @Override
+    public String getInput() {
+        String input = null;
+        String lastLine;
+        reader.setPrompt(ansi(prompt));
+        try {
+            // While the input is not empty, keep asking.
+            while ((lastLine = reader.readLine()) != null && lastLine.trim().length() > 0) {
+                reader.flush();
+                reader.setPrompt(ansi(continuationPrompt));
+                saveLine(lastLine);
+            }
+            // Concatenate the strings with newlines in between.
+            input = lastLine == null ? null : lines.stream().collect(Collectors.joining("\n"));
+            // Clear the lines for next input.
+            lines.clear();
+        } catch (IOException e) {
+            err.println("An error occured: " + e.getMessage() + "\nExiting...");
+            err.flush();
+        }
+        return input;
+    }
+
+    @Override
     public void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService) {
         reader.addCompleter((buffer, cursor, candidates) -> {
             return cursor;
         });
-    }
-
-    @Override
-    public String getInput() throws IOException {
-        String input;
-        String lastLine;
-        reader.setPrompt(ansi(prompt));
-        // While the input is not empty, keep asking.
-        while ((lastLine = reader.readLine()) != null && lastLine.trim().length() > 0) {
-            reader.flush();
-            reader.setPrompt(ansi(continuationPrompt));
-            saveLine(lastLine);
-        }
-        // Concatenate the strings with newlines in between.
-        input = lastLine == null ? null : lines.stream().collect(Collectors.joining("\n"));
-        // Clear the lines for next input.
-        lines.clear();
-        return input;
     }
 
     @Override
@@ -134,23 +144,34 @@ public class TerminalUserInterface implements IEditor, IDisplay {
 
     // -------------- IDisplay --------------
     @Override
-    public void displayResult(StyledText s) {
-        out.println(ansi(s));
+    public void displayResult(ISpoofaxResult<?> result) {
+        out.println(ansi(result.styled()));
         out.flush();
     }
 
     @Override
-    public void displayError(StyledText s) {
-        err.println(ansi(s));
+    public void displayMessage(StyledText message) {
+        err.println(ansi(message));
         err.flush();
     }
 
-    private String ansi(StyledText text) {
+    private <T> void optional(T t, Function<T, Boolean> check, Consumer<T> accept) {
+        if (check.apply(t)) {
+            accept.accept(t);
+        }
+    }
+
+    private String ansi(StyledText styled) {
         Ansi ansi = Ansi.ansi();
-        text.getSource().stream()
-        .forEach(e -> {
-            if (e.style() != null && e.style().color() != null) {
-                    ansi.fg(AnsiColors.findClosest(e.style().color())).a(e.fragment()).reset();
+        styled.getSource().forEach(e -> {
+            if (e.style() != null) {
+                IStyle style = e.style();
+                optional(style.color(),           (c) -> c != null, (c) -> ansi.fg(findClosest(c)));
+                optional(style.backgroundColor(), (c) -> c != null, (c) -> ansi.bg(findClosest(c)));
+                optional(style.bold(),           (c) -> c, (c) -> ansi.bold());
+                optional(style.italic(),         (c) -> c, (c) -> ansi.a(Ansi.Attribute.ITALIC));
+                optional(style.underscore(),     (c) -> c, (c) -> ansi.a(Ansi.Attribute.UNDERLINE));
+                ansi.a(e.fragment()).reset();
             } else {
                 ansi.a(e.fragment());
             }

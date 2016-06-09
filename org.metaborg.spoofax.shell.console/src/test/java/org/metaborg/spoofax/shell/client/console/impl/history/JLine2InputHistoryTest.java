@@ -3,7 +3,7 @@ package org.metaborg.spoofax.shell.client.console.impl.history;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.metaborg.spoofax.shell.client.console.TerminalUserInterfaceTest.ENTER;
+import static org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterfaceTest.ENTER;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,9 +14,9 @@ import java.util.function.Supplier;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
-import org.metaborg.spoofax.shell.client.console.TerminalUserInterfaceTest;
-import org.metaborg.spoofax.shell.client.console.UserInputSimulationModule;
 import org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterface;
+import org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterfaceTest;
+import org.metaborg.spoofax.shell.client.console.impl.UserInputSimulationModule;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.mockito.Mockito;
 

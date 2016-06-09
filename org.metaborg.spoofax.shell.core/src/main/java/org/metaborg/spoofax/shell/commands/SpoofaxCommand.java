@@ -8,7 +8,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
-import org.metaborg.spoofax.shell.hooks.IResultHook;
+import org.metaborg.spoofax.shell.client.hooks.IResultHook;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 
 import com.google.inject.Inject;

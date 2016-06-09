@@ -1,7 +1,7 @@
 package org.metaborg.spoofax.shell.client.console.impl.hooks;
 
-import org.metaborg.spoofax.shell.client.console.IDisplay;
-import org.metaborg.spoofax.shell.hooks.IResultHook;
+import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.hooks.IResultHook;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 
 import com.google.inject.Inject;
@@ -25,7 +25,7 @@ public class ConsoleResultHook implements IResultHook {
 
     @Override
     public void accept(ISpoofaxResult<?> result) {
-        this.display.displayResult(result.styled());
+        this.display.displayResult(result);
     }
 
 }

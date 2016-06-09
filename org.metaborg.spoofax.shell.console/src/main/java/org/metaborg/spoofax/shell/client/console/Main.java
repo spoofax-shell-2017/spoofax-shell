@@ -2,6 +2,8 @@ package org.metaborg.spoofax.shell.client.console;
 
 import java.awt.Color;
 
+import org.metaborg.core.style.Style;
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleReplModule;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -29,8 +31,9 @@ public final class Main {
         IDisplay display = injector.getInstance(IDisplay.class);
 
         StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
-            .append(Color.GREEN, "Spoofax").append(Color.BLUE, " REPL");
-        display.displayResult(message);
+            .append(new Style(Color.GREEN, Color.BLUE, true, true, true), "Spoofax")
+            .append(Color.BLUE, " REPL");
+        display.displayMessage(message);
 
         ConsoleRepl repl = injector.getInstance(ConsoleRepl.class);
         repl.run();

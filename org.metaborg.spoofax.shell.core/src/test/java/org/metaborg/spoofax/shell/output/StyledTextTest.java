@@ -5,8 +5,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.awt.Color;
+import java.util.List;
 
 import org.junit.Test;
+import org.metaborg.core.style.IRegionStyle;
 import org.metaborg.core.style.RegionStyle;
 import org.metaborg.core.style.Style;
 
@@ -21,10 +23,12 @@ public class StyledTextTest {
     @Test
     public void testString() {
         StyledText styledText = new StyledText("Hello world");
+        List<IRegionStyle<String>> source = styledText.getSource();
 
         assertEquals("Hello world", styledText.toString());
-        assertEquals(1, styledText.getSource().size());
-        assertNull(styledText.getSource().get(0).style());
+        assertEquals(1, source.size());
+        assertEquals("Hello world", source.get(0).fragment());
+        assertNull(source.get(0).style());
     }
 
     /**
@@ -32,12 +36,28 @@ public class StyledTextTest {
      */
     @Test
     public void testColoredString() {
-        StyledText styledText = new StyledText(Color.RED, "Hello ").append("world");
+        final int part1Start = 0;
+        final int part1End = 5;
+        String part1 = "Hello ";
 
-        assertEquals("Hello world", styledText.toString());
-        assertEquals(2, styledText.getSource().size());
-        assertNotNull(styledText.getSource().get(0).style());
-        assertNull(styledText.getSource().get(1).style());
+        final int part2Start = 6;
+        final int part2End = 10;
+        String part2 = "world";
+
+        StyledText styledText = new StyledText(Color.RED, part1).append(part2);
+        List<IRegionStyle<String>> source = styledText.getSource();
+
+        assertEquals(part1, styledText.getSource().get(0).fragment());
+        assertEquals(part2, styledText.getSource().get(1).fragment());
+        assertEquals(part1 + part2, styledText.toString());
+        assertEquals(2, source.size());
+        assertEquals(part1Start, source.get(0).region().startOffset());
+        assertEquals(part1End, source.get(0).region().endOffset());
+        assertEquals(part2Start, source.get(1).region().startOffset());
+        assertEquals(part2End, source.get(1).region().endOffset());
+
+        assertNotNull(source.get(0).style());
+        assertNull(source.get(1).style());
     }
 
     /**
