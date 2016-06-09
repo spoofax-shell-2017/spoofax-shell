@@ -83,10 +83,4 @@ public interface IResultFactory {
     @Named("analyzed")
     EvaluateResult createEvaluateResult(AnalyzeResult analyzed, IStrategoTerm result);
 
-    AnalyzeResult emptyAnalyzeResult(ParseResult unit);
-
-    TransformResult emptyTransformResult(ParseResult unit);
-
-    TransformResult emptyTransformResult(AnalyzeResult unit);
-
 }

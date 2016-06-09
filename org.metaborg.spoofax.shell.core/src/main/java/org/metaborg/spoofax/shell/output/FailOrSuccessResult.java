@@ -1,5 +1,7 @@
 package org.metaborg.spoofax.shell.output;
 
+import java.util.Objects;
+
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.functions.FailableFunction;
@@ -39,6 +41,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
         @Override
         public <NewS extends ISpoofaxResult<?>> FailOrSuccessResult<NewS, F>
             flatMap(FailableFunction<S, NewS, F> errorFunc) {
+            Objects.requireNonNull(errorFunc);
             return errorFunc.apply(result);
         }
     }
@@ -65,6 +68,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
         @Override
         public <NewS extends ISpoofaxResult<?>> FailOrSuccessResult<NewS, F>
             flatMap(FailableFunction<S, NewS, F> errorFunc) {
+            Objects.requireNonNull(errorFunc);
             return failed(result);
         }
     }

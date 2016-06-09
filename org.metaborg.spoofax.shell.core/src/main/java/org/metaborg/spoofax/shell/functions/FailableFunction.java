@@ -1,5 +1,6 @@
 package org.metaborg.spoofax.shell.functions;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.metaborg.spoofax.shell.client.IResult;
@@ -46,6 +47,7 @@ public interface FailableFunction<In, Success extends IResult, Fail extends IRes
      */
     default <NewSuccess extends ISpoofaxResult<?>> FailableFunction<In, NewSuccess, Fail>
         kleisliCompose(FailableFunction<Success, NewSuccess, Fail> other) {
+        Objects.requireNonNull(other);
         return a -> this.apply(a).flatMap(other);
     }
 }
