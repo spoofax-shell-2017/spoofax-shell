@@ -87,40 +87,30 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
 
     private Throwing<String, InputResult> inputFunction(ILanguageImpl lang) {
         return (source) -> {
-            try {
-                ShellFacet shellFacet = lang.facet(ShellFacet.class);
-                FileObject file = project.location().resolveFile("temp");
-                // FIXME: find a way to fall back to no start symbols
-                return resultFactory.createInputResult(lang, file, source,
-                    new JSGLRParserConfiguration(shellFacet.getShellStartSymbol()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            ShellFacet shellFacet = lang.facet(ShellFacet.class);
+            FileObject file = project.location().resolveFile("temp");
+            // FIXME: find a way to fall back to no start symbols
+            return resultFactory.createInputResult(lang, file, source,
+                new JSGLRParserConfiguration(shellFacet.getShellStartSymbol()));
         };
     }
 
-    private Throwing<InputResult, ParseResult> parseFunction() {
-        return (InputResult input) -> {
-            return functionFactory.createParseFunction(project, lang).apply(input);
-        };
+    private ParseResult parseFunction(InputResult input) throws MetaborgException {
+        return functionFactory.createParseFunction(project, lang).apply(input);
     }
 
-    private Throwing<ParseResult, AnalyzeResult> analyzeFunction() {
-        return (ParseResult parse) -> {
-            return functionFactory.createAnalyzeFunction(project, lang).apply(parse);
-        };
+    private AnalyzeResult analyzeFunction(ParseResult parse) throws MetaborgException {
+        return functionFactory.createAnalyzeFunction(project, lang).apply(parse);
     }
 
-    private Throwing<ParseResult, TransformResult> pTransformFunction(ITransformAction action) {
-        return (ParseResult parse) -> {
-            return functionFactory.createPTransformFunction(project, lang, action).apply(parse);
-        };
+    private TransformResult pTransformFunction(ParseResult parse, ITransformAction action)
+            throws MetaborgException {
+        return functionFactory.createPTransformFunction(project, lang, action).apply(parse);
     }
 
-    private Throwing<AnalyzeResult, TransformResult> aTransformFunction(ITransformAction action) {
-        return (AnalyzeResult analyze) -> {
-            return functionFactory.createATransformFunction(project, lang, action).apply(analyze);
-        };
+    private TransformResult aTransformFunction(AnalyzeResult analyze, ITransformAction action)
+            throws MetaborgException {
+        return functionFactory.createATransformFunction(project, lang, action).apply(analyze);
     }
 
     /**
@@ -137,7 +127,7 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
      */
     public CommandBuilder<ParseResult> parse() {
         return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(parseFunction()));
+                .andThen(this::parseFunction));
     }
 
     /**
@@ -146,8 +136,8 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
      */
     public CommandBuilder<AnalyzeResult> analyze() {
         return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(parseFunction())
-                .andThen(analyzeFunction()));
+                .andThen(this::parseFunction)
+                .andThen(this::analyzeFunction));
     }
 
     /**
@@ -157,8 +147,8 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
      */
     public CommandBuilder<TransformResult> transformParsed(ITransformAction action) {
         return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(parseFunction())
-                .andThen(pTransformFunction(action)));
+                .andThen(this::parseFunction)
+                .andThen((parse) -> pTransformFunction(parse, action)));
     }
 
     /**
@@ -168,9 +158,9 @@ public class CommandBuilder<R extends ISpoofaxResult<?>> {
      */
     public CommandBuilder<TransformResult> transformAnalyzed(ITransformAction action) {
         return new CommandBuilder<>(this, description, inputFunction(lang)
-                .andThen(parseFunction())
-                .andThen(analyzeFunction())
-                .andThen(aTransformFunction(action)));
+                .andThen(this::parseFunction)
+                .andThen(this::analyzeFunction)
+                .andThen((analyze) -> aTransformFunction(analyze, action)));
     }
 
     /**
