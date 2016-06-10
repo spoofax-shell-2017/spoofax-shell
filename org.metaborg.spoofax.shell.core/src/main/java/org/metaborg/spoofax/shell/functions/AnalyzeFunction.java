@@ -50,8 +50,15 @@ public class AnalyzeFunction extends AbstractSpoofaxFunction<ParseResult, Analyz
     @Override
     protected FailOrSuccessResult<AnalyzeResult, IResult> applyThrowing(ParseResult a)
         throws Exception {
-        IContext context = a.context().orElse(contextService.get(a.source(), project, lang));
+        IContext context;
         ISpoofaxAnalyzeUnit analyze;
+
+        if (a.context().isPresent()) {
+            context = a.context().get();
+        } else {
+            context = contextService.get(a.source(), project, lang);
+        }
+
         try (IClosableLock lock = context.write()) {
             analyze = analysisService.analyze(a.unit(), context).result();
         }

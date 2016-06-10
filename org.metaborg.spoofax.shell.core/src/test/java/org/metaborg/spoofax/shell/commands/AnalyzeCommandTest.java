@@ -1,14 +1,12 @@
 package org.metaborg.spoofax.shell.commands;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
+import java.util.Optional;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -17,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.analysis.AnalysisException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
@@ -24,15 +23,19 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.functions.AnalyzeFunction;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
+import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -53,7 +56,6 @@ public class AnalyzeCommandTest {
     @Mock private IContext context;
     @Mock private ILanguageImpl lang;
 
-    @Mock private ISpoofaxParseUnit parseUnit;
     @Mock private ISpoofaxAnalyzeUnit analyzeUnit;
     @Mock private ISpoofaxAnalyzeResult spoofaxAnalyzeResult;
 
@@ -61,7 +63,10 @@ public class AnalyzeCommandTest {
     @Mock private ParseResult parseResult;
     @Mock private AnalyzeResult analyzeResult;
 
-    @Mock private IResultVisitor display;
+    @Mock private IResultVisitor visitor;
+    @Captor private ArgumentCaptor<FailResult> failCaptor;
+    @Captor private ArgumentCaptor<ISpoofaxResult<?>> resultCaptor;
+    @Captor private ArgumentCaptor<Exception> exceptionCaptor;
 
     private FileObject sourceFile;
     private IReplCommand analyzeCommand;
@@ -87,12 +92,12 @@ public class AnalyzeCommandTest {
         );
         when(functionFactory.createAnalyzeFunction(any(), any())).thenReturn(analyzeFunction);
 
-        when(parseResult.unit()).thenReturn(parseUnit);
+        when(parseResult.context()).thenReturn(Optional.empty());
         when(analyzeResult.unit()).thenReturn(analyzeUnit);
         when(resultFactory.createAnalyzeResult(any())).thenReturn(analyzeResult);
 
+        when(contextService.get(any(), any(), any())).thenReturn(context);
         when(analysisService.analyze(any(), any())).thenReturn(spoofaxAnalyzeResult);
-        when(resultFactory.createAnalyzeResult(any())).thenReturn(analyzeResult);
 
         analyzeCommand = new CommandBuilder<>(functionFactory, project, lang)
                 .analyze().description(DESCRIPTION).build();
@@ -107,54 +112,71 @@ public class AnalyzeCommandTest {
     }
 
     /**
-     * Test parsing source that results in a valid {@link ISpoofaxParseUnit}.
-     * @throws MetaborgException whParseResulten the source contains invalid syntax
-     * @throws IOException when reading from file fails
+     * Test the {@link AnalyzeFunction} with a valid {@link IResult}.
+     * @throws MetaborgException when analyzing fails
      */
     @Test
     public void testAnalyzeValid() throws MetaborgException {
         when(analyzeResult.valid()).thenReturn(true);
 
-        AnalyzeResult actual = analyzeCommand.analyze(parseResult);
-        assertEquals(actual, analyzeResult);
+        IResult execute = analyzeCommand.execute("test");
+        verify(contextService, times(1)).get(any(), any(), any());
+        verify(resultFactory, times(1)).createAnalyzeResult(any());
+        verify(parseResult, times(0)).accept(visitor);
+
+        execute.accept(visitor);
+        verify(analyzeResult, times(1)).accept(visitor);
     }
 
     /**
-     * Test parsing source that results in an invalid {@link ISpoofaxParseUnit}.
-     * @throws MetaborgException when the source contains invalid syntax
+     * Test the {@link AnalyzeFunction} with a valid {@link IResult} and
+     * an existing {@link IContext}.
+     * @throws MetaborgException when analyzing fails
      */
-    @Test(expected = MetaborgException.class)
+    @Test
+    public void testAnalyzeContext() throws MetaborgException {
+        when(parseResult.context()).thenReturn(Optional.of(context));
+        when(analyzeResult.valid()).thenReturn(true);
+
+        IResult execute = analyzeCommand.execute("test");
+        verify(contextService, times(0)).get(any(), any(), any());
+        verify(resultFactory, times(1)).createAnalyzeResult(any());
+        verify(parseResult, times(0)).accept(visitor);
+
+        execute.accept(visitor);
+        verify(analyzeResult, times(1)).accept(visitor);
+    }
+
+    /**
+     * Test the {@link AnalyzeFunction} with an invalid {@link IResult}.
+     * @throws MetaborgException when analyzing fails
+     */
+    @Test
     public void testAnalyzeInvalid() throws MetaborgException {
         when(analyzeResult.valid()).thenReturn(false);
 
-        analyzeCommand.analyze(parseResult);
+        IResult execute = analyzeCommand.execute("test");
+        verify(visitor, times(0)).visitFailure(any());
+
+        execute.accept(visitor);
+        verify(visitor, times(1)).visitFailure(failCaptor.capture());
+        assertEquals(analyzeResult, failCaptor.getValue().getCause());
     }
+
     /**
-     * Test the {@link ParseCommand} for source resulting in a valid {@link ISpoofaxParseUnit}.
-     * @throws MetaborgException when the source contains invalid syntax
+     * Test the {@link AnalyzeFunction} with a {@link AnalysisException}.
+     * @throws MetaborgException when analyzing fails
      */
     @Test
-    public void testExecuteValid() {
-        when(analyzeResult.valid()).thenReturn(true);
+    public void testAnalyzeException() throws MetaborgException {
+        AnalysisException analysisException = new AnalysisException(null);
+        when(analysisService.analyze(any(), any())).thenThrow(analysisException);
 
-        try {
-            analyzeCommand.execute("test").accept(display);
-            verify(display, times(1)).visitResult(analyzeResult);
-        } catch (MetaborgException e) {
-            fail("Should not happen");
-        }
-    }
+        IResult execute = analyzeCommand.execute("test");
+        verify(visitor, times(0)).visitException(any());
 
-    /**
-     * Test the {@link ParseCommand} for source resulting in a valid {@link ISpoofaxParseUnit}.
-     * @throws MetaborgException when the source contains invalid syntax
-     * @throws FileSystemException when the temporary file is not resolved
-     */
-    @Test(expected = MetaborgException.class)
-    public void testExecuteInvalid() throws MetaborgException, FileSystemException {
-        when(analyzeResult.valid()).thenReturn(false);
-
-        analyzeCommand.execute("test").accept(display);
-        verify(display, never()).visitResult(any());
+        execute.accept(visitor);
+        verify(visitor, times(1)).visitException(exceptionCaptor.capture());
+        assertEquals(analysisException, exceptionCaptor.getValue());
     }
 }

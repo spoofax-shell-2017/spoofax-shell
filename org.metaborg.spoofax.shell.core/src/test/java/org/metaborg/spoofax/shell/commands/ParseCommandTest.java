@@ -111,8 +111,6 @@ public class ParseCommandTest {
      */
     @Test
     public void testParseValid() throws MetaborgException {
-        when(parseUnit.valid()).thenReturn(true);
-        when(inputResult.valid()).thenReturn(true);
         when(parseResult.valid()).thenReturn(true);
 
         IResult execute = parseCommand.execute("test");
@@ -129,11 +127,10 @@ public class ParseCommandTest {
      */
     @Test
     public void testParseInvalid() throws MetaborgException {
-        when(inputResult.valid()).thenReturn(true);
         when(parseResult.valid()).thenReturn(false);
 
         IResult execute = parseCommand.execute("test");
-        verify(visitor, times(0)).visitException(any());
+        verify(visitor, times(0)).visitFailure(any());
 
         execute.accept(visitor);
         verify(visitor, times(1)).visitFailure(failCaptor.capture());
@@ -147,7 +144,6 @@ public class ParseCommandTest {
     @Test
     public void testParseException() throws MetaborgException {
         ParseException parseException = new ParseException(null);
-        when(inputResult.valid()).thenReturn(true);
         when(syntaxService.parse(any())).thenThrow(parseException);
 
         IResult execute = parseCommand.execute("test");
