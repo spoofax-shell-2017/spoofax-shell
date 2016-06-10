@@ -62,7 +62,7 @@ public class ParseResult extends AbstractSpoofaxResult<ISpoofaxParseUnit> {
 
     @Override
     public boolean valid() {
-        return unit().valid();
+        return unit().valid() && unit().success();
     }
 
 }
