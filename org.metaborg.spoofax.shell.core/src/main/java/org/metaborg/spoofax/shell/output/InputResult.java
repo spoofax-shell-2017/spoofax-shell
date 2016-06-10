@@ -105,4 +105,9 @@ public class InputResult extends AbstractSpoofaxResult<ISpoofaxInputUnit> {
         return true;
     }
 
+    @Override
+    public String sourceText() {
+        return unit().text();
+    }
+
 }

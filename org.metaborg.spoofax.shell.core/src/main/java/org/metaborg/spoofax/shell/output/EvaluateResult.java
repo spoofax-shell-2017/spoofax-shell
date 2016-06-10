@@ -83,6 +83,11 @@ public abstract class EvaluateResult extends AbstractSpoofaxResult<IUnit> {
     }
 
     @Override
+    public String sourceText() {
+        return wrappedDelegate.sourceText();
+    }
+
+    @Override
     public boolean valid() {
         return wrappedDelegate.valid();
     }

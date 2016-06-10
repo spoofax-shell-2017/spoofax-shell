@@ -68,6 +68,6 @@ public class ATransformFunction extends AbstractSpoofaxFunction<AnalyzeResult, T
         Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> transform =
             transformService.transform(a.unit(), context, action.goal());
         return FailOrSuccessResult
-            .ofSpoofaxResult(resultFactory.createTransformResult(transform.iterator().next()));
+            .ofSpoofaxResult(resultFactory.createATransformResult(transform.iterator().next()));
     }
 }

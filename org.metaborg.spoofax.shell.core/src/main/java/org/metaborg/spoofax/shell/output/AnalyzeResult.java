@@ -72,6 +72,11 @@ public class AnalyzeResult extends AbstractSpoofaxResult<ISpoofaxAnalyzeUnit> {
         }
     }
 
+    @Override
+    public String sourceText() {
+        return unit().input().input().text();
+    }
+
     @SuppressWarnings("CPD-END")
     @Override
     public boolean valid() {

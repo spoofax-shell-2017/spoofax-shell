@@ -48,6 +48,11 @@ public interface ISpoofaxResult<T extends IUnit> extends IResult {
     StyledText styled();
 
     /**
+     * @return the source text from which this ISpoofaxResult came about.
+     */
+    String sourceText();
+
+    /**
      * Returns the wrapped unit.
      * @return the unit
      */

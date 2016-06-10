@@ -7,52 +7,86 @@ import java.util.stream.StreamSupport;
 
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
+import org.metaborg.core.unit.IUnit;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
+import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
+import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 
 /**
- * Represents a {@link TransformResult} as returned by the {@link SpoofaxCommand}.
- * Wraps a {@link ISpoofaxTransformUnit}.
+ * Represents a {@link TransformResult} as returned by the {@link SpoofaxCommand}. Wraps a
+ * {@link ISpoofaxTransformUnit}.
  */
-public class TransformResult extends AbstractSpoofaxResult<ISpoofaxTransformUnit<?>> {
+public abstract class TransformResult
+    extends AbstractSpoofaxResult<ISpoofaxTransformUnit<?>> {
+
+    /**
+     * The result of the transformation of an analyzed AST.
+     */
+    public static class Analyzed extends TransformResult {
+
+        /**
+         * Create a {@link TransformResult}.
+         *
+         * @param common
+         *            the {@link IStrategoCommon} service
+         * @param analyzed
+         *            the wrapped {@link ISpoofaxTransformUnit}
+         */
+        @Inject
+        public Analyzed(IStrategoCommon common,
+                        @Assisted ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit> analyzed) {
+            super(common, analyzed);
+        }
+
+        @Override
+        public String sourceText() {
+            return ((ISpoofaxAnalyzeUnit) unit().input()).input().input().text();
+        }
+    }
+
+    /**
+     * The result of the transformation of a parsed AST.
+     */
+    public static class Parsed extends TransformResult {
+
+        /**
+         * Create a {@link TransformResult}.
+         *
+         * @param common
+         *            the {@link IStrategoCommon} service
+         * @param parsed
+         *            the wrapped {@link ISpoofaxTransformUnit}
+         */
+        @Inject
+        public Parsed(IStrategoCommon common,
+                      @Assisted ISpoofaxTransformUnit<ISpoofaxParseUnit> parsed) {
+            super(common, parsed);
+        }
+
+        @Override
+        public String sourceText() {
+            return ((ISpoofaxParseUnit) unit().input()).input().text();
+        }
+    }
+
 
     /**
      * Create a {@link TransformResult}.
-     * @param common  the {@link IStrategoCommon} service
-     * @param unit    the wrapped {@link ISpoofaxTransformUnit}
+     *
+     * @param common
+     *            the {@link IStrategoCommon} service
+     * @param unit
+     *            the wrapped {@link ISpoofaxTransformUnit}
      */
-    @AssistedInject
-    public TransformResult(IStrategoCommon common,
-                           @Assisted ISpoofaxTransformUnit<?> unit) {
+    @Inject
+    private <T extends IUnit> TransformResult(IStrategoCommon common,
+                                              @Assisted ISpoofaxTransformUnit<T> unit) {
         super(common, unit);
-    }
-    /**
-     * Create a {@link TransformResult} from a {@link ParseResult}.
-     * @param common      the {@link IStrategoCommon} service
-     * @param unitService the {@link ISpoofaxUnitService}
-     * @param prevResult  the previous {@link ParseResult}
-     */
-    @AssistedInject
-    public TransformResult(IStrategoCommon common, ISpoofaxUnitService unitService,
-                           @Assisted ParseResult prevResult) {
-        super(common, unitService.emptyTransformUnit(prevResult.unit(), null, null));
-    }
-
-    /**
-     * Create a {@link TransformResult} from a {@link AnalyzeResult}.
-     * @param common      the {@link IStrategoCommon} service
-     * @param unitService the {@link ISpoofaxUnitService}
-     * @param prevResult  the previous {@link AnalyzeResult}
-     */
-    @AssistedInject
-    public TransformResult(IStrategoCommon common, ISpoofaxUnitService unitService,
-                           @Assisted AnalyzeResult prevResult) {
-        super(common, unitService.emptyTransformUnit(prevResult.unit(), null, null));
     }
 
     // Duplication here and in AnalyzeResult is intentional since no common ancestor of

@@ -84,6 +84,9 @@ public abstract class ReplModule extends SpoofaxModule {
      */
     protected void bindFactories() {
         install(new FactoryModuleBuilder()
+        .implement(TransformResult.class, Names.named("parsed"), TransformResult.Parsed.class)
+        .implement(TransformResult.class,
+                       Names.named("analyzed"), TransformResult.Analyzed.class)
         .implement(EvaluateResult.class, Names.named("parsed"), EvaluateResult.Parsed.class)
         .implement(EvaluateResult.class, Names.named("analyzed"), EvaluateResult.Analyzed.class)
         .build(IResultFactory.class));
