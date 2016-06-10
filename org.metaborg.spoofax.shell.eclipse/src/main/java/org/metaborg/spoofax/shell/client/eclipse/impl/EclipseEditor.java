@@ -15,7 +15,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IInputHistory;
-import org.metaborg.spoofax.shell.client.eclipse.impl.history.EclipseInputHistory;
 
 import com.google.common.collect.Lists;
 import com.google.inject.assistedinject.Assisted;
@@ -94,8 +93,16 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         this.observers.remove(observer);
     }
 
+    private String removeLastNewline(String text) {
+        int length = text.length() - 1;
+        if (text.charAt(length) == '\n') {
+            text = text.substring(0, length);
+        }
+        return text;
+    }
+
     private void enterPressed() {
-        String text = document.get();
+        String text = removeLastNewline(document.get());
         this.observers.forEach(o -> o.onNext(text));
         if (text.length() > 0) {
             this.history.append(text);

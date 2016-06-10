@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client.eclipse.impl.history;
+package org.metaborg.spoofax.shell.client.eclipse.impl;
 
 import java.util.LinkedList;
 import java.util.List;
