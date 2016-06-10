@@ -1,7 +1,8 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.functions;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,16 +17,14 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.syntax.ParseException;
-import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
-import org.metaborg.spoofax.shell.functions.IFunctionFactory;
-import org.metaborg.spoofax.shell.functions.InputFunction;
-import org.metaborg.spoofax.shell.functions.ParseFunction;
+import org.metaborg.spoofax.shell.commands.CommandBuilder;
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -38,10 +37,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- * Test creating and using the {@link ParseCommand}.
+ * Test creating and using a {@link IReplCommand} created from the {@link ParseFunction}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ParseCommandTest {
+public class ParseFunctionTest {
     private static final String DESCRIPTION = "parse";
 
     @Mock private ISpoofaxSyntaxService syntaxService;
@@ -51,7 +50,6 @@ public class ParseCommandTest {
 
     @Mock private IProject project;
     @Mock private ILanguageImpl lang;
-    @Mock private ShellFacet facet;
 
     @Mock private ISpoofaxInputUnit inputUnit;
     @Mock private ISpoofaxParseUnit parseUnit;
@@ -71,7 +69,7 @@ public class ParseCommandTest {
     /**
      * Set up mocks used in the test case.
      * @throws FileSystemException when resolving the temp file fails
-     * @throws ParseException when parsing fails
+     * @throws ParseException on unexpected Spoofax exceptions
      */
     @Before
     public void setup() throws FileSystemException, ParseException {
@@ -91,14 +89,13 @@ public class ParseCommandTest {
         when(resultFactory.createParseResult(any())).thenReturn(parseResult);
 
         when(syntaxService.parse(any())).thenReturn(parseUnit);
-        when(lang.facet(ShellFacet.class)).thenReturn(facet);
 
         parseCommand = new CommandBuilder<>(functionFactory, project, lang)
                 .parse().description(DESCRIPTION).build();
     }
 
     /**
-     * Verify that the description of a command is never null.
+     * Verify that the description of the command is correct.
      */
     @Test
     public void testDescription() {
@@ -106,8 +103,8 @@ public class ParseCommandTest {
     }
 
     /**
-     * Test parsing source that results in a valid {@link ISpoofaxParseUnit}.
-     * @throws MetaborgException when the source contains invalid syntax
+     * Test creating a valid {@link ParseResult}.
+     * @throws MetaborgException on unexpected Spoofax exceptions
      */
     @Test
     public void testParseValid() throws MetaborgException {
@@ -115,22 +112,22 @@ public class ParseCommandTest {
 
         IResult execute = parseCommand.execute("test");
         verify(resultFactory, times(1)).createParseResult(any());
-        verify(parseResult, times(0)).accept(visitor);
+        verify(parseResult, never()).accept(visitor);
 
         execute.accept(visitor);
         verify(parseResult, times(1)).accept(visitor);
     }
 
     /**
-     * Test parsing source that results in an invalid {@link ISpoofaxParseUnit}.
-     * @throws MetaborgException when the source contains invalid syntax
+     * Test creating an invalid {@link ParseResult}.
+     * @throws MetaborgException on unexpected Spoofax exceptions
      */
     @Test
     public void testParseInvalid() throws MetaborgException {
         when(parseResult.valid()).thenReturn(false);
 
         IResult execute = parseCommand.execute("test");
-        verify(visitor, times(0)).visitFailure(any());
+        verify(visitor, never()).visitFailure(any());
 
         execute.accept(visitor);
         verify(visitor, times(1)).visitFailure(failCaptor.capture());
@@ -138,8 +135,8 @@ public class ParseCommandTest {
     }
 
     /**
-     * Test the {@link ParseCommand} for source resulting in a valid {@link ISpoofaxParseUnit}.
-     * @throws MetaborgException when the source contains invalid syntax
+     * Test creating a {@link ParseResult} resulting in an exception.
+     * @throws MetaborgException on unexpected Spoofax exceptions
      */
     @Test
     public void testParseException() throws MetaborgException {
@@ -147,7 +144,7 @@ public class ParseCommandTest {
         when(syntaxService.parse(any())).thenThrow(parseException);
 
         IResult execute = parseCommand.execute("test");
-        verify(visitor, times(0)).visitException(any());
+        verify(visitor, never()).visitException(any());
 
         execute.accept(visitor);
         verify(visitor, times(1)).visitException(exceptionCaptor.capture());

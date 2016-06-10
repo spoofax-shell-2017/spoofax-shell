@@ -1,7 +1,8 @@
-package org.metaborg.spoofax.shell.commands;
+package org.metaborg.spoofax.shell.functions;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,8 @@ import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
+import org.metaborg.spoofax.shell.commands.CommandBuilder;
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.functions.AnalyzeFunction;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
@@ -40,10 +43,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- * Test creating and using the {@link AnalyzeCommand}.
+ * Test creating and using a {@link IReplCommand} created from the {@link AnalyzeFunction}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AnalyzeCommandTest {
+public class AnalyzeFunctionTest {
     private static final String DESCRIPTION = "analyze";
 
     // Constructor mocks
@@ -74,7 +77,7 @@ public class AnalyzeCommandTest {
     /**
      * Set up mocks used in the test case.
      * @throws FileSystemException when resolving the temp file fails
-     * @throws MetaborgException when parsing fails
+     * @throws MetaborgException on unexpected Spoofax exceptions
      */
     @Before
     public void setup() throws FileSystemException, MetaborgException {
@@ -104,7 +107,7 @@ public class AnalyzeCommandTest {
     }
 
     /**
-     * Verify that the description of a command is never null.
+     * Verify that the description of the command is correct.
      */
     @Test
     public void testDescription() {
@@ -112,8 +115,8 @@ public class AnalyzeCommandTest {
     }
 
     /**
-     * Test the {@link AnalyzeFunction} with a valid {@link IResult}.
-     * @throws MetaborgException when analyzing fails
+     * Test creating a valid {@link AnalyzeResult}.
+     * @throws MetaborgException on unexpected Spoofax exceptions
      */
     @Test
     public void testAnalyzeValid() throws MetaborgException {
@@ -122,16 +125,15 @@ public class AnalyzeCommandTest {
         IResult execute = analyzeCommand.execute("test");
         verify(contextService, times(1)).get(any(), any(), any());
         verify(resultFactory, times(1)).createAnalyzeResult(any());
-        verify(parseResult, times(0)).accept(visitor);
+        verify(analyzeResult, never()).accept(visitor);
 
         execute.accept(visitor);
         verify(analyzeResult, times(1)).accept(visitor);
     }
 
     /**
-     * Test the {@link AnalyzeFunction} with a valid {@link IResult} and
-     * an existing {@link IContext}.
-     * @throws MetaborgException when analyzing fails
+     * Test creating a valid {@link AnalyzeResult} with an existing {@link IContext}.
+     * @throws MetaborgException on unexpected Spoofax exceptions
      */
     @Test
     public void testAnalyzeContext() throws MetaborgException {
@@ -139,24 +141,24 @@ public class AnalyzeCommandTest {
         when(analyzeResult.valid()).thenReturn(true);
 
         IResult execute = analyzeCommand.execute("test");
-        verify(contextService, times(0)).get(any(), any(), any());
+        verify(contextService, never()).get(any(), any(), any());
         verify(resultFactory, times(1)).createAnalyzeResult(any());
-        verify(parseResult, times(0)).accept(visitor);
+        verify(analyzeResult, never()).accept(visitor);
 
         execute.accept(visitor);
         verify(analyzeResult, times(1)).accept(visitor);
     }
 
     /**
-     * Test the {@link AnalyzeFunction} with an invalid {@link IResult}.
-     * @throws MetaborgException when analyzing fails
+     * Test creating an invalid {@link AnalyzeResult}.
+     * @throws MetaborgException on unexpected Spoofax exceptions
      */
     @Test
     public void testAnalyzeInvalid() throws MetaborgException {
         when(analyzeResult.valid()).thenReturn(false);
 
         IResult execute = analyzeCommand.execute("test");
-        verify(visitor, times(0)).visitFailure(any());
+        verify(visitor, never()).visitFailure(any());
 
         execute.accept(visitor);
         verify(visitor, times(1)).visitFailure(failCaptor.capture());
@@ -164,8 +166,8 @@ public class AnalyzeCommandTest {
     }
 
     /**
-     * Test the {@link AnalyzeFunction} with a {@link AnalysisException}.
-     * @throws MetaborgException when analyzing fails
+     * Test creating a {@link AnalyzeResult} resulting in an exception.
+     * @throws MetaborgException on unexpected Spoofax exceptions
      */
     @Test
     public void testAnalyzeException() throws MetaborgException {
@@ -173,7 +175,7 @@ public class AnalyzeCommandTest {
         when(analysisService.analyze(any(), any())).thenThrow(analysisException);
 
         IResult execute = analyzeCommand.execute("test");
-        verify(visitor, times(0)).visitException(any());
+        verify(visitor, never()).visitException(any());
 
         execute.accept(visitor);
         verify(visitor, times(1)).visitException(exceptionCaptor.capture());

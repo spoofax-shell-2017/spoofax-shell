@@ -11,6 +11,7 @@ import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
 import org.metaborg.spoofax.shell.client.IResult;
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -19,6 +20,9 @@ import org.metaborg.spoofax.shell.output.TransformResult;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+/**
+ * Test creating and using a {@link IReplCommand} created from the {@link ATransformFunction}.
+ */
 public class ATransformFunction extends AbstractSpoofaxFunction<AnalyzeResult, TransformResult> {
 
     private final IContextService contextService;
@@ -55,7 +59,13 @@ public class ATransformFunction extends AbstractSpoofaxFunction<AnalyzeResult, T
     @Override
     protected FailOrSuccessResult<TransformResult, IResult> applyThrowing(AnalyzeResult a)
         throws Exception {
-        IContext context = a.context().orElse(contextService.get(a.source(), project, lang));
+        IContext context;
+        if (a.context().isPresent()) {
+            context = a.context().get();
+        } else {
+            context = contextService.get(a.source(), project, lang);
+        }
+
         Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> transform =
             transformService.transform(a.unit(), context, action.goal());
         return FailOrSuccessResult

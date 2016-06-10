@@ -46,6 +46,7 @@ public class ParseResultTest {
         when(common.toString(any())).thenReturn(ACTUAL);
         when(unit.ast()).thenReturn(ast);
         when(unit.messages()).thenReturn(messages);
+        when(unit.valid()).thenReturn(true);
 
         parseResult = new ParseResult(common, unit);
     }

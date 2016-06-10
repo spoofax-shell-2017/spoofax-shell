@@ -6,7 +6,6 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.metaborg.core.MetaborgException;
-import org.mockito.Mock;
 
 import com.google.common.collect.Maps;
 
@@ -16,15 +15,12 @@ import com.google.common.collect.Maps;
 public class SpoofaxCommandInvokerTest {
     private SpoofaxCommandInvoker invoker;
 
-    @Mock
-    private ICommandFactory factory;
-
     /**
      * Setup the commands, one with description and one without.
      */
     @Before
     public void setUp() {
-        invoker = new SpoofaxCommandInvoker(factory, Maps.newHashMap());
+        invoker = new SpoofaxCommandInvoker(Maps.newHashMap());
     }
 
     /**
