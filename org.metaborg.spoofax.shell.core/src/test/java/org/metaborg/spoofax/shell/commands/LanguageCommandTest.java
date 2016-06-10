@@ -73,7 +73,7 @@ public class LanguageCommandTest {
      */
     @Before
     public void setup() throws FileSystemException, ParseException {
-        langloc = VFS.getManager().resolveFile("res:paplj.full");
+        langloc = VFS.getManager().resolveFile("res:paplj.zip");
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
             .thenReturn(Lists.newArrayList(lang));
         when(resourceService.resolveToName(anyString())).thenReturn(langloc.getName());
@@ -167,7 +167,7 @@ public class LanguageCommandTest {
         when(menuService.menuItems(any())).thenReturn(Lists.newArrayList());
 
         String expected = "Loaded language lang";
-        langCommand.execute("res:paplj.full").accept(display);
+        langCommand.execute("res:paplj.zip").accept(display);
         verify(display, times(1)).visitMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());
@@ -187,7 +187,7 @@ public class LanguageCommandTest {
         when(lang.hasFacet(AnalyzerFacet.class)).thenReturn(true);
 
         String expected = "Loaded language lang";
-        langCommand.execute("res:paplj.full").accept(display);
+        langCommand.execute("res:paplj.zip").accept(display);
         verify(display, times(1)).visitMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());

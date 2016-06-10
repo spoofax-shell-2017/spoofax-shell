@@ -58,8 +58,13 @@ public class PTransformFunction extends AbstractSpoofaxFunction<ParseResult, Tra
 
     @Override
     protected FailOrSuccessResult<TransformResult, IResult> applyThrowing(ParseResult a)
-            throws MetaborgException {
-        IContext context = a.context().orElse(contextService.get(a.source(), project, lang));
+        throws MetaborgException {
+        IContext context;
+        if (a.context().isPresent()) {
+            context = a.context().get();
+        } else {
+            context = contextService.get(a.source(), project, lang);
+        }
 
         Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> transform =
             transformService.transform(a.unit(), context, action.goal());
