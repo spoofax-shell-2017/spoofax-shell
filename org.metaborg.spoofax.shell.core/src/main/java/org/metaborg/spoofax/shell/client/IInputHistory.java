@@ -17,6 +17,27 @@ public interface IInputHistory {
     void append(String newEntry);
 
     /**
+     * Get the previous, e.g. older, history entry. If the index is already at the oldest entry,
+     * that entry is simply returned again.
+     *
+     * @return The previous history entry.
+     */
+    String getPrevious();
+
+    /**
+     * Get the next, e.g. newer, history entry. If the index is already at the newest entry, an
+     * empty string should be returned.
+     *
+     * @return The next history entry.
+     */
+    String getNext();
+
+    /**
+     * Reset the current index used in {@link #getPrevious()} and {@link #getNext()}.
+     */
+    void reset();
+
+    /**
      * Get the most recent input history entry. Default implementation is equal to {@link #get(int)
      * get({@link #size()} - 1)}.
      *

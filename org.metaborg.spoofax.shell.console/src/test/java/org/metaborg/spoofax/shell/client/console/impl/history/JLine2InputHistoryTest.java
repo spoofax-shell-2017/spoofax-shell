@@ -93,19 +93,18 @@ public class JLine2InputHistoryTest {
     /**
      * Tests whether the {@link JLine2InputHistory#get(int)} method correctly returns entries
      * entered through simulated input.
+     *
+     * @throws IOException
+     *             Should not happen.
      */
     @Test
-    public void testGet() {
-        try {
-            setUp("asdf" + ENTER + "fdsa" + ENTER);
-            Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
-            assertEquals("asdf", hist.get(0));
-            assertEquals("fdsa", hist.get(1));
-            assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_LEFT));
-            assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_RIGHT));
-        } catch (IOException e) {
-            fail("Should not happen");
-        }
+    public void testGet() throws IOException {
+        setUp("asdf" + ENTER + "fdsa" + ENTER);
+        Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
+        assertEquals("asdf", hist.get(0));
+        assertEquals("fdsa", hist.get(1));
+        assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_LEFT));
+        assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_RIGHT));
     }
 
     /**
@@ -113,91 +112,118 @@ public class JLine2InputHistoryTest {
      * via our own interface. First tests on user-simulated input for two entries, and tests whether
      * the entry at index 2 is out of bounds. Then a new entry is appended via our adapter, and the
      * entry that was previously out of bound should now return the newly added entry.
+     *
+     * @throws IOException
+     *             Should not happen.
      */
     @Test
-    public void testAppend() {
-        try {
-            setUp("asdf" + ENTER + "fdsa" + ENTER);
-            Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
-            assertEquals("asdf", hist.get(0));
-            assertEquals("fdsa", hist.get(1));
-            assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_LEFT));
-            assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_RIGHT));
-            hist.append("qwerty");
-            Mockito.verify(theDelegate).add("qwerty");
+    public void testAppend() throws IOException {
+        setUp("asdf" + ENTER + "fdsa" + ENTER);
+        Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
+        assertEquals("asdf", hist.get(0));
+        assertEquals("fdsa", hist.get(1));
+        assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_LEFT));
+        assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_RIGHT));
+        hist.append("qwerty");
+        Mockito.verify(theDelegate).add("qwerty");
 
-            // This is the same as hist.get(HIST_GET_OUT_OF_BOUND_RIGHT)
-            assertEquals("qwerty", hist.get(2));
-            assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_RIGHT + 1));
-        } catch (IOException e) {
-            fail("Should not happen");
-        }
+        // This is the same as hist.get(HIST_GET_OUT_OF_BOUND_RIGHT)
+        assertEquals("qwerty", hist.get(2));
+        assertOutOfBoundsException(() -> hist.get(HIST_GET_OUT_OF_BOUND_RIGHT + 1));
     }
 
     /**
      * Tests whether the {@link JLine2InputHistory#getMostRecent()} method correctly returns the
      * most recent entry entered through simulated input, and then an entry appended via our
      * interface.
+     *
+     * @throws IOException
+     *             Should not happen.
      */
     @Test
-    public void testGetMostRecent() {
-        try {
-            setUp("asdf" + ENTER + "fdsa" + ENTER);
-            Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
-            assertEquals("fdsa", hist.getMostRecent());
-            hist.append("qwerty");
-            assertEquals(HIST_SIZE_AFTER_APPEND, hist.size());
-        } catch (IOException e) {
-            fail("Should not happen");
-        }
+    public void testGetMostRecent() throws IOException {
+        setUp("asdf" + ENTER + "fdsa" + ENTER);
+        Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
+        assertEquals("fdsa", hist.getMostRecent());
+        hist.append("qwerty");
+        assertEquals(HIST_SIZE_AFTER_APPEND, hist.size());
     }
 
     /**
      * Tests whether the size is reported correctly after input-simulation, and whether it is
      * reported correctly after appending a new entry via our own adapter interface.
+     *
+     * @throws IOException
+     *             Should not happen.
      */
     @Test
-    public void testSize() {
-        try {
-            setUp("asdf" + ENTER + "fdsa" + ENTER);
-            Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
-            assertEquals(HIST_SIZE_BEFORE_APPEND, hist.size());
-            hist.append("qwerty");
-            assertEquals(HIST_SIZE_AFTER_APPEND, hist.size());
-        } catch (IOException e) {
-            fail("Should not happen");
-        }
+    public void testSize() throws IOException {
+        setUp("asdf" + ENTER + "fdsa" + ENTER);
+        Mockito.verify(theDelegate, Mockito.times(2)).add(Mockito.anyString());
+        assertEquals(HIST_SIZE_BEFORE_APPEND, hist.size());
+        hist.append("qwerty");
+        assertEquals(HIST_SIZE_AFTER_APPEND, hist.size());
     }
 
     /**
      * Tests the following methods: {@link JLine2InputHistory#allEntries()} ,
      * {@link JLine2InputHistory#entries(int)}, {@link JLine2InputHistory#entries(int, int)}.
+     *
+     * @throws IOException
+     *             Should not happen.
      */
     @Test
-    public void testEntries() {
-        try {
-            setUp("asdf" + ENTER + "fdsa" + ENTER + "qwerty" + ENTER + "uiop" + ENTER);
-            assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa", "qwerty", "uiop"));
-            // From index is inclusive.
-            assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX),
-                       CoreMatchers.hasItems("fdsa", "qwerty", "uiop"));
-            // To index is exclusive.
-            assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX, HIST_ENTRIES_TO_INDEX),
-                       CoreMatchers.hasItems("fdsa", "qwerty"));
-            assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX, HIST_ENTRIES_TO_INDEX - 1),
-                       CoreMatchers.hasItems("fdsa"));
+    public void testEntries() throws IOException {
+        setUp("asdf" + ENTER + "fdsa" + ENTER + "qwerty" + ENTER + "uiop" + ENTER);
+        assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa", "qwerty", "uiop"));
+        // From index is inclusive.
+        assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX),
+                   CoreMatchers.hasItems("fdsa", "qwerty", "uiop"));
+        // To index is exclusive.
+        assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX, HIST_ENTRIES_TO_INDEX),
+                   CoreMatchers.hasItems("fdsa", "qwerty"));
+        assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX, HIST_ENTRIES_TO_INDEX - 1),
+                   CoreMatchers.hasItems("fdsa"));
 
-            // Add a new entry from our own interface.
-            hist.append("hjkl");
-            assertThat(hist.allEntries(),
-                       CoreMatchers.hasItems("asdf", "fdsa", "qwerty", "uiop", "hjkl"));
-            assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX),
-                       CoreMatchers.hasItems("fdsa", "qwerty", "uiop", "hjkl"));
-            // This one should not have changed.
-            assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX, HIST_ENTRIES_TO_INDEX),
-                       CoreMatchers.hasItems("fdsa", "qwerty"));
-        } catch (IOException e) {
-            fail("Should not happen");
-        }
+        // Add a new entry from our own interface.
+        hist.append("hjkl");
+        assertThat(hist.allEntries(),
+                   CoreMatchers.hasItems("asdf", "fdsa", "qwerty", "uiop", "hjkl"));
+        assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX),
+                   CoreMatchers.hasItems("fdsa", "qwerty", "uiop", "hjkl"));
+        // This one should not have changed.
+        assertThat(hist.entries(HIST_ENTRIES_FROM_INDEX, HIST_ENTRIES_TO_INDEX),
+                   CoreMatchers.hasItems("fdsa", "qwerty"));
     }
+
+    /**
+     * Tests the following methods: {@link JLine2InputHistory#getPrevious()},
+     * {@link JLine2InputHistory#getNext()} and {@link JLine2InputHistory#reset()}. called several
+     *
+     * @throws IOException
+     *             Should not happen.
+     */
+    @Test
+    public void testGetPrevious() throws IOException {
+        setUp("asdf" + ENTER + "fdsa" + ENTER + "qwerty" + ENTER);
+        // Getting the next item when there is none should return the empty string.
+        assertEquals("", hist.getNext());
+
+        assertEquals("qwerty", hist.getPrevious());
+        assertEquals("fdsa", hist.getPrevious());
+        assertEquals("asdf", hist.getPrevious());
+        // Getting the last item again should simply return the last item.
+        assertEquals("asdf", hist.getPrevious());
+
+        // After a reset, the first item should be returned again.
+        hist.reset();
+        assertEquals("qwerty", hist.getPrevious());
+
+        // Continue once more so that we can test getNext();
+        assertEquals("fdsa", hist.getPrevious());
+        assertEquals("qwerty", hist.getNext());
+        // Again, the empty string should be returned now.
+        assertEquals("", hist.getNext());
+    }
+
 }

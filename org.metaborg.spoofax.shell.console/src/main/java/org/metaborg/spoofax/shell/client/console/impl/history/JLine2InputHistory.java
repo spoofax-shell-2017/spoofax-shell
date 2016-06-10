@@ -65,4 +65,21 @@ public class JLine2InputHistory implements IInputHistory {
             .collect(Collectors.toList());
         // @formatter:on
     }
+
+    @Override
+    public String getPrevious() {
+        delegate().previous();
+        return delegate().current().toString();
+    }
+
+    @Override
+    public String getNext() {
+        delegate().next();
+        return delegate().current().toString();
+    }
+
+    @Override
+    public void reset() {
+        delegate().moveToEnd();
+    }
 }
