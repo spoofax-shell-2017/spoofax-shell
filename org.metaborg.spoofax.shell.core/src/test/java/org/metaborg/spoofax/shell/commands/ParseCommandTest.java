@@ -26,6 +26,7 @@ import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.functions.InputFunction;
 import org.metaborg.spoofax.shell.functions.ParseFunction;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
@@ -77,18 +78,16 @@ public class ParseCommandTest {
         sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
         when(project.location()).thenReturn(sourceFile);
 
-        InputFunction inputFunction = new InputFunction(resultFactory, project, lang);
         ParseFunction parseFunction = new ParseFunction(syntaxService, unitService,
                                                         resultFactory, project, lang);
 
-        when(functionFactory.createInputFunction(any(), any())).thenReturn(inputFunction);
+        when(functionFactory.createInputFunction(any(), any())).thenReturn((input) ->
+            FailOrSuccessResult.successful(inputResult)
+        );
         when(functionFactory.createParseFunction(any(), any())).thenReturn(parseFunction);
 
         when(inputResult.unit()).thenReturn(inputUnit);
         when(parseResult.unit()).thenReturn(parseUnit);
-
-        when(resultFactory.createInputResult(any(), any(), any())).thenReturn(inputResult);
-        when(resultFactory.createInputResult(any(), any(), any(), any())).thenReturn(inputResult);
         when(resultFactory.createParseResult(any())).thenReturn(parseResult);
 
         when(syntaxService.parse(any())).thenReturn(parseUnit);
@@ -117,7 +116,6 @@ public class ParseCommandTest {
         when(parseResult.valid()).thenReturn(true);
 
         IResult execute = parseCommand.execute("test");
-        verify(resultFactory, times(1)).createInputResult(any(), any(), any(), any());
         verify(resultFactory, times(1)).createParseResult(any());
         verify(parseResult, times(0)).accept(visitor);
 

@@ -3,8 +3,14 @@ package org.metaborg.spoofax.shell.functions;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
+import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.commands.CommandBuilder;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
+import org.metaborg.spoofax.shell.output.AnalyzeResult;
+import org.metaborg.spoofax.shell.output.EvaluateResult;
+import org.metaborg.spoofax.shell.output.InputResult;
+import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.TransformResult;
 
 /**
  * Factory for creating a {@link CommandBuilder} and {@link AbstractSpoofaxFunction}.
@@ -19,7 +25,8 @@ public interface IFunctionFactory {
      * @param lang     The associated {@link ILanguageImpl}
      * @return         a {@link InputFunction}
      */
-    InputFunction createInputFunction(IProject project, ILanguageImpl lang);
+    FailableFunction<String, InputResult, IResult>
+    createInputFunction(IProject project, ILanguageImpl lang);
 
     /**
      * Factory method for creating a {@link ParseFunction}.
@@ -27,7 +34,8 @@ public interface IFunctionFactory {
      * @param lang     The associated {@link ILanguageImpl}
      * @return         a {@link ParseFunction}
      */
-    ParseFunction createParseFunction(IProject project, ILanguageImpl lang);
+    FailableFunction<InputResult, ParseResult, IResult>
+    createParseFunction(IProject project, ILanguageImpl lang);
 
     /**
      * Factory method for creating an {@link AnalyzeFunction}.
@@ -35,7 +43,8 @@ public interface IFunctionFactory {
      * @param lang     The associated {@link ILanguageImpl}
      * @return         an {@link AnalyzeFunction}
      */
-    AnalyzeFunction createAnalyzeFunction(IProject project, ILanguageImpl lang);
+    FailableFunction<ParseResult, AnalyzeResult, IResult>
+    createAnalyzeFunction(IProject project, ILanguageImpl lang);
 
     /**
      * Factory method for creating a {@link PTransformFunction} from a {@link ParseFunction}.
@@ -44,7 +53,8 @@ public interface IFunctionFactory {
      * @param action    The associated {@link ITransformAction}
      * @return          an {@link PTransformFunction}
      */
-    PTransformFunction createPTransformFunction(IProject project, ILanguageImpl lang,
+    FailableFunction<ParseResult, TransformResult, IResult>
+    createPTransformFunction(IProject project, ILanguageImpl lang,
                                                 ITransformAction action);
 
     /**
@@ -54,7 +64,8 @@ public interface IFunctionFactory {
      * @param action    The associated {@link ITransformAction}
      * @return          an {@link ATransformFunction}
      */
-    ATransformFunction createATransformFunction(IProject project, ILanguageImpl lang,
+    FailableFunction<AnalyzeResult, TransformResult, IResult>
+    createATransformFunction(IProject project, ILanguageImpl lang,
                                                 ITransformAction action);
 
     /**
@@ -63,7 +74,8 @@ public interface IFunctionFactory {
      * @param lang      The associated {@link ILanguageImpl}
      * @return          an {@link PEvalFunction}
      */
-    PEvalFunction createPEvalFunction(IProject project, ILanguageImpl lang);
+    FailableFunction<ParseResult, EvaluateResult, IResult>
+    createPEvalFunction(IProject project, ILanguageImpl lang);
 
     /**
      * Factory method for creating an {@link AEvalFunction} from an {@link AnalyzeFunction}.
@@ -71,7 +83,8 @@ public interface IFunctionFactory {
      * @param lang      The associated {@link ILanguageImpl}
      * @return          an {@link AEvalFunction}
      */
-    AEvalFunction createAEvalFunction(IProject project, ILanguageImpl lang);
+    FailableFunction<AnalyzeResult, EvaluateResult, IResult>
+    createAEvalFunction(IProject project, ILanguageImpl lang);
 
     /**
      * Factory method for creating a {@link CommandBuilder}.

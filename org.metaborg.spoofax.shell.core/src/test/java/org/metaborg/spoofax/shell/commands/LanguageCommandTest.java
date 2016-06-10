@@ -4,7 +4,6 @@ import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -29,7 +28,7 @@ import org.metaborg.core.syntax.ParseException;
 import org.metaborg.spoofax.core.analysis.AnalysisFacet;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
-import org.metaborg.spoofax.shell.invoker.ICommandFactory;
+import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.mockito.ArgumentCaptor;
@@ -49,13 +48,12 @@ public class LanguageCommandTest {
     @Mock private ILanguageDiscoveryService langDiscoveryService;
     @Mock private IResourceService resourceService;
     @Mock private IMenuService menuService;
+    @Mock private IFunctionFactory functionFactory;
     @Mock private ICommandInvoker invoker;
     @Mock private IProject project;
 
     @Mock private IResultVisitor display;
     @Captor private ArgumentCaptor<StyledText> captor;
-
-    @Mock private ICommandFactory commandFactory;
 
     @Mock private ILanguageComponent langcomp;
     @Mock private ILanguageImpl lang;
@@ -72,16 +70,12 @@ public class LanguageCommandTest {
      */
     @Before
     public void setup() throws FileSystemException, ParseException {
-        langloc = VFS.getManager().resolveFile("res:paplj.zip");
-
-        when(resourceService.resolveToName(anyString())).thenReturn(fileName);
-        when(fileName.getExtension()).thenReturn("zip");
-        when(invoker.getCommandFactory()).thenReturn(commandFactory);
+        langloc = VFS.getManager().resolveFile("res:paplj.full");
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
             .thenReturn(Lists.newArrayList(lang));
 
         langCommand = new LanguageCommand(langDiscoveryService, resourceService, menuService,
-                                          invoker, project);
+                                          invoker, functionFactory, project);
     }
 
     /**

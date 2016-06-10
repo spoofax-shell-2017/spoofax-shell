@@ -1,8 +1,6 @@
 package org.metaborg.spoofax.shell.commands;
 
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -11,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -26,11 +23,15 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalysisService;
 import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
+import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
-import org.metaborg.spoofax.shell.invoker.ICommandFactory;
+import org.metaborg.spoofax.shell.functions.AnalyzeFunction;
+import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -40,26 +41,30 @@ import org.mockito.runners.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AnalyzeCommandTest {
+    private static final String DESCRIPTION = "analyze";
+
     // Constructor mocks
     @Mock private IContextService contextService;
+    @Mock private IFunctionFactory functionFactory;
     @Mock private ISpoofaxAnalysisService analysisService;
-    @Mock private ICommandFactory commandFactory;
     @Mock private IResultFactory resultFactory;
+
     @Mock private IProject project;
+    @Mock private IContext context;
     @Mock private ILanguageImpl lang;
+
+    @Mock private ISpoofaxParseUnit parseUnit;
+    @Mock private ISpoofaxAnalyzeUnit analyzeUnit;
+    @Mock private ISpoofaxAnalyzeResult spoofaxAnalyzeResult;
+
+    @Mock private InputResult inputResult;
+    @Mock private ParseResult parseResult;
+    @Mock private AnalyzeResult analyzeResult;
 
     @Mock private IResultVisitor display;
 
-    @Mock private IContext context;
-
-    @Mock private ParseCommand parseCommand;
-    @Mock private ParseResult parseResult;
-    @Mock private ISpoofaxAnalyzeResult spoofaxAnalyzeResult;
-    @Mock private AnalyzeResult analyzeResult;
-
     private FileObject sourceFile;
-    private AnalyzeCommand analyzeCommand;
-
+    private IReplCommand analyzeCommand;
 
     /**
      * Set up mocks used in the test case.
@@ -69,18 +74,28 @@ public class AnalyzeCommandTest {
     @Before
     public void setup() throws FileSystemException, MetaborgException {
         sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
-
         when(project.location()).thenReturn(sourceFile);
 
-        when(commandFactory.createParse(any(), any())).thenReturn(parseCommand);
-        when(parseCommand.parse(any())).thenReturn(parseResult);
-        when(parseResult.context()).thenReturn(Optional.of(context));
+        AnalyzeFunction analyzeFunction = new AnalyzeFunction(contextService, analysisService,
+                                                              resultFactory, project, lang);
+
+        when(functionFactory.createInputFunction(any(), any())).thenReturn((input) ->
+            FailOrSuccessResult.successful(inputResult)
+        );
+        when(functionFactory.createParseFunction(any(), any())).thenReturn((input) ->
+            FailOrSuccessResult.successful(parseResult)
+        );
+        when(functionFactory.createAnalyzeFunction(any(), any())).thenReturn(analyzeFunction);
+
+        when(parseResult.unit()).thenReturn(parseUnit);
+        when(analyzeResult.unit()).thenReturn(analyzeUnit);
+        when(resultFactory.createAnalyzeResult(any())).thenReturn(analyzeResult);
 
         when(analysisService.analyze(any(), any())).thenReturn(spoofaxAnalyzeResult);
         when(resultFactory.createAnalyzeResult(any())).thenReturn(analyzeResult);
 
-        analyzeCommand = new AnalyzeCommand(contextService, analysisService, commandFactory,
-                                            resultFactory, project, lang);
+        analyzeCommand = new CommandBuilder<>(functionFactory, project, lang)
+                .analyze().description(DESCRIPTION).build();
     }
 
     /**
@@ -88,7 +103,7 @@ public class AnalyzeCommandTest {
      */
     @Test
     public void testDescription() {
-        assertThat(analyzeCommand.description(), isA(String.class));
+        assertEquals(DESCRIPTION, analyzeCommand.description());
     }
 
     /**

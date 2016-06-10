@@ -7,7 +7,6 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.functions.FailableFunction;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
-import org.metaborg.spoofax.shell.functions.InputFunction;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.InputResult;
@@ -70,7 +69,7 @@ public class CommandBuilder<R extends IResult> {
         this.function = function;
     }
 
-    private InputFunction inputFunction() {
+    private FailableFunction<String, InputResult, IResult> inputFunction() {
         return functionFactory.createInputFunction(project, lang);
     }
 
