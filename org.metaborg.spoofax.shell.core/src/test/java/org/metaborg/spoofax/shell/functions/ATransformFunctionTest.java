@@ -76,7 +76,7 @@ public class ATransformFunctionTest {
     @Captor private ArgumentCaptor<Exception> exceptionCaptor;
 
     private FileObject sourceFile;
-    private IReplCommand pTransformCommand;
+//    private IReplCommand pTransformCommand;
     private IReplCommand aTransformCommand;
 
     /**
@@ -99,8 +99,8 @@ public class ATransformFunctionTest {
         when(transformService.transform(unit, any(), any(ITransformGoal.class)))
         .thenReturn(Collections.singletonList(transformUnit));
 
-        pTransformCommand = new CommandBuilder<>(functionFactory, project, lang)
-                .transformAnalyzed(action).description(DESCRIPTION).build();
+//        pTransformCommand = new CommandBuilder<>(functionFactory, project, lang)
+//                .transformAnalyzed(action).description(DESCRIPTION).build();
         aTransformCommand = new CommandBuilder<>(functionFactory, project, lang)
                 .transformAnalyzed(action).description(DESCRIPTION).build();
     }

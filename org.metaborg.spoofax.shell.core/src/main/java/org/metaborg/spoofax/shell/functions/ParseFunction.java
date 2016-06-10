@@ -18,7 +18,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * Represents a parse command sent to Spoofax.
+ * Creates an {@link ParseResult} from a given {@link InputResult}.
  */
 public class ParseFunction extends AbstractSpoofaxFunction<InputResult, ParseResult> {
     private final ISpoofaxSyntaxService syntaxService;

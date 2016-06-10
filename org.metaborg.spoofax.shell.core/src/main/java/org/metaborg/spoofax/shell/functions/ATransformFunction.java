@@ -11,7 +11,6 @@ import org.metaborg.spoofax.core.transform.ISpoofaxTransformService;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
 import org.metaborg.spoofax.shell.client.IResult;
-import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
@@ -21,7 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * Test creating and using a {@link IReplCommand} created from the {@link ATransformFunction}.
+ * Creates an {@link TransformResult} from a given {@link AnalyzeResult}.
  */
 public class ATransformFunction extends AbstractSpoofaxFunction<AnalyzeResult, TransformResult> {
 
@@ -39,9 +38,9 @@ public class ATransformFunction extends AbstractSpoofaxFunction<AnalyzeResult, T
      * @param resultFactory
      *            The {@link ResultFactory}.
      * @param project
-     *            The project in which this command should operate.
+     *            The {@link IProject} in which this command should operate.
      * @param lang
-     *            The language to which this command applies.
+     *            The {@link ILanguageImpl} to which this command applies.
      * @param action
      *            The {@link ITransformAction} that this command executes.
      */

@@ -2,7 +2,6 @@ package org.metaborg.spoofax.shell.functions;
 
 import java.util.Map;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
@@ -10,9 +9,8 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
-import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
-import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -21,7 +19,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * Represents an evaluate command sent to Spoofax.
+ * Creates an {@link EvaluateResult} from a given {@link ParseResult}.
  */
 public class PEvalFunction extends AbstractSpoofaxFunction<ParseResult, EvaluateResult> {
     private IContextService contextService;
@@ -37,9 +35,9 @@ public class PEvalFunction extends AbstractSpoofaxFunction<ParseResult, Evaluate
      * @param resultFactory
      *            The {@link IResultFactory} for creating delegate commands.
      * @param project
-     *            The project in which this command should operate.
+     *            The {@link IProject} in which this command should operate.
      * @param lang
-     *            The language to which this command applies.
+     *            The {@link ILanguageImpl} to which this command applies.
      */
     @Inject
     public PEvalFunction(IContextService contextService, IResultFactory resultFactory,

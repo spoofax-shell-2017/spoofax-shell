@@ -20,6 +20,9 @@ import org.metaborg.spoofax.shell.output.TransformResult;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+/**
+ * Creates a {@link TransformResult} from a given {@link ParseResult}.
+ */
 public class PTransformFunction extends AbstractSpoofaxFunction<ParseResult, TransformResult> {
 
     private final IContextService contextService;
@@ -27,7 +30,7 @@ public class PTransformFunction extends AbstractSpoofaxFunction<ParseResult, Tra
     private final ITransformAction action;
 
     /**
-     * Instantiate a new {@link ParsedTransformCommand}.
+     * Instantiate a new {@link PTransformFunction}.
      *
      * @param contextService
      *            The {@link IContextService}.
@@ -36,9 +39,9 @@ public class PTransformFunction extends AbstractSpoofaxFunction<ParseResult, Tra
      * @param resultFactory
      *            The {@link ResultFactory}.
      * @param project
-     *            The project in which this command should operate.
+     *            The {@link IProject} in which this command should operate.
      * @param lang
-     *            The language to which this command applies.
+     *            The {@link ILanguageImpl} to which this command applies.
      * @param action
      *            The {@link ITransformAction} that this command executes.
      */

@@ -20,14 +20,14 @@ import com.google.inject.assistedinject.Assisted;
 public class InputFunction extends AbstractSpoofaxFunction<String, InputResult> {
 
     /**
-     * Instantiate a {@link ParseFunction}.
+     * Instantiate a {@link InputFunction}.
      *
      * @param resultFactory
      *            The {@link IResultFactory}.
      * @param project
-     *            The project in which this command should operate.
+     *            The {@link IProject} in which this command should operate.
      * @param lang
-     *            The language to which this command applies.
+     *            The {@link ILanguageImpl} to which this command applies.
      */
     @Inject
     public InputFunction(IResultFactory resultFactory, @Assisted IProject project,
