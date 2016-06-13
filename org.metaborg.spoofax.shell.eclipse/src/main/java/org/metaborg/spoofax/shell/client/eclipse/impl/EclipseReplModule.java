@@ -1,5 +1,6 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
+import org.metaborg.spoofax.shell.client.IInputHistory;
 import org.metaborg.spoofax.shell.client.ReplModule;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
 
@@ -17,6 +18,7 @@ public class EclipseReplModule extends ReplModule {
 
         // Singleton so that all REPLs talk to the same ColorManager.
         bind(ColorManager.class).in(Singleton.class);
+        bind(IInputHistory.class).to(EclipseInputHistory.class);
         install(new FactoryModuleBuilder().build(IWidgetFactory.class));
     }
 }

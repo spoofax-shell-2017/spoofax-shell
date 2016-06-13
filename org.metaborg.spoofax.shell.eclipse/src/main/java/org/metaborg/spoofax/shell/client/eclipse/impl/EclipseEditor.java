@@ -1,5 +1,8 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
+import java.util.List;
+import java.util.Observer;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -11,7 +14,9 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.metaborg.spoofax.shell.client.IEditor;
+import org.metaborg.spoofax.shell.client.IInputHistory;
 
+import com.google.common.collect.Lists;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
@@ -29,28 +34,33 @@ import rx.Subscriber;
  *
  * Note that this class should always be run in and accessed from the UI thread!
  */
-// FIXME: Make IEditor? Or drop IDisplay from EclipseDisplay?
+// FIXME: Make IEditor?
 public class EclipseEditor extends KeyAdapter implements ModifyListener {
+    private final IInputHistory history;
     private final SourceViewer input;
     // TODO: Use ReplDocument to provide custom partitioning? Perhaps more something for the output
     // as opposed to input. Should be relatively easy for output to at least partition different
     // input/output combinations.
     private final IDocument document;
-    private Subscriber<? super String> observer;
+    private final List<Subscriber<? super String>> observers;
 
     /**
      * Instantiates a new EclipseEditor.
      *
+     * @param history
+     *            An {@link IInputHistory} implementation to provide history to this editor.
      * @param parent
      *            A {@link Composite} control which will be the parent of this EclipseEditor.
      *            (cannot be {@code null}).
      */
     @AssistedInject
-    public EclipseEditor(@Assisted Composite parent) {
+    public EclipseEditor(IInputHistory history, @Assisted Composite parent) {
+        this.history = history;
         this.document = new Document();
         this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
         this.input.setDocument(document);
         this.input.getTextWidget().addKeyListener(this);
+        this.observers = Lists.newArrayList();
     }
 
     /**
@@ -68,19 +78,45 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      * @return A new {@link Observable} from this editor.
      */
     public Observable<String> asObservable() {
-        // FIXME: Allow more than one observer of this editor instance.
         return Observable.create(s -> {
-            EclipseEditor.this.observer = s;
+            EclipseEditor.this.observers.add(s);
         });
     }
 
+    /**
+     * Remove the passed {@link Subscriber} from this editor's observers.
+     *
+     * @param observer
+     *            The {@link Subscriber} to remove.
+     */
+    public void removeObserver(Subscriber<? super String> observer) {
+        this.observers.remove(observer);
+    }
+
+    private String removeLastNewline(String text) {
+        int length = text.length() - 1;
+        if (text.charAt(length) == '\n') {
+            text = text.substring(0, length);
+        }
+        return text;
+    }
+
     private void enterPressed() {
-        String text = document.get();
-        this.observer.onNext(text);
+        String text = removeLastNewline(document.get());
+        this.observers.forEach(o -> o.onNext(text));
+        if (text.length() > 0) {
+            this.history.append(text);
+        }
+        this.history.reset();
         this.document.set("");
     }
 
     private void offerCompletions() {
+    }
+
+    private void setTextFromHistory(String text) {
+        document.set(text);
+        input.setSelectedRange(text.length(), 0);
     }
 
     @Override
@@ -92,9 +128,19 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
                 enterPressed();
             }
             break;
-        case ' ':
+        case SWT.SPACE:
             if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
                 offerCompletions();
+            }
+            break;
+        case SWT.PAGE_DOWN:
+            if ((event.stateMask & (SWT.CTRL | SWT.SHIFT)) == 0) {
+                setTextFromHistory(history.getNext());
+            }
+            break;
+        case SWT.PAGE_UP:
+            if ((event.stateMask & (SWT.CTRL | SWT.SHIFT)) == 0) {
+                setTextFromHistory(history.getPrevious());
             }
             break;
         default:

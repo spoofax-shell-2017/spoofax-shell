@@ -3,7 +3,6 @@ package org.metaborg.spoofax.shell.client.console.impl.history;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterfaceTest.ENTER;
 
 import java.io.File;
@@ -36,6 +35,7 @@ public class JLine2PersistentInputHistoryTest extends JLine2InputHistoryTest {
     @Before
     public void setUp() throws IOException {
         tempHistory = File.createTempFile("test_history", ".tmp");
+        tempHistory.deleteOnExit();
         setUp("asdf" + ENTER + "fdsa" + ENTER + ENTER);
     }
 
@@ -58,45 +58,43 @@ public class JLine2PersistentInputHistoryTest extends JLine2InputHistoryTest {
 
     /**
      * Tests the switch of the delegate before and after loading.
+     *
+     * @throws IOException
+     *             Should not happen.
      */
     @Test
-    public void testDelegateSwitch() {
-        try {
-            assertEquals(theDelegate, systemUnderTest().delegate());
-            assertTrue(systemUnderTest().delegate() instanceof MemoryHistory);
-            systemUnderTest().loadFromDisk();
-            assertTrue(systemUnderTest().delegate() instanceof FileHistory);
-        } catch (IOException e) {
-            fail("Should not happen");
-        }
+    public void testDelegateSwitch() throws IOException {
+        assertEquals(theDelegate, systemUnderTest().delegate());
+        assertTrue(systemUnderTest().delegate() instanceof MemoryHistory);
+        systemUnderTest().loadFromDisk();
+        assertTrue(systemUnderTest().delegate() instanceof FileHistory);
     }
 
     /**
      * Tests persistence through creating a temporary file.
+     *
+     * @throws IOException
+     *             Should not happen.
      */
     @Test
-    public void testPersistentHistory() {
-        try {
-            assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa"));
+    public void testPersistentHistory() throws IOException {
+        assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa"));
 
-            // Now load entries from disk. The file is empty, so allEntries should still have all
-            // in-memory contents as before.
-            systemUnderTest().loadFromDisk();
-            assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa"));
+        // Now load entries from disk. The file is empty, so allEntries should still have all
+        // in-memory contents as before.
+        systemUnderTest().loadFromDisk();
+        assertThat(hist.allEntries(), CoreMatchers.hasItems("asdf", "fdsa"));
 
-            hist.append("qwerty");
-            hist.append("hjkl");
+        hist.append("qwerty");
+        hist.append("hjkl");
 
-            // Persist to disk, check the file contents.
-            systemUnderTest().persistToDisk();
-            assertEquals("asdf\nfdsa\nqwerty\nhjkl\n", Files.toString(tempHistory, Charsets.UTF_8));
+        // Persist to disk, check the file contents.
+        systemUnderTest().persistToDisk();
+        assertEquals("asdf\nfdsa\nqwerty\nhjkl\n", Files.toString(tempHistory, Charsets.UTF_8));
 
-            // Load it back and check that the entries are there.
-            systemUnderTest().loadFromDisk();
-            assertThat(hist.allEntries(), CoreMatchers.hasItems("qwerty", "hjkl"));
-        } catch (IOException e) {
-            fail("Should not happen");
-        }
+        // Load it back and check that the entries are there.
+        systemUnderTest().loadFromDisk();
+        assertThat(hist.allEntries(), CoreMatchers.hasItems("qwerty", "hjkl"));
     }
 
 }
