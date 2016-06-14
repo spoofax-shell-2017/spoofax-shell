@@ -95,7 +95,7 @@ public abstract class TransformResult
     @SuppressWarnings("CPD-START")
     @Override
     public Optional<IStrategoTerm> ast() {
-        return Optional.of(unit().ast());
+        return Optional.ofNullable(unit().ast());
     }
 
     @Override
@@ -109,18 +109,9 @@ public abstract class TransformResult
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public StyledText styled() {
-        if (valid()) {
-            return toString(unit().ast());
-        } else {
-            return new StyledText(messages().toString());
-        }
-    }
-
     @SuppressWarnings("CPD-END")
     @Override
     public boolean valid() {
-        return unit().valid();
+        return unit().valid() && unit().success();
     }
 }

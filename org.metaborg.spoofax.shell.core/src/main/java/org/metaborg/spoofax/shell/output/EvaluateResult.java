@@ -75,12 +75,7 @@ public abstract class EvaluateResult extends AbstractSpoofaxResult<IUnit> {
 
     @Override
     public Optional<IStrategoTerm> ast() {
-        return Optional.of(result);
-    }
-
-    @Override
-    public StyledText styled() {
-        return toString(ast().get());
+        return Optional.ofNullable(result);
     }
 
     @Override

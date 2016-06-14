@@ -1,15 +1,17 @@
 package org.metaborg.spoofax.shell.output;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 import javax.annotation.Nullable;
 
@@ -44,8 +46,7 @@ public class SpoofaxResultsTest {
     private Optional<IContext> expectedContext;
     private FileObject expectedSource;
     private boolean expectedValid;
-    private String expectedInvalidString;
-    private String expectedValidString;
+    private String expectedString;
 
     /**
      * Instantiate parameters.
@@ -62,20 +63,16 @@ public class SpoofaxResultsTest {
      *            Expected source.
      * @param isValid
      *            Whether we should expect the result to be valid.
-     * @param validString
-     *            The expected string when the result is valid.
-     * @param invalidString
-     *            The expected string when the result is invalid.
+     * @param expectedString
+     *            The expected string when calling the styled() method.
      */
     // CHECKSTYLE.OFF: ParameterNumber
     public SpoofaxResultsTest(AbstractSpoofaxResult<?> abstractResult, List<IMessage> messages,
                               @Nullable IStrategoTerm ast, @Nullable IContext context,
-                              FileObject source, boolean isValid, String validString,
-                              String invalidString) {
+                              FileObject source, boolean isValid, String expectedString) {
         this.abstractResult = abstractResult;
         this.expectedMessages = messages;
-        this.expectedValidString = validString;
-        this.expectedInvalidString = invalidString;
+        this.expectedString = expectedString;
         this.expectedAst = Optional.ofNullable(ast);
         this.expectedContext = Optional.ofNullable(context);
         this.expectedSource = source;
@@ -87,6 +84,7 @@ public class SpoofaxResultsTest {
      * @return All of the parameters to run each test against.
      */
     // CHECKSTYLE.OFF: MethodLength
+    //@formatter:off
     @Parameters(name = "{index}: {0}")
     public static List<Object> resultParameters() {
         IStrategoCommon common = mock(IStrategoCommon.class);
@@ -99,41 +97,107 @@ public class SpoofaxResultsTest {
 
         when(common.toString(any())).thenReturn(ACTUAL_TO_STRING);
 
+        List<Object> params = new ArrayList<>();
+
         ISpoofaxInputUnit mockInput = mockInput(source);
-        ISpoofaxParseUnit mockParse = mockParse(source, ast, messages, mockInput);
-        ISpoofaxAnalyzeUnit mockAnalyze = mockAnalyze(source, ast, context, messages, mockParse);
-        ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit> mockATransform =
-            mockATransform(source, ast, context, messages, mockAnalyze);
-        ISpoofaxTransformUnit<ISpoofaxParseUnit> mockPTransform =
-            mockPTransform(source, ast, context, messages, mockParse);
+        InputResult inputResult = new InputResult(null, mockInput);
+        params.add(new Object[] { inputResult, Collections.emptyList(), null, null, source, true,
+                                  ACTUAL_SOURCE });
 
-        InputResult invalidInputResult = new InputResult(null, mockInput);
-        ParseResult invalidParseResult = new ParseResult(common, mockParse);
-        AnalyzeResult invalidAnalyzeResult = new AnalyzeResult(common, mockAnalyze);
-        TransformResult.Parsed invalidParsedT = new TransformResult.Parsed(common, mockPTransform);
-        TransformResult.Analyzed invalidAnalyzedT =
-            new TransformResult.Analyzed(common, mockATransform);
-        EvaluateResult.Analyzed invalidAnalyzedE =
-            new EvaluateResult.Analyzed(common, invalidAnalyzeResult, ast);
-        EvaluateResult.Parsed invalidParsedE =
-            new EvaluateResult.Parsed(common, invalidParseResult, ast);
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeParseMock =
+            (valid, success) -> new ParseResult(common, mockParse(source, ast, messages, mockInput,
+                                                                  valid, success));
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeNoASTParseMock =
+            (valid, success) -> new ParseResult(common, mockParse(source, null, messages, mockInput,
+                                                                  valid, success));
+        ISpoofaxParseUnit mockParse = (ISpoofaxParseUnit) makeParseMock.apply(true, true).unit();
+        params.addAll(makeParams(makeParseMock, makeNoASTParseMock, messages, ast, null, source,
+                                 messagesString));
 
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeAnalyzeMock =
+            (valid, success) -> new AnalyzeResult(common,
+                                                  mockAnalyze(source, ast, context, messages,
+                                                              mockParse, valid, success));
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeNoASTAnalyzeMock =
+            (valid, success) -> new AnalyzeResult(common,
+                                                  mockAnalyze(source, null, context, messages,
+                                                              mockParse, valid, success));
+        ISpoofaxAnalyzeUnit mockAnalyze = (ISpoofaxAnalyzeUnit) makeAnalyzeMock.apply(true, true)
+                .unit();
+        params.addAll(makeParams(makeAnalyzeMock, makeNoASTAnalyzeMock, messages, ast, context,
+                                 source, messagesString));
+
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeTransPMock =
+            (valid, success) -> new TransformResult.Parsed(common,
+                                                           mockPTransform(source, ast, context,
+                                                                          messages, mockParse,
+                                                                          valid, success));
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeNoASTTransPMock =
+            (valid, success) -> new TransformResult.Parsed(common,
+                                                           mockPTransform(source, null, context,
+                                                                          messages, mockParse,
+                                                                          valid, success));
+        params.addAll(makeParams(makeTransPMock, makeNoASTTransPMock, messages, ast, context,
+                                 source, messagesString));
+
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeTransAMock =
+            (valid, success) -> new TransformResult.Analyzed(common,
+                                                             mockATransform(source, ast, context,
+                                                                            messages, mockAnalyze,
+                                                                            valid, success));
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeNoASTTransAMock =
+            (valid, success) -> new TransformResult.Analyzed(common,
+                                                             mockATransform(source, null, context,
+                                                                            messages, mockAnalyze,
+                                                                            valid, success));
+        params.addAll(makeParams(makeTransAMock, makeNoASTTransAMock, messages, ast, context,
+                                 source, messagesString));
+
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeEvalAMock =
+            (valid, success) -> new EvaluateResult.Analyzed(common, (AnalyzeResult) makeAnalyzeMock
+                .apply(valid, success), ast);
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeNoASTEvalAMock =
+            (valid, success) -> new EvaluateResult.Analyzed(common,
+                                                            (AnalyzeResult) makeNoASTAnalyzeMock
+                .apply(valid, success), null);
+        params.addAll(makeParams(makeEvalAMock, makeNoASTEvalAMock, messages, ast, context,
+                                 source, messagesString));
+
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeEvalPMock =
+            (valid, success) -> new EvaluateResult.Parsed(common, (ParseResult) makeParseMock
+                .apply(valid, success), ast);
+        BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeNoASTEvalPMock =
+            (valid, success) -> new EvaluateResult.Parsed(common, (ParseResult) makeNoASTParseMock
+                .apply(valid, success), null);
+        params.addAll(makeParams(makeEvalPMock, makeNoASTEvalPMock, messages, ast, null,
+                                 source, messagesString));
+
+        return params;
+    }
+    //@formatter:on
+
+    private static Collection<? extends Object>
+            makeParams(BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeMock,
+                       BiFunction<Boolean, Boolean, ISpoofaxResult<?>> makeNoASTMock,
+                       List<IMessage> messages, IStrategoTerm ast, IContext context,
+                       FileObject source, String messagesString) {
         return Arrays
-            .asList((Object[]) new Object[][] { { invalidInputResult, Collections.emptyList(), null,
-                                                  null, source, true, ACTUAL_SOURCE,
-                                                  ACTUAL_SOURCE },
-                                                { invalidParseResult, messages, ast, null, source,
-                                                  false, ACTUAL_TO_STRING, messagesString },
-                                                { invalidAnalyzeResult, messages, ast, context,
-                                                  source, false, ACTUAL_TO_STRING, messagesString },
-                                                { invalidParsedT, messages, ast, context, source,
-                                                  false, ACTUAL_TO_STRING, messagesString },
-                                                { invalidAnalyzedT, messages, ast, context, source,
-                                                  false, ACTUAL_TO_STRING, messagesString },
-                                                { invalidAnalyzedE, messages, ast, context, source,
-                                                  false, ACTUAL_TO_STRING, ACTUAL_TO_STRING },
-                                                { invalidParsedE, messages, ast, null, source,
-                                                  false, ACTUAL_TO_STRING, ACTUAL_TO_STRING } });
+            .asList((Object[]) new Object[][] { { makeMock.apply(true, true), messages, ast,
+                                                  context, source, true, ACTUAL_TO_STRING },
+                                                { makeMock.apply(false, false), messages, ast,
+                                                  context, source, false, messagesString },
+                                                { makeMock.apply(false, true), messages, ast,
+                                                  context, source, false, messagesString },
+                                                { makeMock.apply(true, false), messages, ast,
+                                                  context, source, false, messagesString },
+                                                { makeNoASTMock.apply(true, true), messages, null,
+                                                  context, source, true, messagesString },
+                                                { makeNoASTMock.apply(false, false), messages, null,
+                                                  context, source, false, messagesString },
+                                                { makeNoASTMock.apply(false, true), messages, null,
+                                                  context, source, false, messagesString },
+                                                { makeNoASTMock.apply(true, false), messages, null,
+                                                  context, source, false, messagesString } });
     }
     // CHECKSTYLE.ON: MethodLength
 
@@ -144,41 +208,40 @@ public class SpoofaxResultsTest {
     }
 
     private static ISpoofaxParseUnit mockParse(FileObject source, IStrategoTerm ast,
-                                               List<IMessage> messages,
-                                               ISpoofaxInputUnit mockInput) {
+                                               List<IMessage> messages, ISpoofaxInputUnit mockInput,
+                                               boolean valid, boolean success) {
         ISpoofaxParseUnit unit = (ISpoofaxParseUnit) mockUnit(ISpoofaxParseUnit.class, source);
         when(unit.ast()).thenReturn(ast);
         when(unit.messages()).thenReturn(messages);
         when(unit.input()).thenReturn(mockInput);
-        when(unit.valid()).thenReturn(true, false, true, true, true, false, true, true, true, false,
-                                      true, true, true, false, true, true, true, false, true, true,
-                                      true, false, true, true);
-        when(unit.success()).thenReturn(true, true, false, true, true, false, true, true, false,
-                                        true, true, false, true, true, false, true, true, false);
+        when(unit.valid()).thenReturn(valid);
+        when(unit.success()).thenReturn(success);
         return unit;
     }
 
     private static ISpoofaxAnalyzeUnit mockAnalyze(FileObject source, IStrategoTerm ast,
                                                    IContext context, List<IMessage> messages,
-                                                   ISpoofaxParseUnit mockParse) {
+                                                   ISpoofaxParseUnit mockParse, boolean valid,
+                                                   boolean success) {
         ISpoofaxAnalyzeUnit unit =
             (ISpoofaxAnalyzeUnit) mockUnit(ISpoofaxAnalyzeUnit.class, source);
         when(unit.ast()).thenReturn(ast);
         when(unit.context()).thenReturn(context);
         when(unit.messages()).thenReturn(messages);
         when(unit.input()).thenReturn(mockParse);
-        when(unit.valid()).thenReturn(true, false, true, false, true, false, true, false, true,
-                                      false, true, false, true, false, true, false, true, false);
+        when(unit.valid()).thenReturn(valid);
+        when(unit.success()).thenReturn(success);
         return unit;
     }
 
     @SuppressWarnings("unchecked")
     private static ISpoofaxTransformUnit<ISpoofaxParseUnit>
             mockPTransform(FileObject source, IStrategoTerm ast, IContext context,
-                           List<IMessage> messages, ISpoofaxParseUnit mockParse) {
+                           List<IMessage> messages, ISpoofaxParseUnit mockParse, boolean valid,
+                           boolean success) {
         ISpoofaxTransformUnit<ISpoofaxParseUnit> unit =
-            (ISpoofaxTransformUnit<ISpoofaxParseUnit>) mockTransform(source, ast, context,
-                                                                     messages);
+            (ISpoofaxTransformUnit<ISpoofaxParseUnit>) mockTransform(source, ast, context, messages,
+                                                                     valid, success);
         when(unit.input()).thenReturn(mockParse);
         return unit;
     }
@@ -186,24 +249,25 @@ public class SpoofaxResultsTest {
     @SuppressWarnings("unchecked")
     private static ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>
             mockATransform(FileObject source, IStrategoTerm ast, IContext context,
-                           List<IMessage> messages, ISpoofaxAnalyzeUnit mockAnalyze) {
+                           List<IMessage> messages, ISpoofaxAnalyzeUnit mockAnalyze, boolean valid,
+                           boolean success) {
         ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit> unit =
             (ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>) mockTransform(source, ast, context,
-                                                                       messages);
+                                                                       messages, valid, success);
         when(unit.input()).thenReturn(mockAnalyze);
         return unit;
     }
 
     private static ISpoofaxTransformUnit<?> mockTransform(FileObject source, IStrategoTerm ast,
-                                                          IContext context,
-                                                          List<IMessage> messages) {
+                                                          IContext context, List<IMessage> messages,
+                                                          boolean valid, boolean success) {
         ISpoofaxTransformUnit<?> unit =
             (ISpoofaxTransformUnit<?>) mockUnit(ISpoofaxTransformUnit.class, source);
         when(unit.ast()).thenReturn(ast);
         when(unit.context()).thenReturn(context);
         when(unit.messages()).thenReturn(messages);
-        when(unit.valid()).thenReturn(true, false, true, false, true, false, true, false, true,
-                                      false);
+        when(unit.valid()).thenReturn(valid);
+        when(unit.success()).thenReturn(success);
         return unit;
     }
 
@@ -242,10 +306,7 @@ public class SpoofaxResultsTest {
      */
     @Test
     public void testValidOrInvalidStyled() {
-        assertEquals(new StyledText(expectedValidString), abstractResult.styled());
-        assertEquals(new StyledText(expectedInvalidString), abstractResult.styled());
-        assertEquals(new StyledText(expectedValidString), abstractResult.styled());
-        assertEquals(new StyledText(expectedInvalidString), abstractResult.styled());
+        assertEquals(new StyledText(expectedString), abstractResult.styled());
     }
 
     /**
@@ -269,9 +330,6 @@ public class SpoofaxResultsTest {
      */
     @Test
     public void testValidOrInvalid() {
-        assertTrue(abstractResult.valid());
-        assertEquals(expectedValid, abstractResult.valid());
-        assertTrue(abstractResult.valid());
         assertEquals(expectedValid, abstractResult.valid());
     }
 }

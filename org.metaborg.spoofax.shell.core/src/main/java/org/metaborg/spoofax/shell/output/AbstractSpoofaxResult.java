@@ -42,4 +42,12 @@ public abstract class AbstractSpoofaxResult<T extends IUnit> implements ISpoofax
     public StyledText toString(IStrategoTerm term) {
         return new StyledText(common.toString(term));
     }
+
+    @Override
+    public StyledText styled() {
+        if (!valid() || !ast().isPresent()) {
+            return new StyledText(messages().toString());
+        }
+        return toString(ast().get());
+    }
 }

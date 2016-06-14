@@ -33,7 +33,7 @@ public class ParseResult extends AbstractSpoofaxResult<ISpoofaxParseUnit> {
 
     @Override
     public Optional<IStrategoTerm> ast() {
-        return Optional.of(unit().ast());
+        return Optional.ofNullable(unit().ast());
     }
 
     @Override
@@ -45,14 +45,6 @@ public class ParseResult extends AbstractSpoofaxResult<ISpoofaxParseUnit> {
     public List<IMessage> messages() {
         return StreamSupport.stream(unit().messages().spliterator(), false)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public StyledText styled() {
-        if (!valid()) {
-            return new StyledText(messages().toString());
-        }
-        return toString(unit().ast());
     }
 
     @Override

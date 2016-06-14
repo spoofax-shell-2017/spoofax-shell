@@ -9,7 +9,6 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.assistedinject.Assisted;
@@ -32,24 +31,12 @@ public class AnalyzeResult extends AbstractSpoofaxResult<ISpoofaxAnalyzeUnit> {
         super(common, unit);
     }
 
-    /**
-     * Create a {@link AnalyzeResult} from a {@link ParseResult}.
-     * @param common      the {@link IStrategoCommon} service
-     * @param unitService the {@link ISpoofaxUnitService}
-     * @param prevResult  the previous {@link ParseResult}
-     */
-    @AssistedInject
-    public AnalyzeResult(IStrategoCommon common, ISpoofaxUnitService unitService,
-                         @Assisted ParseResult prevResult) {
-        super(common, unitService.emptyAnalyzeUnit(prevResult.unit(), null));
-    }
-
     // Duplication here and in TransformResult is intentional since no common ancestor of
     // ISpoofaxAnalyzeUnit and ISpoofaxTransformUnit exists with these functions.
     @SuppressWarnings("CPD-START")
     @Override
     public Optional<IStrategoTerm> ast() {
-        return Optional.of(unit().ast());
+        return Optional.ofNullable(unit().ast());
     }
 
     @Override
@@ -64,15 +51,6 @@ public class AnalyzeResult extends AbstractSpoofaxResult<ISpoofaxAnalyzeUnit> {
     }
 
     @Override
-    public StyledText styled() {
-        if (valid()) {
-            return toString(unit().ast());
-        } else {
-            return new StyledText(messages().toString());
-        }
-    }
-
-    @Override
     public String sourceText() {
         return unit().input().input().text();
     }
@@ -80,7 +58,7 @@ public class AnalyzeResult extends AbstractSpoofaxResult<ISpoofaxAnalyzeUnit> {
     @SuppressWarnings("CPD-END")
     @Override
     public boolean valid() {
-        return unit().valid();
+        return unit().valid() && unit().success();
     }
 
 }
