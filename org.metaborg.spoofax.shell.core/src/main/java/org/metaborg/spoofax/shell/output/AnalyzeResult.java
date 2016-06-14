@@ -9,7 +9,6 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.assistedinject.Assisted;
@@ -37,7 +36,7 @@ public class AnalyzeResult extends AbstractSpoofaxResult<ISpoofaxAnalyzeUnit> {
     @SuppressWarnings("CPD-START")
     @Override
     public Optional<IStrategoTerm> ast() {
-        return Optional.of(unit().ast());
+        return Optional.ofNullable(unit().ast());
     }
 
     @Override
@@ -52,18 +51,14 @@ public class AnalyzeResult extends AbstractSpoofaxResult<ISpoofaxAnalyzeUnit> {
     }
 
     @Override
-    public StyledText styled() {
-        if (valid()) {
-            return toString(unit().ast());
-        } else {
-            return new StyledText(messages().toString());
-        }
+    public String sourceText() {
+        return unit().input().input().text();
     }
 
     @SuppressWarnings("CPD-END")
     @Override
     public boolean valid() {
-        return unit().valid();
+        return unit().valid() && unit().success();
     }
 
 }

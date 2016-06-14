@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.shell.client.IHook;
+import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -56,7 +56,7 @@ public class HelpCommand implements IReplCommand {
     }
 
     @Override
-    public IHook execute(String... args) throws MetaborgException {
+    public IResult execute(String... args) throws MetaborgException {
         try {
             Map<String, IReplCommand> commands;
             if (args.length > 0) {
@@ -66,8 +66,8 @@ public class HelpCommand implements IReplCommand {
                 commands = invoker.getCommands();
             }
 
-            return (display) -> display
-                .displayMessage(new StyledText(formathelp(commands)));
+            return (visitor) -> visitor
+                .visitMessage(new StyledText(formathelp(commands)));
         } catch (CommandNotFoundException e) {
             throw new MetaborgException("Command not found: " + e.commandName());
         }

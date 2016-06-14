@@ -1,6 +1,6 @@
 package org.metaborg.spoofax.shell.client.console.impl;
 
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
@@ -12,11 +12,11 @@ import com.google.inject.AbstractModule;
 public class MockModule extends AbstractModule {
     private final ICommandInvoker invokerMock;
     private final IEditor editorMock;
-    private final IDisplay displayMock;
+    private final IResultVisitor visitorMock;
 
     /**
      * Instantiates a new MockModule with a {@code null} @{link IEditor} and a {@code null}
-     * {@link IDisplay}.
+     * {@link IResultVisitor}.
      *
      * @param invokerMock
      *            The mock {@link ICommandInvoker}.
@@ -26,7 +26,7 @@ public class MockModule extends AbstractModule {
     }
 
     /**
-     * Instantiates a new MockModule with a {@code null} {@link IDisplay}.
+     * Instantiates a new MockModule with a {@code null} {@link IResultVisitor}.
      *
      * @param invokerMock
      *            The mock {@link ICommandInvoker}.
@@ -42,11 +42,11 @@ public class MockModule extends AbstractModule {
      *
      * @param editorMock
      *            The mock {@link IEditor}.
-     * @param displayMock
-     *            The mock {@link IDisplay}.
+     * @param visitorMock
+     *            The mock {@link IResultVisitor}.
      */
-    public MockModule(IEditor editorMock, IDisplay displayMock) {
-        this(null, editorMock, displayMock);
+    public MockModule(IEditor editorMock, IResultVisitor visitorMock) {
+        this(null, editorMock, visitorMock);
     }
 
     /**
@@ -56,13 +56,13 @@ public class MockModule extends AbstractModule {
      *            The mock {@link ICommandInvoker}.
      * @param editorMock
      *            The mock {@link IEditor}.
-     * @param displayMock
-     *            The mock {@link IDisplay}.
+     * @param visitorMock
+     *            The mock {@link IResultVisitor}.
      */
-    public MockModule(ICommandInvoker invokerMock, IEditor editorMock, IDisplay displayMock) {
+    public MockModule(ICommandInvoker invokerMock, IEditor editorMock, IResultVisitor visitorMock) {
         this.invokerMock = invokerMock;
         this.editorMock = editorMock;
-        this.displayMock = displayMock;
+        this.visitorMock = visitorMock;
     }
 
     @Override
@@ -73,8 +73,8 @@ public class MockModule extends AbstractModule {
         if (editorMock != null) {
             bind(IEditor.class).toInstance(editorMock);
         }
-        if (displayMock != null) {
-            bind(IDisplay.class).toInstance(displayMock);
+        if (visitorMock != null) {
+            bind(IResultVisitor.class).toInstance(visitorMock);
         }
     }
 }

@@ -3,7 +3,6 @@ package org.metaborg.spoofax.shell.output;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.unit.IUnit;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
@@ -42,5 +41,13 @@ public abstract class AbstractSpoofaxResult<T extends IUnit> implements ISpoofax
      */
     public StyledText toString(IStrategoTerm term) {
         return new StyledText(common.toString(term));
+    }
+
+    @Override
+    public StyledText styled() {
+        if (!valid() || !ast().isPresent()) {
+            return new StyledText(messages().toString());
+        }
+        return toString(ast().get());
     }
 }

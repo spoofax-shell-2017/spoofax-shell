@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -25,7 +25,7 @@ import com.google.inject.Provider;
 public class ExitCommandTest {
     @Mock private Provider<ConsoleRepl> provider;
     @Mock private ConsoleRepl repl;
-    @Mock private IDisplay display;
+    @Mock private IResultVisitor visitor;
 
     private ExitCommand exitCommand;
 
@@ -51,8 +51,8 @@ public class ExitCommandTest {
      */
     @Test
     public void testExecute() {
-        exitCommand.execute(new String[] { }).accept(display);
+        exitCommand.execute(new String[] { }).accept(visitor);
         verify(repl, times(1)).setRunning(false);
-        verify(display, never()).displayMessage(any());
+        verify(visitor, never()).visitMessage(any());
     }
 }

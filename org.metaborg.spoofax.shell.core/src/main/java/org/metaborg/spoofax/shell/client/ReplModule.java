@@ -16,22 +16,35 @@ import org.metaborg.spoofax.shell.core.ClassPathInterpreterLoader;
 import org.metaborg.spoofax.shell.core.DynSemEvaluationStrategy;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader;
-import org.metaborg.spoofax.shell.invoker.ICommandFactory;
+import org.metaborg.spoofax.shell.functions.AEvalFunction;
+import org.metaborg.spoofax.shell.functions.ATransformFunction;
+import org.metaborg.spoofax.shell.functions.AnalyzeFunction;
+import org.metaborg.spoofax.shell.functions.FailableFunction;
+import org.metaborg.spoofax.shell.functions.IFunctionFactory;
+import org.metaborg.spoofax.shell.functions.InputFunction;
+import org.metaborg.spoofax.shell.functions.PEvalFunction;
+import org.metaborg.spoofax.shell.functions.PTransformFunction;
+import org.metaborg.spoofax.shell.functions.ParseFunction;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
+import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.InputResult;
+import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.TransformResult;
 
 import com.google.common.io.Files;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Names;
 
 /**
  * This class binds the core classes. It is intended to be subclassed by client implementations.
- * These subclasses should bind their implementations of {@link IRepl} and {@link IDisplay}.
+ * These subclasses should bind their implementations of {@link IRepl} and {@link IResultVisitor}.
  */
 public abstract class ReplModule extends SpoofaxModule {
 
@@ -66,6 +79,36 @@ public abstract class ReplModule extends SpoofaxModule {
         bind(IProjectService.class).to(SimpleProjectService.class);
     }
 
+    /**
+     * Binds implementations for the {@link IResultFactory} and the {@link IFunctionFactory}.
+     */
+    protected void bindFactories() {
+        install(new FactoryModuleBuilder()
+        .implement(TransformResult.class, Names.named("parsed"), TransformResult.Parsed.class)
+        .implement(TransformResult.class,
+                       Names.named("analyzed"), TransformResult.Analyzed.class)
+        .implement(EvaluateResult.class, Names.named("parsed"), EvaluateResult.Parsed.class)
+        .implement(EvaluateResult.class, Names.named("analyzed"), EvaluateResult.Analyzed.class)
+        .build(IResultFactory.class));
+
+        install(new FactoryModuleBuilder()
+        .implement(new TypeLiteral<FailableFunction<String, InputResult, IResult>>() { },
+                   InputFunction.class)
+        .implement(new TypeLiteral<FailableFunction<InputResult, ParseResult, IResult>>() { },
+                   ParseFunction.class)
+        .implement(new TypeLiteral<FailableFunction<ParseResult, AnalyzeResult, IResult>>() { },
+                   AnalyzeFunction.class)
+        .implement(new TypeLiteral<FailableFunction<ParseResult, TransformResult, IResult>>() { },
+                   PTransformFunction.class)
+        .implement(new TypeLiteral<FailableFunction<AnalyzeResult, TransformResult, IResult>>() { },
+                   ATransformFunction.class)
+        .implement(new TypeLiteral<FailableFunction<ParseResult, EvaluateResult, IResult>>() { },
+                   PEvalFunction.class)
+        .implement(new TypeLiteral<FailableFunction<AnalyzeResult, EvaluateResult, IResult>>() { },
+                   AEvalFunction.class)
+        .build(IFunctionFactory.class));
+    }
+
     @Override
     protected void configure() {
         super.configure();
@@ -76,12 +119,7 @@ public abstract class ReplModule extends SpoofaxModule {
             MapBinder.newMapBinder(binder(), String.class, IEvaluationStrategy.class);
         bindCommands(commandBinder);
         bindEvalStrategies(evalStrategyBinder);
-
-        install(new FactoryModuleBuilder().build(ICommandFactory.class));
-        install(new FactoryModuleBuilder()
-            .implement(EvaluateResult.class, Names.named("parsed"), EvaluateResult.Parsed.class)
-            .implement(EvaluateResult.class, Names.named("analyzed"), EvaluateResult.Analyzed.class)
-            .build(IResultFactory.class));
+        bindFactories();
     }
 
     /**

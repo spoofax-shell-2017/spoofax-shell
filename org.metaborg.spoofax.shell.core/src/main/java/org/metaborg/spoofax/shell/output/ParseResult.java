@@ -9,7 +9,6 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.commands.SpoofaxCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.assistedinject.Assisted;
@@ -34,7 +33,7 @@ public class ParseResult extends AbstractSpoofaxResult<ISpoofaxParseUnit> {
 
     @Override
     public Optional<IStrategoTerm> ast() {
-        return Optional.of(unit().ast());
+        return Optional.ofNullable(unit().ast());
     }
 
     @Override
@@ -49,13 +48,13 @@ public class ParseResult extends AbstractSpoofaxResult<ISpoofaxParseUnit> {
     }
 
     @Override
-    public StyledText styled() {
-        return toString(unit().ast());
+    public String sourceText() {
+        return unit().input().text();
     }
 
     @Override
     public boolean valid() {
-        return unit().valid();
+        return unit().valid() && unit().success();
     }
 
 }

@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.io.IOException;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 public class ConsoleRepl implements IRepl {
     private final ICommandInvoker invoker;
     private final IEditor editor;
-    private final IDisplay display;
+    private final IResultVisitor visitor;
     private boolean running;
 
     /**
@@ -30,16 +30,16 @@ public class ConsoleRepl implements IRepl {
      *
      * @param editor
      *            The {@link IEditor} for receiving input.
-     * @param display
-     *            The {@link IDisplay} for displaying results.
+     * @param visitor
+     *            The {@link IResultVisitor} for visiting the results.
      * @param invoker
      *            The {@link ICommandInvoker} for executing user input.
      */
     @Inject
-    public ConsoleRepl(IEditor editor, IDisplay display, ICommandInvoker invoker) {
+    public ConsoleRepl(IEditor editor, IResultVisitor visitor, ICommandInvoker invoker) {
         this.invoker = invoker;
         this.editor = editor;
-        this.display = display;
+        this.visitor = visitor;
     }
 
     /**
@@ -73,15 +73,15 @@ public class ConsoleRepl implements IRepl {
             setRunning(true);
             while (running && (input = editor.getInput()) != null) {
                 try {
-                    eval(input).accept(display);
+                    eval(input).accept(visitor);
                 } catch (CommandNotFoundException | MetaborgException e) {
-                    this.display.displayMessage(new StyledText(Color.RED, e.getMessage()));
+                    this.visitor.visitMessage(new StyledText(Color.RED, e.getMessage()));
                 }
             }
 
             this.editor.history().persistToDisk();
         } catch (IOException e) {
-            this.display.displayMessage(new StyledText(Color.RED, e.getMessage()));
+            this.visitor.visitMessage(new StyledText(Color.RED, e.getMessage()));
         }
     }
 

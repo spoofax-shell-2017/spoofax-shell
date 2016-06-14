@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IInputHistory;
 import org.metaborg.spoofax.shell.client.IRepl;
@@ -42,7 +42,7 @@ public class ConsoleReplModule extends ReplModule {
 
         bind(TerminalUserInterface.class).in(Singleton.class);
         bind(IEditor.class).to(TerminalUserInterface.class);
-        bind(IDisplay.class).to(TerminalUserInterface.class);
+        bind(IResultVisitor.class).to(TerminalUserInterface.class);
 
         bind(InputStream.class).annotatedWith(Names.named("in")).toInstance(System.in);
         bind(OutputStream.class).annotatedWith(Names.named("out")).toInstance(System.out);

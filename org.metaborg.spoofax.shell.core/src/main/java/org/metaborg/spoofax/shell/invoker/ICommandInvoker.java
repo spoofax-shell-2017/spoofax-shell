@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.shell.client.IHook;
+import org.metaborg.spoofax.shell.client.IResult;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 /**
@@ -34,13 +35,14 @@ public interface ICommandInvoker {
      *
      * @param optionallyPrefixedCommandName
      *            The name of the {@link IReplCommand} to be executed.
-     * @return An {@link IHook} to process the result of the executed command.
+     * @return A visitable {@link IResult} representing the result of the command. Use an
+     *         {@link IResultVisitor} to visit it.
      * @throws CommandNotFoundException
      *             When the command could not be found.
      * @throws MetaborgException
      *             When something goes wrong during execution
      */
-    default IHook execute(String optionallyPrefixedCommandName)
+    default IResult execute(String optionallyPrefixedCommandName)
         throws CommandNotFoundException, MetaborgException {
         if (optionallyPrefixedCommandName.startsWith(commandPrefix())) {
             String[] split = optionallyPrefixedCommandName.split("\\s+", 2);
@@ -56,19 +58,17 @@ public interface ICommandInvoker {
 
     /**
      * Add a command to the list of available commands.
-     * @param name    The name of the {@link IReplCommand}
-     * @param command The {@link IReplCommand}
+     *
+     * @param name
+     *            The name of the {@link IReplCommand}
+     * @param command
+     *            The {@link IReplCommand}
      */
     void addCommand(String name, IReplCommand command);
 
     /**
-     * Get the command factory.
-     * @return an {@link ICommandFactory}
-     */
-    ICommandFactory getCommandFactory();
-
-    /**
      * Get a list of all available commands.
+     *
      * @return a {@link Map} from command name to {@link IReplCommand}
      */
     Map<String, IReplCommand> getCommands();

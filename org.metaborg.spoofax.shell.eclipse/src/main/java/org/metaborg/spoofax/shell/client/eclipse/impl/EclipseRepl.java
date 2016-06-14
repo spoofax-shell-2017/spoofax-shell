@@ -9,9 +9,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.style.Style;
-import org.metaborg.spoofax.shell.client.IDisplay;
-import org.metaborg.spoofax.shell.client.IHook;
 import org.metaborg.spoofax.shell.client.IRepl;
+import org.metaborg.spoofax.shell.client.IResult;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -33,7 +33,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
     private static final int INPUT_RED = 232;
     private static final int INPUT_GREEN = 242;
     private static final int INPUT_BLUE = 254;
-    private final IDisplay display;
+    private final IResultVisitor visitor;
     private final ICommandInvoker invoker;
 
     /**
@@ -41,12 +41,12 @@ public class EclipseRepl implements IRepl, Observer<String> {
      *
      * @param invoker
      *            The {@link ICommandInvoker} for executing user input.
-     * @param display
+     * @param visitor
      *            The {@link EclipseDisplay} to send results to.
      */
     @AssistedInject
-    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display) {
-        this.display = display;
+    public EclipseRepl(ICommandInvoker invoker, @Assisted IResultVisitor visitor) {
+        this.visitor = visitor;
         this.invoker = invoker;
     }
 
@@ -83,7 +83,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
         Color inputBackgroundColor = new Color(INPUT_RED, INPUT_GREEN, INPUT_BLUE);
         Style style = new Style(null, inputBackgroundColor, false, false, false);
         // FIXME: Input is not really a "message"...
-        this.display.displayMessage(new StyledText(style, input));
+        this.visitor.visitMessage(new StyledText(style, input));
     }
 
     private void runAsJob(final String input) {
@@ -95,7 +95,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
                     return Status.OK_STATUS;
                 } catch (MetaborgException | CommandNotFoundException e) {
                     StyledText message = new StyledText(Color.RED, e.getMessage());
-                    runAsUIJob((display) -> display.displayMessage(message));
+                    runAsUIJob((visitor) -> visitor.visitMessage(message));
                     return Status.CANCEL_STATUS;
                 }
             }
@@ -104,11 +104,11 @@ public class EclipseRepl implements IRepl, Observer<String> {
         job.schedule();
     }
 
-    private void runAsUIJob(IHook hook) {
+    private void runAsUIJob(IResult result) {
         Job job = new UIJob("Spoofax REPL display job") {
             @Override
             public IStatus runInUIThread(IProgressMonitor arg0) {
-                hook.accept(display);
+                result.accept(visitor);
                 return Status.OK_STATUS;
             }
         };
