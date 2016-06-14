@@ -13,6 +13,7 @@ import org.metaborg.spoofax.shell.functions.FailableFunction;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
@@ -220,7 +221,14 @@ public class CommandBuilder<R extends IResult> {
      */
     public <OtherR extends IResult> CommandBuilder<OtherR>
             function(FailableFunction<String, OtherR, IResult> func) {
-        return varFunction((String... args) -> func.apply(args[0]));
+        // Must be an anonymous inner class instead of a lambda, due to a bug in the eclipse
+        // compiler. See: https://bugs.eclipse.org/bugs/show_bug.cgi?id=436542
+        return varFunction(new FailableFunction<String[], OtherR, IResult>() {
+            @Override
+            public FailOrSuccessResult<OtherR, IResult> apply(String[] input) {
+                return func.apply(input[0]);
+            }
+        });
     }
 
     /**
