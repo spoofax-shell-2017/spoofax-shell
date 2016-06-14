@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.ReplModule;
 import org.metaborg.spoofax.shell.client.ConsoleReplModule;
-import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.console.commands.ExitCommand;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -39,7 +38,7 @@ public class ConsoleReplTest {
     private ConsoleRepl repl;
     private ByteArrayInputStream in;
     private ByteArrayOutputStream out;
-    private IEditor editorSpy;
+    private TerminalUserInterface ifaceSpy;
     private ICommandInvoker invokerMock;
 
     /**
@@ -110,10 +109,10 @@ public class ConsoleReplTest {
         setUp(":exit" + ENTER + ENTER + ":exit" + ENTER + ENTER);
         createInjector(new UserInputSimulationModule(in, out));
         invokerMock = spy(injector.getInstance(ICommandInvoker.class));
-        editorSpy = spy(injector.getInstance(IEditor.class));
+        ifaceSpy = spy(injector.getInstance(TerminalUserInterface.class));
 
         // Create a user input simulated ConsoleRepl with the mock invoker and mock editor.
-        createRepl(new UserInputSimulationModule(in, out), new MockModule(invokerMock, editorSpy));
+        createRepl(new UserInputSimulationModule(in, out), new MockModule(invokerMock, ifaceSpy));
     }
 
     /**
@@ -137,7 +136,7 @@ public class ConsoleReplTest {
             verify(exitCommandMock, times(1)).execute();
 
             // Verify that the Editor was not asked for input after the exit command was executed.
-            verify(editorSpy, times(1)).getInput();
+            verify(ifaceSpy, times(1)).getInput();
         } catch (IOException | CommandNotFoundException | MetaborgException e) {
             fail("Should not happen");
         }

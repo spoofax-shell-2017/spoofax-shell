@@ -13,7 +13,6 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
-import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IInputHistory;
 
 import com.google.common.collect.Lists;
@@ -24,17 +23,16 @@ import rx.Observable;
 import rx.Subscriber;
 
 /**
- * An Eclipse-based implementation of {@link IEditor}, with a {@link Sourceviewer} backend. It
- * attaches itself as a {@link KeyListener} to listen for certain keypresses. When an Enter (e.g.
- * linefeed or carriage return) is pressed, the {@link Observer}s are notified with the text typed
- * so far.
+ * A multiline input editor for the {@link EclipseRepl}, with a {@link Sourceviewer} backend. It
+ * attaches itself as a {@link KeyListener} to listen for certain keypresses. When the Return key
+ * (e.g. linefeed or carriage return) is pressed, the {@link Observer}s are notified with the text
+ * typed so far.
  *
  * History is automatically maintained through {@link EclipseInputHistory}. The regular Eclipse
  * keybindings apply in the {@link SourceViewer#getTextWidget()} widget.
  *
  * Note that this class should always be run in and accessed from the UI thread!
  */
-// FIXME: Make IEditor?
 public class EclipseEditor extends KeyAdapter implements ModifyListener {
     private final IInputHistory history;
     private final SourceViewer input;
