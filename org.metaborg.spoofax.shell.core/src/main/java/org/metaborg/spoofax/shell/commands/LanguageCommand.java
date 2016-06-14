@@ -125,7 +125,7 @@ public class LanguageCommand implements IReplCommand {
             invoker.addCommand(key, transform.apply(action).description(action.name()).build());
         });
 
-        return (display) -> display
+        return (visitor) -> visitor
             .visitMessage(new StyledText("Loaded language " + lang));
     }
 

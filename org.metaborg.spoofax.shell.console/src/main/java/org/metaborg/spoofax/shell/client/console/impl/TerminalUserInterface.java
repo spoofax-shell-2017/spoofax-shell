@@ -143,7 +143,7 @@ public class TerminalUserInterface implements IEditor, IResultVisitor {
         return hist;
     }
 
-    // -------------- IDisplay --------------
+    // -------------- IResultVisitor --------------
     @Override
     public void visitResult(ISpoofaxResult<?> result) {
         visitMessage(result.styled());

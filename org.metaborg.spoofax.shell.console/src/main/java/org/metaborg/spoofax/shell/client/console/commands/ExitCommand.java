@@ -33,7 +33,7 @@ public class ExitCommand implements IReplCommand {
     @Override
     public IResult execute(String... args) {
         ConsoleRepl repl = replProvider.get();
-        return (display) -> {
+        return (visitor) -> {
             repl.setRunning(false);
         };
     }

@@ -12,8 +12,8 @@ import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
  * possible clients.
  *
  * The default {@link IRepl#eval(String)} implementation uses an {@link ICommandInvoker} to process
- * user input. This {@link ICommandInvoker} invokes {@link IReplCommand}s, which use
- * {@link org.metaborg.spoofax.shell.hooks} to display output.
+ * user input. This {@link ICommandInvoker} invokes {@link IReplCommand}s, which return
+ * {@link IResult}s that can be visited by an {@link IResultVisitor}.
  */
 public interface IRepl {
     /**
@@ -22,18 +22,18 @@ public interface IRepl {
      *
      * @param input
      *            The input to send for evaluation.
-     * @return An {@link IResult} to process the result of the evaluation, or {@code null} when an
-     *         empty input would be executed.
+     * @return An {@link IResult} to process the result of the evaluation. When the input is empty,
+     *         it returns an {@link IResult} that does nothing upon accepting a
+     *         {@link IResultVisitor visitor}.
      * @throws MetaborgException
      *             When something goes wrong during execution.
      * @throws CommandNotFoundException
      *             When the command could not be found.
      */
-    // TODO: return Optional?
     default IResult eval(String input) throws MetaborgException, CommandNotFoundException {
         input = input.trim();
         if (input.length() == 0) {
-            return (display) -> {
+            return (visitor) -> {
             };
         }
         return getInvoker().execute(input);

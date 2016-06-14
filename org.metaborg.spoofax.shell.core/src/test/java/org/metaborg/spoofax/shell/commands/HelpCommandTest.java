@@ -33,7 +33,7 @@ public class HelpCommandTest {
     // Constructor mocks
     @Mock private ICommandInvoker invoker;
 
-    @Mock private IResultVisitor display;
+    @Mock private IResultVisitor visitor;
     @Captor private ArgumentCaptor<StyledText> captor;
 
     // Command mocks
@@ -82,7 +82,7 @@ public class HelpCommandTest {
     @Test(expected = MetaborgException.class)
     public void testCommandNotFound() throws MetaborgException, CommandNotFoundException {
         when(invoker.commandFromName(any())).thenThrow(new CommandNotFoundException("error"));
-        helpCommand.execute("invalid-command").accept(display);
+        helpCommand.execute("invalid-command").accept(visitor);
     }
 
     /**
@@ -94,8 +94,8 @@ public class HelpCommandTest {
     @Test
     public void testCommandSingleLine() throws MetaborgException {
         String expected = "name-1 test-1";
-        helpCommand.execute("name-1").accept(display);
-        verify(display, times(1)).visitMessage(captor.capture());
+        helpCommand.execute("name-1").accept(visitor);
+        verify(visitor, times(1)).visitMessage(captor.capture());
         assertEquals(expected, captor.getValue().toString());
     }
 
@@ -109,8 +109,8 @@ public class HelpCommandTest {
     public void testCommandMultiLine() throws MetaborgException {
         String expected = "name-2 test-2\n"
                         + "       test-2";
-        helpCommand.execute("name-2").accept(display);
-        verify(display, times(1)).visitMessage(captor.capture());
+        helpCommand.execute("name-2").accept(visitor);
+        verify(visitor, times(1)).visitMessage(captor.capture());
         assertEquals(expected, captor.getValue().toString());
     }
 
@@ -125,8 +125,8 @@ public class HelpCommandTest {
         String expected = "name-1 test-1\n"
                         + "name-2 test-2\n"
                         + "       test-2";
-        helpCommand.execute(new String[0]).accept(display);
-        verify(display, times(1)).visitMessage(captor.capture());
+        helpCommand.execute(new String[0]).accept(visitor);
+        verify(visitor, times(1)).visitMessage(captor.capture());
         assertEquals(expected, captor.getValue().toString());
     }
 

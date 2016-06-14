@@ -60,7 +60,7 @@ public class LanguageCommandTest {
 
     @SuppressWarnings("rawtypes")
     @Mock private CommandBuilder builder;
-    @Mock private IResultVisitor display;
+    @Mock private IResultVisitor visitor;
     @Captor private ArgumentCaptor<StyledText> captor;
 
     private FileObject langloc;
@@ -167,8 +167,8 @@ public class LanguageCommandTest {
         when(menuService.menuItems(any())).thenReturn(Lists.newArrayList());
 
         String expected = "Loaded language lang";
-        langCommand.execute("res:paplj.zip").accept(display);
-        verify(display, times(1)).visitMessage(captor.capture());
+        langCommand.execute("res:paplj.zip").accept(visitor);
+        verify(visitor, times(1)).visitMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());
         verify(invoker, never()).addCommand(eq("analyze"), any());
@@ -187,8 +187,8 @@ public class LanguageCommandTest {
         when(lang.hasFacet(AnalyzerFacet.class)).thenReturn(true);
 
         String expected = "Loaded language lang";
-        langCommand.execute("res:paplj.zip").accept(display);
-        verify(display, times(1)).visitMessage(captor.capture());
+        langCommand.execute("res:paplj.zip").accept(visitor);
+        verify(visitor, times(1)).visitMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
         verify(invoker, atLeast(1)).addCommand(any(), any());
         verify(invoker, times(1)).addCommand(eq("analyze"), any());

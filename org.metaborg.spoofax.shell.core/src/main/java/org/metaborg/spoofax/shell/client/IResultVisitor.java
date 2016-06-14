@@ -14,7 +14,7 @@ public interface IResultVisitor {
      * Visit an {@link ISpoofaxResult}.
      *
      * @param result
-     *            The result to be displayed.
+     *            The result to be visited.
      */
     void visitResult(ISpoofaxResult<?> result);
 
@@ -22,17 +22,17 @@ public interface IResultVisitor {
      * Visit a {@link StyledText} message.
      *
      * @param message
-     *            The message to be displayed.
+     *            The message to be visited.
      */
     void visitMessage(StyledText message);
 
     /**
-     * Visit an error.
+     * Visit a failure.
      *
-     * @param errorResult
-     *            The {@link IResult} representing an error.
+     * @param failResult
+     *            The {@link FailResult} representing a failure.
      */
-    void visitFailure(FailResult errorResult);
+    void visitFailure(FailResult failResult);
 
     /**
      * Visits an exception that was caught at some point in producing a result.

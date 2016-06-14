@@ -29,12 +29,12 @@ public final class Main {
     // TODO: make the argument work again.
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ConsoleReplModule());
-        IResultVisitor display = injector.getInstance(IResultVisitor.class);
+        IResultVisitor visitor = injector.getInstance(IResultVisitor.class);
 
         StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
             .append(new Style(Color.GREEN, Color.BLUE, true, true, true), "Spoofax")
             .append(Color.BLUE, " REPL");
-        display.visitMessage(message);
+        visitor.visitMessage(message);
 
         ConsoleRepl repl = injector.getInstance(ConsoleRepl.class);
         repl.run();

@@ -66,7 +66,7 @@ public class HelpCommand implements IReplCommand {
                 commands = invoker.getCommands();
             }
 
-            return (display) -> display
+            return (visitor) -> visitor
                 .visitMessage(new StyledText(formathelp(commands)));
         } catch (CommandNotFoundException e) {
             throw new MetaborgException("Command not found: " + e.commandName());

@@ -25,7 +25,7 @@ import com.google.inject.Provider;
 public class ExitCommandTest {
     @Mock private Provider<ConsoleRepl> provider;
     @Mock private ConsoleRepl repl;
-    @Mock private IResultVisitor display;
+    @Mock private IResultVisitor visitor;
 
     private ExitCommand exitCommand;
 
@@ -51,8 +51,8 @@ public class ExitCommandTest {
      */
     @Test
     public void testExecute() {
-        exitCommand.execute(new String[] { }).accept(display);
+        exitCommand.execute(new String[] { }).accept(visitor);
         verify(repl, times(1)).setRunning(false);
-        verify(display, never()).visitMessage(any());
+        verify(visitor, never()).visitMessage(any());
     }
 }

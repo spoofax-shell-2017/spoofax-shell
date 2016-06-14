@@ -12,7 +12,7 @@ import com.google.inject.AbstractModule;
 public class MockModule extends AbstractModule {
     private final ICommandInvoker invokerMock;
     private final IEditor editorMock;
-    private final IResultVisitor displayMock;
+    private final IResultVisitor visitorMock;
 
     /**
      * Instantiates a new MockModule with a {@code null} @{link IEditor} and a {@code null}
@@ -42,11 +42,11 @@ public class MockModule extends AbstractModule {
      *
      * @param editorMock
      *            The mock {@link IEditor}.
-     * @param displayMock
+     * @param visitorMock
      *            The mock {@link IResultVisitor}.
      */
-    public MockModule(IEditor editorMock, IResultVisitor displayMock) {
-        this(null, editorMock, displayMock);
+    public MockModule(IEditor editorMock, IResultVisitor visitorMock) {
+        this(null, editorMock, visitorMock);
     }
 
     /**
@@ -56,13 +56,13 @@ public class MockModule extends AbstractModule {
      *            The mock {@link ICommandInvoker}.
      * @param editorMock
      *            The mock {@link IEditor}.
-     * @param displayMock
+     * @param visitorMock
      *            The mock {@link IResultVisitor}.
      */
-    public MockModule(ICommandInvoker invokerMock, IEditor editorMock, IResultVisitor displayMock) {
+    public MockModule(ICommandInvoker invokerMock, IEditor editorMock, IResultVisitor visitorMock) {
         this.invokerMock = invokerMock;
         this.editorMock = editorMock;
-        this.displayMock = displayMock;
+        this.visitorMock = visitorMock;
     }
 
     @Override
@@ -73,8 +73,8 @@ public class MockModule extends AbstractModule {
         if (editorMock != null) {
             bind(IEditor.class).toInstance(editorMock);
         }
-        if (displayMock != null) {
-            bind(IResultVisitor.class).toInstance(displayMock);
+        if (visitorMock != null) {
+            bind(IResultVisitor.class).toInstance(visitorMock);
         }
     }
 }
