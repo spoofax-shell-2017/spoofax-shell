@@ -22,12 +22,13 @@ import com.google.inject.assistedinject.Assisted;
  * Creates an {@link EvaluateResult} from a given {@link ParseResult}.
  */
 public class PEvalFunction extends ContextualSpoofaxFunction<ParseResult, EvaluateResult> {
-    @Inject
-    private Map<String, IEvaluationStrategy> evaluationStrategies;
+    private final Map<String, IEvaluationStrategy> evaluationStrategies;
 
     /**
      * Instantiate an {@link PEvalFunction}.
      *
+     * @param evaluationStrategies
+     *            The {@link IEvaluationStrategy} implementations, grouped by their names as keys.
      * @param contextService
      *            The {@link IContextService}.
      * @param resultFactory
@@ -38,9 +39,11 @@ public class PEvalFunction extends ContextualSpoofaxFunction<ParseResult, Evalua
      *            The {@link ILanguageImpl} to which this command applies.
      */
     @Inject
-    public PEvalFunction(IContextService contextService, IResultFactory resultFactory,
+    public PEvalFunction(Map<String, IEvaluationStrategy> evaluationStrategies,
+                         IContextService contextService, IResultFactory resultFactory,
                          @Assisted IProject project, @Assisted ILanguageImpl lang) {
         super(contextService, resultFactory, project, lang);
+        this.evaluationStrategies = evaluationStrategies;
     }
 
     @Override

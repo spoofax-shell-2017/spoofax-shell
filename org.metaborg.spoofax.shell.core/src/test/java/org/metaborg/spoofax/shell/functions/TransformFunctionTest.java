@@ -92,7 +92,7 @@ public class TransformFunctionTest {
      * Parameters to test {@link ATransformFunction} and {@link PTransformFunction}.
      * @return a list of parameters
      */
-    @Parameters
+    @Parameters(name = "{index}: {0}")
     public static List<Object[]> functions() {
         BiFunction<CommandBuilder<?>, ITransformAction, CommandBuilder<?>> parsedTransform
             = (builder, action) -> builder.transformParsed(action);

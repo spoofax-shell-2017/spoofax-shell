@@ -22,12 +22,14 @@ import com.google.inject.assistedinject.Assisted;
  * Creates an {@link EvaluateResult} from a given {@link AnalyzeResult}.
  */
 public class AEvalFunction extends ContextualSpoofaxFunction<AnalyzeResult, EvaluateResult> {
-    @Inject
-    private Map<String, IEvaluationStrategy> evaluationStrategies;
+
+    private final Map<String, IEvaluationStrategy> evaluationStrategies;
 
     /**
      * Instantiate an {@link PEvalFunction}.
      *
+     * @param evaluationStrategies
+     *            The {@link IEvaluationStrategy} implementations, grouped by their names as keys.
      * @param contextService
      *            The {@link IContextService}.
      * @param resultFactory
@@ -38,9 +40,11 @@ public class AEvalFunction extends ContextualSpoofaxFunction<AnalyzeResult, Eval
      *            The {@link ILanguageImpl} to which this command applies.
      */
     @Inject
-    public AEvalFunction(IContextService contextService, IResultFactory resultFactory,
+    public AEvalFunction(Map<String, IEvaluationStrategy> evaluationStrategies,
+                         IContextService contextService, IResultFactory resultFactory,
                          @Assisted IProject project, @Assisted ILanguageImpl lang) {
         super(contextService, resultFactory, project, lang);
+        this.evaluationStrategies = evaluationStrategies;
     }
 
     @Override
