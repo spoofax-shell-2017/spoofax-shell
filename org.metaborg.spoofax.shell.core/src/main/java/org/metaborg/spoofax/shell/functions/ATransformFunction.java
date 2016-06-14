@@ -22,9 +22,8 @@ import com.google.inject.assistedinject.Assisted;
 /**
  * Creates an {@link TransformResult} from a given {@link AnalyzeResult}.
  */
-public class ATransformFunction extends AbstractSpoofaxFunction<AnalyzeResult, TransformResult> {
+public class ATransformFunction extends ContextualSpoofaxFunction<AnalyzeResult, TransformResult> {
 
-    private final IContextService contextService;
     private final ISpoofaxTransformService transformService;
     private final ITransformAction action;
 
@@ -49,22 +48,14 @@ public class ATransformFunction extends AbstractSpoofaxFunction<AnalyzeResult, T
                               ISpoofaxTransformService transformService,
                               IResultFactory resultFactory, @Assisted IProject project,
                               @Assisted ILanguageImpl lang, @Assisted ITransformAction action) {
-        super(resultFactory, project, lang);
-        this.contextService = contextService;
+        super(contextService, resultFactory, project, lang);
         this.transformService = transformService;
         this.action = action;
     }
 
     @Override
-    protected FailOrSuccessResult<TransformResult, IResult> applyThrowing(AnalyzeResult a)
-        throws Exception {
-        IContext context;
-        if (a.context().isPresent()) {
-            context = a.context().get();
-        } else {
-            context = contextService.get(a.source(), project, lang);
-        }
-
+    protected FailOrSuccessResult<TransformResult, IResult>
+            applyThrowing(IContext context, AnalyzeResult a) throws Exception {
         Collection<ISpoofaxTransformUnit<ISpoofaxAnalyzeUnit>> transform =
             transformService.transform(a.unit(), context, action.goal());
         return FailOrSuccessResult

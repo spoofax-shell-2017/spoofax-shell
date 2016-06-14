@@ -20,8 +20,7 @@ import com.google.inject.assistedinject.Assisted;
 /**
  * Represents a parse command sent to Spoofax.
  */
-public class AnalyzeFunction extends AbstractSpoofaxFunction<ParseResult, AnalyzeResult> {
-    private final IContextService contextService;
+public class AnalyzeFunction extends ContextualSpoofaxFunction<ParseResult, AnalyzeResult> {
     private final ISpoofaxAnalysisService analysisService;
 
     /**
@@ -42,22 +41,14 @@ public class AnalyzeFunction extends AbstractSpoofaxFunction<ParseResult, Analyz
     public AnalyzeFunction(IContextService contextService, ISpoofaxAnalysisService analysisService,
                            IResultFactory resultFactory, @Assisted IProject project,
                            @Assisted ILanguageImpl lang) {
-        super(resultFactory, project, lang);
-        this.contextService = contextService;
+        super(contextService, resultFactory, project, lang);
         this.analysisService = analysisService;
     }
 
     @Override
-    protected FailOrSuccessResult<AnalyzeResult, IResult> applyThrowing(ParseResult a)
-        throws Exception {
-        IContext context;
+    protected FailOrSuccessResult<AnalyzeResult, IResult>
+            applyThrowing(IContext context, ParseResult a) throws Exception {
         ISpoofaxAnalyzeUnit analyze;
-
-        if (a.context().isPresent()) {
-            context = a.context().get();
-        } else {
-            context = contextService.get(a.source(), project, lang);
-        }
 
         try (IClosableLock lock = context.write()) {
             analyze = analysisService.analyze(a.unit(), context).result();

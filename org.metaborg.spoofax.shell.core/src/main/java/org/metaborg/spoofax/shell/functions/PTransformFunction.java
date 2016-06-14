@@ -2,7 +2,6 @@ package org.metaborg.spoofax.shell.functions;
 
 import java.util.Collection;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
@@ -23,9 +22,8 @@ import com.google.inject.assistedinject.Assisted;
 /**
  * Creates a {@link TransformResult} from a given {@link ParseResult}.
  */
-public class PTransformFunction extends AbstractSpoofaxFunction<ParseResult, TransformResult> {
+public class PTransformFunction extends ContextualSpoofaxFunction<ParseResult, TransformResult> {
 
-    private final IContextService contextService;
     private final ISpoofaxTransformService transformService;
     private final ITransformAction action;
 
@@ -50,22 +48,14 @@ public class PTransformFunction extends AbstractSpoofaxFunction<ParseResult, Tra
                               ISpoofaxTransformService transformService,
                               IResultFactory resultFactory, @Assisted IProject project,
                               @Assisted ILanguageImpl lang, @Assisted ITransformAction action) {
-        super(resultFactory, project, lang);
-        this.contextService = contextService;
+        super(contextService, resultFactory, project, lang);
         this.transformService = transformService;
         this.action = action;
     }
 
     @Override
-    protected FailOrSuccessResult<TransformResult, IResult> applyThrowing(ParseResult a)
-        throws MetaborgException {
-        IContext context;
-        if (a.context().isPresent()) {
-            context = a.context().get();
-        } else {
-            context = contextService.get(a.source(), project, lang);
-        }
-
+    protected FailOrSuccessResult<TransformResult, IResult>
+            applyThrowing(IContext context, ParseResult a) throws Exception {
         Collection<ISpoofaxTransformUnit<ISpoofaxParseUnit>> transform =
             transformService.transform(a.unit(), context, action.goal());
         return FailOrSuccessResult

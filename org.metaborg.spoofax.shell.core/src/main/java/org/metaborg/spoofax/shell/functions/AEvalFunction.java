@@ -21,9 +21,7 @@ import com.google.inject.assistedinject.Assisted;
 /**
  * Creates an {@link EvaluateResult} from a given {@link AnalyzeResult}.
  */
-public class AEvalFunction extends AbstractSpoofaxFunction<AnalyzeResult, EvaluateResult> {
-    private IContextService contextService;
-
+public class AEvalFunction extends ContextualSpoofaxFunction<AnalyzeResult, EvaluateResult> {
     @Inject
     private Map<String, IEvaluationStrategy> evaluationStrategies;
 
@@ -42,14 +40,12 @@ public class AEvalFunction extends AbstractSpoofaxFunction<AnalyzeResult, Evalua
     @Inject
     public AEvalFunction(IContextService contextService, IResultFactory resultFactory,
                          @Assisted IProject project, @Assisted ILanguageImpl lang) {
-        super(resultFactory, project, lang);
-        this.contextService = contextService;
+        super(contextService, resultFactory, project, lang);
     }
 
     @Override
-    protected FailOrSuccessResult<EvaluateResult, IResult> applyThrowing(AnalyzeResult a)
-        throws Exception {
-        IContext context = a.context().orElse(contextService.get(a.source(), project, lang));
+    protected FailOrSuccessResult<EvaluateResult, IResult>
+            applyThrowing(IContext context, AnalyzeResult a) throws Exception {
         ShellFacet facet = context.language().facet(ShellFacet.class);
         IEvaluationStrategy evalStrategy = evaluationStrategies.get(facet.getEvaluationMethod());
         IStrategoTerm result = evalStrategy.evaluate(a, context);
