@@ -27,7 +27,7 @@ public abstract class AbstractSpoofaxFunction<In, Success extends ISpoofaxResult
     protected final ILanguageImpl lang;
 
     /**
-     * Instantiate a {@link AbstractSpoofaxCommand}.
+     * Instantiate a {@link AbstractSpoofaxFunction}.
      *
      * @param resultFactory
      *            The {@link ResulFactory}.

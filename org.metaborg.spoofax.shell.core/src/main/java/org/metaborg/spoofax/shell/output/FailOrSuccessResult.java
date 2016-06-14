@@ -7,8 +7,8 @@ import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.functions.FailableFunction;
 
 /**
- * An {@link IResult} that may be an error or a success, with in either case a wrapped result that
- * is respectively the representation of the error or the successful result. Our equivalent of an
+ * An {@link IResult} that may be a failure or a success, with in either case a wrapped result that
+ * is respectively the representation of the failure or the successful result. Our equivalent of an
  * "Either" type seen in some functional languages.
  *
  * @param <Success>
@@ -27,7 +27,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
      */
     private static final class Successful<S extends IResult, F extends IResult>
         extends FailOrSuccessResult<S, F> {
-        private S result;
+        private final S result;
 
         private Successful(S result) {
             this.result = result;
@@ -40,9 +40,9 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
 
         @Override
         public <NewS extends IResult> FailOrSuccessResult<NewS, F>
-            flatMap(FailableFunction<S, NewS, F> errorFunc) {
-            Objects.requireNonNull(errorFunc);
-            return errorFunc.apply(result);
+                flatMap(FailableFunction<S, NewS, F> failable) {
+            Objects.requireNonNull(failable);
+            return failable.apply(result);
         }
     }
 
@@ -54,7 +54,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
      */
     private static final class Failed<S extends IResult, F extends IResult>
         extends FailOrSuccessResult<S, F> {
-        private F result;
+        private final F result;
 
         private Failed(F result) {
             this.result = result;
@@ -67,8 +67,8 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
 
         @Override
         public <NewS extends IResult> FailOrSuccessResult<NewS, F>
-            flatMap(FailableFunction<S, NewS, F> errorFunc) {
-            Objects.requireNonNull(errorFunc);
+                flatMap(FailableFunction<S, NewS, F> failable) {
+            Objects.requireNonNull(failable);
             return failed(result);
         }
     }
@@ -82,42 +82,44 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
      * @param <S>
      *            The type of the wrapped {@link IResult}.
      * @param <F>
-     *            The type of the non-existing {@link IResult} that caused an error.
+     *            The type of the (non-existing) {@link IResult} that caused a failure.
      */
     public static <S extends IResult, F extends IResult> FailOrSuccessResult<S, F>
-        successful(S successfulResult) {
+            successful(S successfulResult) {
         return new Successful<S, F>(successfulResult);
     }
 
     /**
-     * Create an {@link FailOrSuccessResult} that represents an unsuccessful result (error).
+     * Create an {@link FailOrSuccessResult} that represents an unsuccessful result (failure).
      *
      * @param failedResult
-     *            The cause of the error.
+     *            The cause of the failure.
      * @return The {@link FailOrSuccessResult} with an unsuccessful result.
      * @param <S>
      *            The type of the non-existing successful {@link ISpoofaxResult}.
      * @param <F>
-     *            The type of the {@link IResult} that caused an error.
+     *            The type of the {@link IResult} that caused a failure.
      */
     public static <S extends IResult, F extends IResult> FailOrSuccessResult<S, F>
-        failed(F failedResult) {
+            failed(F failedResult) {
         return new Failed<S, F>(failedResult);
     }
 
     /**
      * Create an {@link FailOrSuccessResult} that, depending on whether the given
      * {@link ISpoofaxResult} is {@link ISpoofaxResult#valid valid}, represents either a success or
-     * an error.
+     * a failure. In the latter case, it wraps a {@link FailResult} as the failure, which upon
+     * accepting a {@link IResultVisitor visitor} calls its
+     * {@link IResultVisitor#visitFailure(FailResult) visitFailure method}.
      *
      * @param result
-     *            The cause of the error.
-     * @return The {@link FailOrSuccessResult} with either a successful or an error result.
+     *            The result which may be valid or invalid.
+     * @return The {@link FailOrSuccessResult} with either a successful or a {@link FailResult}.
      * @param <S>
      *            The type of the result {@link ISpoofaxResult}.
      */
     public static <S extends ISpoofaxResult<?>> FailOrSuccessResult<S, IResult>
-        ofSpoofaxResult(S result) {
+            ofSpoofaxResult(S result) {
         if (result.valid()) {
             return successful(result);
         } else {
@@ -130,15 +132,15 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
 
     /**
      * Maps the given {@link FailableFunction} if this {@link FailOrSuccessResult} represents a
-     * success, otherwise just returns the same cause of the error. The result of the mapping can in
-     * turn be a success or an error.
+     * success, otherwise just returns the same cause of the failure. The result of the mapping can
+     * in turn be a success or a failure.
      *
-     * @param errorFunc
+     * @param failable
      *            The {@link FailableFunction} to apply when this was a success.
-     * @return The result, either a success or an error.
+     * @return The result, either a success or a failure.
      * @param <S>
      *            the new type of a successful result.
      */
     public abstract <S extends IResult> FailOrSuccessResult<S, Fail>
-        flatMap(FailableFunction<Success, S, Fail> errorFunc);
+            flatMap(FailableFunction<Success, S, Fail> failable);
 }

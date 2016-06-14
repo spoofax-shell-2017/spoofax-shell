@@ -104,11 +104,11 @@ public class EclipseRepl implements IRepl, Observer<String> {
         job.schedule();
     }
 
-    private void runAsUIJob(IResult hook) {
+    private void runAsUIJob(IResult result) {
         Job job = new UIJob("Spoofax REPL display job") {
             @Override
             public IStatus runInUIThread(IProgressMonitor arg0) {
-                hook.accept(visitor);
+                result.accept(visitor);
                 return Status.OK_STATUS;
             }
         };

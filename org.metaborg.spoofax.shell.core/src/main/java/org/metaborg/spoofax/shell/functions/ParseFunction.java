@@ -18,11 +18,12 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * Creates an {@link ParseResult} from a given {@link InputResult}.
+ * An {@link AbstractSpoofaxFunction} that parses a given {@link InputResult}, creating an
+ * {@link ParseResult}.
  */
 public class ParseFunction extends AbstractSpoofaxFunction<InputResult, ParseResult> {
     private final ISpoofaxSyntaxService syntaxService;
-    private ISpoofaxUnitService unitService;
+    private final ISpoofaxUnitService unitService;
 
     /**
      * Instantiate a {@link ParseFunction}.

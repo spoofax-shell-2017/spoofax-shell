@@ -23,8 +23,8 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 /**
- * An Eclipse-based {@link IResultVisitor}, which uses a {@link TextViewer} to display results and error
- * messages.
+ * An Eclipse-based {@link IResultVisitor}, which uses a {@link TextViewer} to display results and
+ * error messages.
  *
  * Note that this class should always be run in and accessed from the UI thread!
  */

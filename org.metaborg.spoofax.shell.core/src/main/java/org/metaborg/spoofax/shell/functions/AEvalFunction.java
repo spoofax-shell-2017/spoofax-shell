@@ -22,11 +22,10 @@ import com.google.inject.assistedinject.Assisted;
  * Creates an {@link EvaluateResult} from a given {@link AnalyzeResult}.
  */
 public class AEvalFunction extends ContextualSpoofaxFunction<AnalyzeResult, EvaluateResult> {
-
     private final Map<String, IEvaluationStrategy> evaluationStrategies;
 
     /**
-     * Instantiate an {@link PEvalFunction}.
+     * Instantiate an {@link AEvalFunction}.
      *
      * @param evaluationStrategies
      *            The {@link IEvaluationStrategy} implementations, grouped by their names as keys.

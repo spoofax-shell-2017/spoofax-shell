@@ -15,14 +15,14 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 /**
- * An {@IMenuItemVisitor} implementation to create one {@link TransformCommand} per menu item.
+ * An {@link IMenuItemVisitor} implementation to create one {@link TransformCommand} per menu item.
  */
 public class TransformVisitor implements IMenuItemVisitor {
     private Map<String, ITransformAction> actions;
     private IMenuService menuService;
 
     /**
-     * Instantiates a new TransformVisitor.
+     * Instantiates a new {@link TransformVisitor}.
      *
      * @param menuService
      *            The {@link IMenuService} to visit.
@@ -33,7 +33,8 @@ public class TransformVisitor implements IMenuItemVisitor {
     }
 
     /**
-     * Retrieve all the actions from the {@link IMenuService} belonong to the {@link ILanguageImpl}.
+     * Retrieve all the actions from the {@link IMenuService} that belong to the given
+     * {@link ILanguageImpl language}.
      *
      * @param lang
      *            The {@link ILanguageImpl} whose menu items to visit.

@@ -28,7 +28,7 @@ public class ATransformFunction extends ContextualSpoofaxFunction<AnalyzeResult,
     private final ITransformAction action;
 
     /**
-     * Instantiate a new {@link AnalyzedTransformCommand}.
+     * Instantiate a new {@link ATransformFunction}.
      *
      * @param contextService
      *            The {@link IContextService}.

@@ -16,6 +16,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * Represents a {@link TransformResult} as returned by the {@link SpoofaxCommand}. Wraps a
@@ -83,7 +84,7 @@ public abstract class TransformResult
      * @param unit
      *            the wrapped {@link ISpoofaxTransformUnit}
      */
-    @Inject
+    @AssistedInject
     private <T extends IUnit> TransformResult(IStrategoCommon common,
                                               @Assisted ISpoofaxTransformUnit<T> unit) {
         super(common, unit);

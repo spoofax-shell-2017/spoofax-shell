@@ -25,7 +25,7 @@ public class PEvalFunction extends ContextualSpoofaxFunction<ParseResult, Evalua
     private final Map<String, IEvaluationStrategy> evaluationStrategies;
 
     /**
-     * Instantiate an {@link PEvalFunction}.
+     * Instantiate a {@link PEvalFunction}.
      *
      * @param evaluationStrategies
      *            The {@link IEvaluationStrategy} implementations, grouped by their names as keys.
