@@ -91,6 +91,10 @@ public interface IFunctionFactory {
      * The {@link CommandBuilder} composes an {@link IReplCommand}
      * from several {@link AbstractSpoofaxFunction}s.
      *
+     * This factory method creates a {@link CommandBuilder} no initial function.
+     * Before calling {@link CommandBuilder#build()}, the  caller is required to
+     * set a function with one of the builder methods of the {@link CommandBuilder}.
+     *
      * @param project   The associated {@link IProject}
      * @param lang      The associated {@link ILanguageImpl}
      * @return          an {@link CommandBuilder}

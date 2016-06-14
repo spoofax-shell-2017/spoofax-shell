@@ -39,7 +39,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
         }
 
         @Override
-        public <NewS extends ISpoofaxResult<?>> FailOrSuccessResult<NewS, F>
+        public <NewS extends IResult> FailOrSuccessResult<NewS, F>
             flatMap(FailableFunction<S, NewS, F> errorFunc) {
             Objects.requireNonNull(errorFunc);
             return errorFunc.apply(result);
@@ -66,7 +66,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
         }
 
         @Override
-        public <NewS extends ISpoofaxResult<?>> FailOrSuccessResult<NewS, F>
+        public <NewS extends IResult> FailOrSuccessResult<NewS, F>
             flatMap(FailableFunction<S, NewS, F> errorFunc) {
             Objects.requireNonNull(errorFunc);
             return failed(result);
@@ -139,6 +139,6 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
      * @param <S>
      *            the new type of a successful result.
      */
-    public abstract <S extends ISpoofaxResult<?>> FailOrSuccessResult<S, Fail>
+    public abstract <S extends IResult> FailOrSuccessResult<S, Fail>
         flatMap(FailableFunction<Success, S, Fail> errorFunc);
 }

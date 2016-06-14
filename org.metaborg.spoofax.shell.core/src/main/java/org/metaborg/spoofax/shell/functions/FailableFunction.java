@@ -5,7 +5,6 @@ import java.util.function.Function;
 
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
-import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 
 /**
  * A {@link java.util.Function} that may result in a failure. This is our domain-specific equivalent
@@ -45,7 +44,7 @@ public interface FailableFunction<In, Success extends IResult, Fail extends IRes
      * @param <NewSuccess>
      *            The return type of a successful result.
      */
-    default <NewSuccess extends ISpoofaxResult<?>> FailableFunction<In, NewSuccess, Fail>
+    default <NewSuccess extends IResult> FailableFunction<In, NewSuccess, Fail>
         kleisliCompose(FailableFunction<Success, NewSuccess, Fail> other) {
         Objects.requireNonNull(other);
         return a -> this.apply(a).flatMap(other);

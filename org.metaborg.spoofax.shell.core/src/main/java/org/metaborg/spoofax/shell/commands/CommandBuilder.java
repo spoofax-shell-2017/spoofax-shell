@@ -1,5 +1,9 @@
 package org.metaborg.spoofax.shell.commands;
 
+import java.util.Objects;
+
+import javax.annotation.Nullable;
+
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
@@ -28,7 +32,16 @@ public class CommandBuilder<R extends IResult> {
     private final IProject project;
 
     private final String description;
-    private final FailableFunction<String, R, IResult> function;
+    private final @Nullable FailableFunction<String, R, IResult> function;
+
+    private CommandBuilder(IFunctionFactory functionFactory, IProject project, ILanguageImpl lang,
+                           String description, FailableFunction<String, R, IResult> function) {
+        this.functionFactory = functionFactory;
+        this.project = project;
+        this.lang = lang;
+        this.description = description;
+        this.function = function;
+    }
 
     /**
      * Constructs a new {@link CommandBuilder} from the given parameters.
@@ -43,11 +56,7 @@ public class CommandBuilder<R extends IResult> {
     @AssistedInject
     public CommandBuilder(IFunctionFactory functionFactory, @Assisted IProject project,
                           @Assisted ILanguageImpl lang) {
-        this.functionFactory = functionFactory;
-        this.project = project;
-        this.lang = lang;
-        this.description = null;
-        this.function = null;
+        this(functionFactory, project, lang, "", null);
     }
 
     /**
@@ -62,11 +71,7 @@ public class CommandBuilder<R extends IResult> {
      */
     private CommandBuilder(CommandBuilder<?> parent, String description,
                            FailableFunction<String, R, IResult> function) {
-        this.functionFactory = parent.functionFactory;
-        this.project = parent.project;
-        this.lang = parent.lang;
-        this.description = description;
-        this.function = function;
+        this(parent.functionFactory, parent.project, parent.lang, description, function);
     }
 
     private FailableFunction<String, InputResult, IResult> inputFunction() {
@@ -74,8 +79,7 @@ public class CommandBuilder<R extends IResult> {
     }
 
     private FailableFunction<String, ParseResult, IResult> parseFunction() {
-        return inputFunction()
-            .kleisliCompose(functionFactory.createParseFunction(project, lang));
+        return inputFunction().kleisliCompose(functionFactory.createParseFunction(project, lang));
     }
 
     private FailableFunction<String, AnalyzeResult, IResult> analyzeFunction() {
@@ -83,13 +87,13 @@ public class CommandBuilder<R extends IResult> {
     }
 
     private FailableFunction<String, TransformResult, IResult>
-        pTransformFunction(ITransformAction action) {
+            pTransformFunction(ITransformAction action) {
         return parseFunction()
             .kleisliCompose(functionFactory.createPTransformFunction(project, lang, action));
     }
 
     private FailableFunction<String, TransformResult, IResult>
-        aTransformFunction(ITransformAction action) {
+            aTransformFunction(ITransformAction action) {
         return analyzeFunction()
             .kleisliCompose(functionFactory.createATransformFunction(project, lang, action));
     }
@@ -167,6 +171,41 @@ public class CommandBuilder<R extends IResult> {
      */
     public CommandBuilder<EvaluateResult> evalAnalyzed() {
         return new CommandBuilder<>(this, description, aEvaluateFunction());
+    }
+
+    /**
+     * Set the function for a new builder with the current parameters. Discards the current function
+     * of this builder.
+     *
+     * @param func
+     *            An initial {@link FailableFunction} accepting a String and returning some
+     *            {@link IResult}.
+     * @return A {@link CommandBuilder} with given function as current function.
+     * @param <OtherR>
+     *            The return type of the given function.
+     */
+    public <OtherR extends IResult> CommandBuilder<OtherR>
+            function(FailableFunction<String, OtherR, IResult> func) {
+        return new CommandBuilder<>(this, description, func);
+    }
+
+    /**
+     * Compose a given {@link FailableFunction} with the current function.
+     *
+     * @param func
+     *            A {@link FailableFunction} accepting the return type of the current function, and
+     *            returning a new return type.
+     * @return A {@link CommandBuilder} with the composed {@link FailableFunction}.
+     * @param <NewR>
+     *            The return type of the given function.
+     */
+    public <NewR extends IResult> CommandBuilder<NewR>
+            compose(FailableFunction<R, NewR, IResult> func) {
+        Objects.requireNonNull(function,
+                               "The current function cannot be null"
+                                         + " before composing. Set a function with "
+                                         + "one of the builder methods.");
+        return new CommandBuilder<>(this, description, this.function.kleisliCompose(func));
     }
 
     /**
