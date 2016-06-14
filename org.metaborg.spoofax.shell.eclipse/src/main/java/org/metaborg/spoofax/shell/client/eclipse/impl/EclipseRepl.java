@@ -10,7 +10,7 @@ import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.client.IResult;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -32,7 +32,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
     private static final int INPUT_RED = 232;
     private static final int INPUT_GREEN = 242;
     private static final int INPUT_BLUE = 254;
-    private final IResultVisitor visitor;
+    private final IDisplay display;
     private final ICommandInvoker invoker;
 
     /**
@@ -40,12 +40,12 @@ public class EclipseRepl implements IRepl, Observer<String> {
      *
      * @param invoker
      *            The {@link ICommandInvoker} for executing user input.
-     * @param visitor
-     *            The {@link EclipseDisplay} to send results to.
+     * @param display
+     *            The {@link IDisplay} to send results to.
      */
     @AssistedInject
-    public EclipseRepl(ICommandInvoker invoker, @Assisted IResultVisitor visitor) {
-        this.visitor = visitor;
+    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display) {
+        this.display = display;
         this.invoker = invoker;
     }
 
@@ -81,8 +81,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
         // highlighted.
         Color inputBackgroundColor = new Color(INPUT_RED, INPUT_GREEN, INPUT_BLUE);
         Style style = new Style(null, inputBackgroundColor, false, false, false);
-        // FIXME: Input is not really a "message"...
-        this.visitor.visitMessage(new StyledText(style, input));
+        this.display.displayStyledText(new StyledText(style, input));
     }
 
     private void runAsJob(final String input) {
@@ -107,7 +106,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
         Job job = new UIJob("Spoofax REPL display job") {
             @Override
             public IStatus runInUIThread(IProgressMonitor arg0) {
-                result.accept(visitor);
+                result.accept(display);
                 return Status.OK_STATUS;
             }
         };

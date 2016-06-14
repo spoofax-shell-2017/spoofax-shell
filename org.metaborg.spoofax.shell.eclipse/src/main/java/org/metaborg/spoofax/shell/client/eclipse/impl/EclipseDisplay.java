@@ -14,7 +14,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IDisplay;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
 import org.metaborg.spoofax.shell.output.StyledText;
 
@@ -22,7 +21,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 /**
- * An Eclipse-based {@link IResultVisitor}, which uses a {@link TextViewer} to display results and
+ * An Eclipse-based {@link IDisplay}, which uses a {@link TextViewer} to display results and
  * error messages.
  *
  * Note that this class should always be run in and accessed from the UI thread!

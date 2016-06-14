@@ -47,7 +47,8 @@ import com.google.inject.name.Names;
 
 /**
  * This class binds the core classes. It is intended to be subclassed by client implementations.
- * These subclasses should bind their implementations of {@link IRepl} and {@link IResultVisitor}.
+ * These subclasses should bind their implementations of {@link IRepl} and either
+ * {@link IResultVisitor} or {@link IDisplay} (which is also an {@link IResultVisitor}).
  */
 public abstract class ReplModule extends SpoofaxModule {
 
