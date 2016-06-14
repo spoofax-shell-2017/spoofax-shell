@@ -21,7 +21,26 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 /**
- * Builds commands by composing several smaller functional interfaces.
+ * Builds commands by composing {@link FailableFunction}s. This builder provides several functions
+ * that are set out of the box, namely:
+ *
+ * <ol>
+ * <li>{@link #input()},</li>
+ * <li>{@link #parse()},</li>
+ * <li>{@link #analyze()},</li>
+ * <li>{@link #transformParsed(ITransformAction)} and {@link #transformAnalyzed(ITransformAction)},
+ * </li>
+ * <li>{@link #evalParsed()} and {@link #evalAnalyzed()}</li>
+ * </ol>
+ *
+ * It also allows composing ones own {@link FailableFunction}s in a builder like manner. Use
+ * {@link #function(FailableFunction)} for setting the initial function, which always starts from an
+ * array of {@link String}s and can return any {@link IResult}. Then one can use
+ * {@link #compose(FailableFunction)} repeatedly to compose from that function (see also
+ * {@link FailableFunction#kleisliCompose(FailableFunction)}.
+ *
+ * Lastly, the description of the command to be built can be set with {@link #description(String)}.
+ * The command itself can be built using the {@link #build()} method.
  *
  * @param <R>
  *            the return type of the created command
