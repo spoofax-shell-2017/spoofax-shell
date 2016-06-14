@@ -32,10 +32,10 @@ public class CommandBuilder<R extends IResult> {
     private final IProject project;
 
     private final String description;
-    private final @Nullable FailableFunction<String, R, IResult> function;
+    private final @Nullable FailableFunction<String[], R, IResult> function;
 
     private CommandBuilder(IFunctionFactory functionFactory, IProject project, ILanguageImpl lang,
-                           String description, FailableFunction<String, R, IResult> function) {
+                           String description, FailableFunction<String[], R, IResult> function) {
         this.functionFactory = functionFactory;
         this.project = project;
         this.lang = lang;
@@ -70,7 +70,7 @@ public class CommandBuilder<R extends IResult> {
      *            the function the created command will execute
      */
     private CommandBuilder(CommandBuilder<?> parent, String description,
-                           FailableFunction<String, R, IResult> function) {
+                           FailableFunction<String[], R, IResult> function) {
         this(parent.functionFactory, parent.project, parent.lang, description, function);
     }
 
@@ -112,7 +112,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<InputResult> input() {
-        return new CommandBuilder<>(this, description, inputFunction());
+        return function(inputFunction());
     }
 
     /**
@@ -121,7 +121,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<ParseResult> parse() {
-        return new CommandBuilder<ParseResult>(this, description, parseFunction());
+        return function(parseFunction());
     }
 
     /**
@@ -130,7 +130,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<AnalyzeResult> analyze() {
-        return new CommandBuilder<>(this, description, analyzeFunction());
+        return function(analyzeFunction());
     }
 
     /**
@@ -141,7 +141,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<TransformResult> transformParsed(ITransformAction action) {
-        return new CommandBuilder<>(this, description, pTransformFunction(action));
+        return function(pTransformFunction(action));
     }
 
     /**
@@ -152,7 +152,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<TransformResult> transformAnalyzed(ITransformAction action) {
-        return new CommandBuilder<>(this, description, aTransformFunction(action));
+        return function(aTransformFunction(action));
     }
 
     /**
@@ -161,7 +161,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<EvaluateResult> evalParsed() {
-        return new CommandBuilder<>(this, description, pEvaluateFunction());
+        return function(pEvaluateFunction());
     }
 
     /**
@@ -170,12 +170,27 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<EvaluateResult> evalAnalyzed() {
-        return new CommandBuilder<>(this, description, aEvaluateFunction());
+        return function(aEvaluateFunction());
     }
 
     /**
      * Set the function for a new builder with the current parameters. Discards the current function
      * of this builder.
+     *
+     * @param func
+     *            An initial {@link FailableFunction} accepting a String array and returning some
+     *            {@link IResult}.
+     * @return A {@link CommandBuilder} with given function as current function.
+     * @param <OtherR>
+     *            The return type of the given function.
+     */
+    public <OtherR extends IResult> CommandBuilder<OtherR>
+            varFunction(FailableFunction<String[], OtherR, IResult> func) {
+        return new CommandBuilder<>(this, description, func);
+    }
+
+    /**
+     * Variant of {@link #varFunction(FailableFunction)} accepting a single string.
      *
      * @param func
      *            An initial {@link FailableFunction} accepting a String and returning some
@@ -186,7 +201,7 @@ public class CommandBuilder<R extends IResult> {
      */
     public <OtherR extends IResult> CommandBuilder<OtherR>
             function(FailableFunction<String, OtherR, IResult> func) {
-        return new CommandBuilder<>(this, description, func);
+        return varFunction((String... args) -> func.apply(args[0]));
     }
 
     /**
@@ -227,8 +242,8 @@ public class CommandBuilder<R extends IResult> {
     public IReplCommand build() {
         return new IReplCommand() {
             @Override
-            public IResult execute(String... arg) throws MetaborgException {
-                return function.apply(arg[0]);
+            public IResult execute(String... args) throws MetaborgException {
+                return function.apply(args);
             }
 
             @Override
