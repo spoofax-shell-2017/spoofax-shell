@@ -1,22 +1,22 @@
-package org.metaborg.spoofax.shell.client.eclipse.impl;
+package org.metaborg.spoofax.shell.client;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.metaborg.spoofax.shell.client.IInputHistory;
-
 /**
- * A volatile Eclipse-based implementation of {@link IInputHistory}. This implementation is backed
- * by a {@link LinkedList}.
+ * A volatile implementation of {@link IInputHistory}, to be used by clients that place no special
+ * demands on their history.
+ * <p>
+ * This implementation is backed by a {@link LinkedList}.
  */
-public class EclipseInputHistory implements IInputHistory {
+public class InputHistory implements IInputHistory {
     private final List<String> history;
     private int index;
 
     /**
-     * Instantiate a new EclipseHistory.
+     * Instantiate a new InputHistory.
      */
-    public EclipseInputHistory() {
+    public InputHistory() {
         this.history = new LinkedList<>();
         reset();
     }
