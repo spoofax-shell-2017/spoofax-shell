@@ -1,10 +1,10 @@
 package org.metaborg.spoofax.shell.core;
 
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -42,13 +42,13 @@ import org.mockito.Mockito;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.vm.PolyglotEngine;
 import com.oracle.truffle.api.vm.PolyglotEngine.Value;
-import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.frame.VirtualFrame;
 
 /**
  * Tests loading of a "generated" interpreter that is on the class path. The interpreter entry point
@@ -336,6 +336,11 @@ public class ClassPathInterpreterLoaderTest {
                         return null;
                     }
                 });
+        }
+
+        @Override
+        public boolean isSafeComponentsEnabled() {
+            return false;
         }
     }
 }
