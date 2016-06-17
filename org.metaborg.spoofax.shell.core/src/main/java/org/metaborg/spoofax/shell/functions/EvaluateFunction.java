@@ -11,6 +11,7 @@ import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
+import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
@@ -52,7 +53,7 @@ public class EvaluateFunction extends ContextualSpoofaxFunction<ISpoofaxTermResu
     protected FailOrSuccessResult<EvaluateResult, IResult>
             applyThrowing(IContext context, ISpoofaxTermResult<?> a) throws Exception {
         if (!a.ast().isPresent()) {
-            return FailOrSuccessResult.failed(a);
+            return FailOrSuccessResult.failed(new FailResult(a));
         }
         ShellFacet facet = context.language().facet(ShellFacet.class);
         if (facet == null) {
