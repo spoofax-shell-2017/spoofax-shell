@@ -1,6 +1,5 @@
 package org.metaborg.spoofax.shell.output;
 
-import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
 
 /**

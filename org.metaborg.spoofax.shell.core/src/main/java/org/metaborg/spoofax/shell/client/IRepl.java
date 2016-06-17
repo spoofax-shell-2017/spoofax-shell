@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.client;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.IResult;
 
 /**
  * This interface defines the evaluation part of a REPL (Read-Eval-Print-Loop). The reason for only

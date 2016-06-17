@@ -1,7 +1,8 @@
-package org.metaborg.spoofax.shell.client;
+package org.metaborg.spoofax.shell.output;
 
 import java.util.function.Consumer;
 
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 /**

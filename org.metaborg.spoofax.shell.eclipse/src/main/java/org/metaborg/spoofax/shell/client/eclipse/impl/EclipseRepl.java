@@ -9,10 +9,10 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.IRepl;
-import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.assistedinject.Assisted;

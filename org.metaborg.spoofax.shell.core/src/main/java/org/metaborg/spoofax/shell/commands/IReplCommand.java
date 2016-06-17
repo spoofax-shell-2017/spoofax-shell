@@ -1,8 +1,8 @@
 package org.metaborg.spoofax.shell.commands;
 
-import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.IResult;
 
 /**
  * Interface for REPL commands. Used together with {@link ICommandInvoker}, instances of
