@@ -19,8 +19,8 @@ import com.google.inject.Inject;
  * This class then creates a map of all defined {@link ITransformAction}s.
  */
 public class TransformVisitor implements IMenuItemVisitor {
+    private final IMenuService menuService;
     private Map<String, ITransformAction> actions;
-    private IMenuService menuService;
 
     /**
      * Instantiates a new {@link TransformVisitor}.

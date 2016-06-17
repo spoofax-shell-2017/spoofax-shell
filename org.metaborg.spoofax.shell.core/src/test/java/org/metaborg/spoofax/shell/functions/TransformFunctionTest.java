@@ -53,7 +53,7 @@ import org.mockito.Mock;
 
 /**
  * Test creating and using a {@link IReplCommand} created from the {@link PTransformFunction} and
- * the {@link ATransformFuntion}.
+ * the {@link ATransformFunction}.
  */
 @RunWith(Parameterized.class)
 public class TransformFunctionTest {
@@ -83,11 +83,10 @@ public class TransformFunctionTest {
     @Captor private ArgumentCaptor<ISpoofaxResult<?>> resultCaptor;
     @Captor private ArgumentCaptor<Exception> exceptionCaptor;
 
-    private FileObject sourceFile;
-    private String description;
-    private TransformResult result;
+    private final String description;
+    private final TransformResult result;
+    private final Function<IResultFactory, TransformResult> check;
     private IReplCommand command;
-    private Function<IResultFactory, TransformResult> check;
 
     /**
      * Parameters to test {@link ATransformFunction} and {@link PTransformFunction}.
@@ -96,9 +95,9 @@ public class TransformFunctionTest {
     @Parameters(name = "{index}: {0}")
     public static List<Object[]> functions() {
         BiFunction<CommandBuilder<?>, ITransformAction, CommandBuilder<?>> parsedTransform
-            = (builder, action) -> builder.transformParsed(action);
+            = CommandBuilder::transformParsed;
         BiFunction<CommandBuilder<?>, ITransformAction, CommandBuilder<?>> analyzedTransform
-            = (builder, action) -> builder.transformAnalyzed(action);
+            = CommandBuilder::transformAnalyzed;
         Function<IResultFactory, TransformResult> checkParsed
             = (factory) -> factory.createPTransformResult(any());
         Function<IResultFactory, TransformResult> checkAnalyzed
@@ -138,7 +137,7 @@ public class TransformFunctionTest {
     }
 
     private void mockServices() throws FileSystemException, MetaborgException {
-        sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
+        FileObject sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
         when(project.location()).thenReturn(sourceFile);
         when(parseResult.context()).thenReturn(Optional.empty());
         when(analyzeResult.context()).thenReturn(Optional.empty());

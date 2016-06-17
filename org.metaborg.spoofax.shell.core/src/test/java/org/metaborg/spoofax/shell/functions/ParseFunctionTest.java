@@ -63,7 +63,6 @@ public class ParseFunctionTest {
     @Captor private ArgumentCaptor<ISpoofaxResult<?>> resultCaptor;
     @Captor private ArgumentCaptor<Exception> exceptionCaptor;
 
-    private FileObject sourceFile;
     private IReplCommand parseCommand;
 
     /**
@@ -73,7 +72,7 @@ public class ParseFunctionTest {
      */
     @Before
     public void setup() throws FileSystemException, ParseException {
-        sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
+        FileObject sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
         when(project.location()).thenReturn(sourceFile);
 
         ParseFunction parseFunction = new ParseFunction(syntaxService, unitService,

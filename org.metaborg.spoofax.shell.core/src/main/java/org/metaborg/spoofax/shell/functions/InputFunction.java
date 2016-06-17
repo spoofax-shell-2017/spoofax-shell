@@ -1,7 +1,7 @@
 package org.metaborg.spoofax.shell.functions;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
+import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
@@ -37,8 +37,12 @@ public class InputFunction extends AbstractSpoofaxFunction<String, InputResult> 
 
     @Override
     protected FailOrSuccessResult<InputResult, IResult> applyThrowing(String source)
-        throws FileSystemException {
+        throws Exception {
         ShellFacet shellFacet = lang.facet(ShellFacet.class);
+        if (shellFacet == null) {
+            throw new MetaborgException("Cannot find the shell facet.");
+        }
+
         FileObject file = project.location().resolveFile("temp");
         return FailOrSuccessResult.ofSpoofaxResult(resultFactory
             .createInputResult(lang, file, source,

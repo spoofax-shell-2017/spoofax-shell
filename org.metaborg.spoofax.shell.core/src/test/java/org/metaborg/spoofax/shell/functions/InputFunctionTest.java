@@ -59,7 +59,6 @@ public class InputFunctionTest {
     @Captor private ArgumentCaptor<ISpoofaxResult<?>> resultCaptor;
     @Captor private ArgumentCaptor<Exception> exceptionCaptor;
 
-    private FileObject sourceFile;
     private IReplCommand inputCommand;
 
     /**
@@ -68,7 +67,7 @@ public class InputFunctionTest {
      */
     @Before
     public void setup() throws FileSystemException {
-        sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
+        FileObject sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
         when(project.location()).thenReturn(sourceFile);
 
         InputFunction inputFunction = new InputFunction(resultFactory, project, lang);

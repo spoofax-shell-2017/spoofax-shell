@@ -136,15 +136,13 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         String ctorName = inputCtor.getName();
         int arity = inputCtor.getArity();
 
-        Value rule =
-            polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
-        return rule;
+        return polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
     }
 
     private IStrategoTerm invoke(Value rule, ITerm programTerm) throws MetaborgException {
         try {
             // Add the arguments.
-            List<Object> arguments = new ArrayList<Object>(1 + rwSemanticComponents.length);
+            List<Object> arguments = new ArrayList<>(1 + rwSemanticComponents.length);
             arguments.add(programTerm);
             arguments.addAll(Arrays.asList(rwSemanticComponents));
 

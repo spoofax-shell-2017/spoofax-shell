@@ -4,7 +4,7 @@ package org.metaborg.spoofax.shell.output;
  * Represents a command that has resulted in a {@link Throwable}.
  */
 public class ExceptionResult implements IResult {
-    private Throwable thrown;
+    private final Throwable thrown;
 
     /**
      * Create an {@link ExceptionResult} from a {@link Throwable}.

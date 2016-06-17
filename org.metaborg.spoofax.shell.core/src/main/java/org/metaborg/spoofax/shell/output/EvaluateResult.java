@@ -18,8 +18,8 @@ import com.google.inject.assistedinject.Assisted;
  * The result of the execution of an {@link AEvalFunction} or a {@link PEvalFunction}.
  */
 public abstract class EvaluateResult extends AbstractSpoofaxResult<IUnit> {
-    private AbstractSpoofaxResult<?> wrappedDelegate;
-    private IStrategoTerm result;
+    private final AbstractSpoofaxResult<?> wrappedDelegate;
+    private final IStrategoTerm result;
 
     /**
      * The result of the evaluation of an analyzed AST.

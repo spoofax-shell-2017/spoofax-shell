@@ -117,17 +117,17 @@ public class LanguageCommand implements IReplCommand {
                 .description("Analyze the expression").build());
 
             eval = builder.evalAnalyzed().description("Evaluate an analyzed expression").build();
-            transform = (action) -> builder.transformAnalyzed(action);
+            transform = builder::transformAnalyzed;
         } else {
             eval = builder.evalParsed().description("Evaluate a parsed expression").build();
-            transform = (action) -> builder.transformParsed(action);
+            transform = builder::transformParsed;
         }
         invoker.addCommand("eval", eval);
         invoker.setDefault(eval);
 
-        new TransformVisitor(menuService).getActions(lang).forEach((key, action) -> {
-            invoker.addCommand(key, transform.apply(action).description(action.name()).build());
-        });
+        new TransformVisitor(menuService).getActions(lang).forEach((key, action) ->
+                invoker.addCommand(key, transform.apply(action).description(action.name())
+                        .build()));
     }
 
     @Override

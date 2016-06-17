@@ -41,7 +41,6 @@ public class HelpCommandTest {
     @Mock private IReplCommand multiLineComment;
 
     private HelpCommand helpCommand;
-    private Map<String, IReplCommand> commands;
 
     /**
      * Set up mocks used in the test case.
@@ -49,7 +48,7 @@ public class HelpCommandTest {
      */
     @Before
     public void setup() throws CommandNotFoundException {
-        commands = Maps.newHashMap();
+        Map<String, IReplCommand> commands = Maps.newHashMap();
         commands.put("name-1", singleLineComment);
         commands.put("name-2", multiLineComment);
 

@@ -12,8 +12,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @param <T> the wrapped subtype of {@link IUnit}
  */
 public abstract class AbstractSpoofaxResult<T extends IUnit> implements ISpoofaxResult<IUnit> {
-    private IStrategoCommon common;
-    private T unit;
+    private final IStrategoCommon common;
+    private final T unit;
 
     /**
      * Constructor for an {@link AbstractSpoofaxResult}.
