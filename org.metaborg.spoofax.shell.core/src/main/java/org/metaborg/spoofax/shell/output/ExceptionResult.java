@@ -1,7 +1,5 @@
 package org.metaborg.spoofax.shell.output;
 
-import org.metaborg.spoofax.shell.client.IResultVisitor;
-
 /**
  * Represents a command that has resulted in a {@link Throwable}.
  */

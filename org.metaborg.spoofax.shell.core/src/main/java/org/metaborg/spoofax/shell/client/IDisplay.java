@@ -11,6 +11,7 @@ import org.metaborg.core.source.SourceRegion;
 import org.metaborg.core.style.IStyle;
 import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.output.FailResult;
+import org.metaborg.spoofax.shell.output.IResultVisitor;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 

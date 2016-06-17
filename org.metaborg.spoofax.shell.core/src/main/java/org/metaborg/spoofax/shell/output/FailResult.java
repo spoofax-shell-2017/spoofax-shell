@@ -1,7 +1,5 @@
 package org.metaborg.spoofax.shell.output;
 
-import org.metaborg.spoofax.shell.client.IResultVisitor;
-
 /**
  * An {@link IResult} that represents a failure in execution, along with the cause of the failure.
  */

@@ -1,8 +1,4 @@
-package org.metaborg.spoofax.shell.client;
-
-import org.metaborg.spoofax.shell.output.FailResult;
-import org.metaborg.spoofax.shell.output.ISpoofaxResult;
-import org.metaborg.spoofax.shell.output.StyledText;
+package org.metaborg.spoofax.shell.output;
 
 /**
  * An {@link IResultVisitor} is for visiting the results of a command or expression that was
