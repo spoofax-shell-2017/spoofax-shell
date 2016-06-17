@@ -11,6 +11,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -18,6 +22,8 @@ import org.apache.commons.vfs2.VFS;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.analysis.AnalyzerFacet;
 import org.metaborg.core.language.ILanguageComponent;
@@ -37,15 +43,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.Lists;
 
 /**
  * Test creating and using the {@link LanguageCommand}.
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(Parameterized.class)
 public class LanguageCommandTest {
+    private final String extension;
 
     // Constructor mocks
     @Mock private ILanguageDiscoveryService langDiscoveryService;
@@ -67,13 +73,45 @@ public class LanguageCommandTest {
     private LanguageCommand langCommand;
 
     /**
+     * List the archive types that are tested.
+     *
+     * @return An array of archive extensions.
+     */
+    @Parameters
+    public static Collection<Object[]> archives() {
+        // @formatter.off
+        return Arrays.asList(new Object[][] {
+            { ".zip" },
+            { ".jar" },
+            { ".tar" },
+            { ".tgz" },
+            { ".tbz2"}
+        });
+        // @formatter.on
+    }
+
+    /**
+     * Instantiate a new {@link LanguageCommandTest}.
+     *
+     * @param archiveExtension
+     *            The archive extension to run the tests with, see {@link #data()}.
+     */
+    public LanguageCommandTest(String archiveExtension) {
+        this.extension = archiveExtension;
+    }
+
+    /**
      * Set up mocks used in the test case.
-     * @throws FileSystemException when resolving the temp file fails
-     * @throws ParseException when parsing fails
+     *
+     * @throws FileSystemException
+     *             when resolving the temp file fails
+     * @throws ParseException
+     *             when parsing fails
      */
     @Before
-    public void setup() throws FileSystemException, ParseException {
-        langloc = VFS.getManager().resolveFile("res:paplj.zip");
+    public void setUp() throws FileSystemException, ParseException {
+        initMocks(this);
+        langloc = VFS.getManager().resolveFile("res:paplj" + this.extension);
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
             .thenReturn(Lists.newArrayList(lang));
         when(resourceService.resolveToName(anyString())).thenReturn(langloc.getName());
