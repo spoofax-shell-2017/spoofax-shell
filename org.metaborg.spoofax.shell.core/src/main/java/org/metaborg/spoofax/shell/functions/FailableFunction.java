@@ -28,8 +28,6 @@ public interface FailableFunction<In, Success extends IResult, Fail extends IRes
      *            The input of the function.
      * @return {@link FailOrSuccessResult An error or a success result}, depending on whether the
      *         application was successful or not.
-     * @throws MetaborgException
-     *             When something went wrong in execution of this {@link FailableFunction}.
      */
     @Override
     FailOrSuccessResult<Success, Fail> apply(In input);

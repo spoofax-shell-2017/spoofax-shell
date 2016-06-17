@@ -17,7 +17,9 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
+import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.ExceptionResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.metaborg.spoofax.shell.output.TransformResult;
 
@@ -96,13 +98,7 @@ public class LanguageCommand implements IReplCommand {
         return resourceService.resolve(path);
     }
 
-    @Override
-    public IResult execute(String... args) throws MetaborgException {
-        if (args.length == 0 || args.length > 1) {
-            throw new MetaborgException("Syntax: :lang <path>");
-        }
-
-        ILanguageImpl lang = load(resolveLanguage(args[0]));
+    private void loadCommands(ILanguageImpl lang) {
         boolean analyze = lang.hasFacet(AnalyzerFacet.class);
         CommandBuilder<?> builder = factory.createBuilder(project, lang);
         Function<ITransformAction, CommandBuilder<TransformResult>> transform;
@@ -120,12 +116,27 @@ public class LanguageCommand implements IReplCommand {
                                .description("Evaluate a parsed expression").build());
             transform = (action) -> builder.transformParsed(action);
         }
+
         new TransformVisitor(menuService).getActions(lang).forEach((key, action) -> {
             invoker.addCommand(key, transform.apply(action).description(action.name()).build());
         });
+    }
 
-        return (visitor) -> visitor
-            .visitMessage(new StyledText("Loaded language " + lang));
+    @Override
+    public IResult execute(String... args) {
+        if (args.length == 0 || args.length > 1) {
+            return new ExceptionResult(new CommandNotFoundException("Syntax: :lang <path>"));
+        }
+
+        try {
+            ILanguageImpl lang = load(resolveLanguage(args[0]));
+            loadCommands(lang);
+
+            return (visitor) -> visitor
+                    .visitMessage(new StyledText("Loaded language " + lang));
+        } catch (MetaborgException e) {
+            return new ExceptionResult(e);
+        }
     }
 
 }

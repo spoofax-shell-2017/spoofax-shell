@@ -7,7 +7,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
-import org.metaborg.core.MetaborgException;
 import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.client.IResult;
@@ -93,7 +92,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
                 try {
                     runAsUIJob(eval(input));
                     return Status.OK_STATUS;
-                } catch (MetaborgException | CommandNotFoundException e) {
+                } catch (CommandNotFoundException e) {
                     StyledText message = new StyledText(Color.RED, e.getMessage());
                     runAsUIJob((visitor) -> visitor.visitMessage(message));
                     return Status.CANCEL_STATUS;

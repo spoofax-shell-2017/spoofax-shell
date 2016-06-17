@@ -132,12 +132,12 @@ public class LanguageCommandTest {
      * Test execute with invalid input arguments.
      * @throws MetaborgException when language discovery fails
      */
-    @Test(expected = MetaborgException.class)
     public void testExecuteInvalidArgs1() throws MetaborgException {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
-        langCommand.execute();
+        langCommand.execute().accept(visitor);
+        verify(visitor, times(1)).visitException(any(MetaborgException.class));
     }
 
     /**
@@ -146,12 +146,14 @@ public class LanguageCommandTest {
      * @throws MetaborgException
      *             when language discovery fails
      */
-    @Test(expected = MetaborgException.class)
+    @Test
     public void testExecuteInvalidArgs2() throws MetaborgException {
         Iterable<ILanguageDiscoveryRequest> langrequest = any();
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
-        langCommand.execute(new String[] { "", "" });
+        langCommand.execute(new String[] { "", "" }).accept(visitor);
+
+        verify(visitor, times(1)).visitException(any(MetaborgException.class));
     }
 
     /**

@@ -3,7 +3,6 @@ package org.metaborg.spoofax.shell.client.console.impl;
 import java.awt.Color;
 import java.io.IOException;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
@@ -57,11 +56,6 @@ public class ConsoleRepl implements IRepl {
     /**
      * Run {@link IRepl#eval(String)} in a loop, for as long as {@code running} is {@code true}.
      *
-     * @throws MetaborgException
-     *             When something goes wrong during execution.
-     * @throws CommandNotFoundException
-     *             When the command could not be found.
-     *
      * @see IRepl#eval(String)
      * @see ConsoleRepl#setRunning(boolean)
      */
@@ -74,7 +68,7 @@ public class ConsoleRepl implements IRepl {
             while (running && (input = this.iface.getInput()) != null) {
                 try {
                     eval(input).accept(visitor);
-                } catch (CommandNotFoundException | MetaborgException e) {
+                } catch (CommandNotFoundException e) {
                     this.visitor.visitMessage(new StyledText(Color.RED, e.getMessage()));
                 }
             }

@@ -74,15 +74,16 @@ public class HelpCommandTest {
     /**
      * Test getting help for a command that does not exist.
      *
-     * @throws MetaborgException
-     *             expected.
      * @throws CommandNotFoundException
      *             Should not happen.
      */
-    @Test(expected = MetaborgException.class)
-    public void testCommandNotFound() throws MetaborgException, CommandNotFoundException {
-        when(invoker.commandFromName(any())).thenThrow(new CommandNotFoundException("error"));
+    @Test
+    public void testCommandNotFound() throws CommandNotFoundException {
+        CommandNotFoundException exception = new CommandNotFoundException("error");
+        when(invoker.commandFromName(any())).thenThrow(exception);
         helpCommand.execute("invalid-command").accept(visitor);
+
+        verify(visitor, times(1)).visitException(exception);
     }
 
     /**

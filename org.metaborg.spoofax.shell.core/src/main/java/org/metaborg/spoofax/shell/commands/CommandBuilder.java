@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
@@ -269,7 +268,7 @@ public class CommandBuilder<R extends IResult> {
     public IReplCommand build() {
         return new IReplCommand() {
             @Override
-            public IResult execute(String... args) throws MetaborgException {
+            public IResult execute(String... args) {
                 return function.apply(args);
             }
 

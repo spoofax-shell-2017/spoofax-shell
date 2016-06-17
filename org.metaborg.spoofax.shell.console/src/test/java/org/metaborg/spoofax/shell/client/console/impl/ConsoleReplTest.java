@@ -15,10 +15,11 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
-import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.ReplModule;
 import org.metaborg.spoofax.shell.client.ConsoleReplModule;
 import org.metaborg.spoofax.shell.client.console.commands.ExitCommand;
@@ -100,7 +101,7 @@ public class ConsoleReplTest {
             repl.run();
             // Ensure that the command invoker is never called with any command.
             verify(invokerMock, never()).execute(anyString());
-        } catch (IOException | MetaborgException | CommandNotFoundException e) {
+        } catch (IOException | CommandNotFoundException e) {
             fail("Should not happen");
         }
     }
@@ -137,7 +138,7 @@ public class ConsoleReplTest {
 
             // Verify that the Editor was not asked for input after the exit command was executed.
             verify(ifaceSpy, times(1)).getInput();
-        } catch (IOException | CommandNotFoundException | MetaborgException e) {
+        } catch (IOException | CommandNotFoundException e) {
             fail("Should not happen");
         }
     }

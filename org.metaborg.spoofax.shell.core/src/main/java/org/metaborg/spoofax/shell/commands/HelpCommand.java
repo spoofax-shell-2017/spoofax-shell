@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.ExceptionResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
@@ -56,7 +56,7 @@ public class HelpCommand implements IReplCommand {
     }
 
     @Override
-    public IResult execute(String... args) throws MetaborgException {
+    public IResult execute(String... args) {
         try {
             Map<String, IReplCommand> commands;
             if (args.length > 0) {
@@ -69,7 +69,7 @@ public class HelpCommand implements IReplCommand {
             return (visitor) -> visitor
                 .visitMessage(new StyledText(formathelp(commands)));
         } catch (CommandNotFoundException e) {
-            throw new MetaborgException("Command not found: " + e.commandName());
+            return new ExceptionResult(e);
         }
     }
 

@@ -1,6 +1,5 @@
 package org.metaborg.spoofax.shell.client;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -25,12 +24,10 @@ public interface IRepl {
      * @return An {@link IResult} to process the result of the evaluation. When the input is empty,
      *         it returns an {@link IResult} that does nothing upon accepting a
      *         {@link IResultVisitor visitor}.
-     * @throws MetaborgException
-     *             When something goes wrong during execution.
      * @throws CommandNotFoundException
      *             When the command could not be found.
      */
-    default IResult eval(String input) throws MetaborgException, CommandNotFoundException {
+    default IResult eval(String input) throws CommandNotFoundException {
         input = input.trim();
         if (input.length() == 0) {
             return (visitor) -> {

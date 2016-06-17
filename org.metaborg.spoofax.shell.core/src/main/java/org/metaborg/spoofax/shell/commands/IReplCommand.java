@@ -1,6 +1,5 @@
 package org.metaborg.spoofax.shell.commands;
 
-import org.metaborg.core.MetaborgException;
 import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -23,8 +22,6 @@ public interface IReplCommand {
      *            The arguments for this command.
      * @return A visitable {@link IResult result} of this command. Use {@link IResultVisitor} and
      *         call {@link IResult#accept(IResultVisitor)} with it.
-     * @throws MetaborgException
-     *             When something goes wrong during execution.
      */
-    IResult execute(String... args) throws MetaborgException;
+    IResult execute(String... args);
 }
