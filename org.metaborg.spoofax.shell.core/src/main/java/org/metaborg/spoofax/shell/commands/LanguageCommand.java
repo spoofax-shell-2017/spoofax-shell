@@ -29,7 +29,7 @@ import com.google.inject.Inject;
  * Represents a command that loads a Spoofax language.
  */
 public class LanguageCommand implements IReplCommand {
-    private static final String[] ARCHIVES = { ".zip", ".jar", ".tar", ".tgz", ".tbz2", };
+    private static final String[] ARCHIVES = { "zip", "jar", "tar", "tgz", "tbz2", };
     private final ILanguageDiscoveryService langDiscoveryService;
     private final IResourceService resourceService;
     private final IMenuService menuService;

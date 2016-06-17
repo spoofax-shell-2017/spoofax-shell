@@ -81,11 +81,11 @@ public class LanguageCommandTest {
     public static Collection<Object[]> archives() {
         // @formatter.off
         return Arrays.asList(new Object[][] {
-            { ".zip" },
-            { ".jar" },
-            { ".tar" },
-            { ".tgz" },
-            { ".tbz2"}
+                { "zip" },
+                { "jar" },
+                { "tar" },
+                { "tgz" },
+                { "tbz2" }
         });
         // @formatter.on
     }
@@ -111,7 +111,7 @@ public class LanguageCommandTest {
     @Before
     public void setUp() throws FileSystemException, ParseException {
         initMocks(this);
-        langloc = VFS.getManager().resolveFile("res:paplj" + this.extension);
+        langloc = VFS.getManager().resolveFile("res:paplj." + this.extension);
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
             .thenReturn(Lists.newArrayList(lang));
         when(resourceService.resolveToName(anyString())).thenReturn(langloc.getName());
