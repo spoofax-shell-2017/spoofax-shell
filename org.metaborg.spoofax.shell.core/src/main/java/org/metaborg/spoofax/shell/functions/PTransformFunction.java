@@ -35,7 +35,7 @@ public class PTransformFunction extends ContextualSpoofaxFunction<ParseResult, T
      * @param transformService
      *            The {@link ISpoofaxTransformService}.
      * @param resultFactory
-     *            The {@link ResultFactory}.
+     *            The {@link IResultFactory}.
      * @param project
      *            The {@link IProject} in which this command should operate.
      * @param lang

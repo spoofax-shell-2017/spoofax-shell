@@ -15,7 +15,8 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 /**
- * An {@link IMenuItemVisitor} implementation to create one {@link TransformCommand} per menu item.
+ * An {@link IMenuItemVisitor} implementation that traverses over all {@link IMenuItem}s.
+ * This class then creates a map of all defined {@link ITransformAction}s.
  */
 public class TransformVisitor implements IMenuItemVisitor {
     private Map<String, ITransformAction> actions;
@@ -33,7 +34,7 @@ public class TransformVisitor implements IMenuItemVisitor {
     }
 
     /**
-     * Retrieve all the actions from the {@link IMenuService} that belong to the given
+     * Retrieve all actions from the {@link IMenuService} that are defined for the given
      * {@link ILanguageImpl language}.
      *
      * @param lang

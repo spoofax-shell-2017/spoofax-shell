@@ -25,14 +25,14 @@ public class AnalyzeFunction extends ContextualSpoofaxFunction<ParseResult, Anal
     private final ISpoofaxAnalysisService analysisService;
 
     /**
-     * Instantiate an {@link AnalyzeCommand}.
+     * Instantiate an {@link AnalyzeFunction}.
      *
      * @param contextService
      *            The {@link IContextService}.
      * @param analysisService
      *            The {@link IAnalysisService}
      * @param resultFactory
-     *            The {@link ResultFactory}.
+     *            The {@link IResultFactory}.
      * @param project
      *            The project in which this command should operate.
      * @param lang

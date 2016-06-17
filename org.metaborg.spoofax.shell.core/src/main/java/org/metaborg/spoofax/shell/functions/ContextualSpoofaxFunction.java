@@ -19,7 +19,7 @@ import org.metaborg.spoofax.shell.output.ISpoofaxResult;
  * upon construction of this function.
  *
  * @param <In>
- *            The argument type of the {@link #apply(In)} method.
+ *            The argument type of the {@link #apply(Object)} method.
  * @param <Success>
  *            The type of a successful {@link ISpoofaxResult}.
  */
@@ -37,7 +37,7 @@ public abstract class ContextualSpoofaxFunction<In extends ISpoofaxResult<?>,
      *            The {@link IContextService} with which to create a new {@link IContext} if
      *            necessary.
      * @param resultFactory
-     *            The {@link ResulFactory}.
+     *            The {@link IResultFactory}.
      * @param project
      *            The project in which this command should operate.
      * @param lang

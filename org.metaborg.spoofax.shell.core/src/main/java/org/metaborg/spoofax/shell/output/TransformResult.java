@@ -12,6 +12,7 @@ import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxTransformUnit;
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.Inject;
@@ -19,7 +20,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 /**
- * Represents a {@link TransformResult} as returned by the {@link SpoofaxCommand}. Wraps a
+ * Represents a {@link TransformResult} as returned by the {@link IReplCommand}. Wraps a
  * {@link ISpoofaxTransformUnit}.
  */
 public abstract class TransformResult

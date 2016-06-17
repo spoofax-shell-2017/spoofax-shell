@@ -20,7 +20,7 @@ public class HelpCommand implements IReplCommand {
     private final ICommandInvoker invoker;
 
     /**
-     * Instantiates a new HelpCommand.
+     * Instantiates a new {@link HelpCommand}.
      *
      * @param invoker
      *            The {@link ICommandInvoker}.
