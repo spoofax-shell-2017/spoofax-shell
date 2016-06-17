@@ -309,7 +309,7 @@ public class EvaluateFunctionTest {
      *             on unexpected Spoofax exceptions
      */
     @Test
-    public void testAbsenShellFacetException() throws MetaborgException {
+    public void testAbsentShellFacetException() throws MetaborgException {
         ILanguageImpl langMock =
             when(mock(ILanguageImpl.class).facet(ShellFacet.class)).thenReturn(null).getMock();
         when(context.language()).thenReturn(langMock);

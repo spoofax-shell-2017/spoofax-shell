@@ -9,7 +9,7 @@ import org.metaborg.core.unit.IUnit;
  * @param <T> the wrapped subtype of {@link IUnit}
  */
 public abstract class AbstractSpoofaxResult<T extends IUnit> implements ISpoofaxResult<T> {
-    private T unit;
+    private final T unit;
 
     /**
      * Constructor for an {@link AbstractResult}.
