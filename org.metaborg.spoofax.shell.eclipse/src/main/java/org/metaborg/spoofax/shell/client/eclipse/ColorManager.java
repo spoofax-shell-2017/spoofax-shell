@@ -21,15 +21,6 @@ public class ColorManager {
     private Map<RGB, Color> colors = new HashMap<RGB, Color>();
 
     /**
-     * Return the default foreground color, which is all black.
-     *
-     * @return A new {@link RGB}.
-     */
-    public static RGB getDefault() {
-        return new RGB(0, 0, 0);
-    }
-
-    /**
      * Dispose all created colors.
      */
     public void dispose() {
