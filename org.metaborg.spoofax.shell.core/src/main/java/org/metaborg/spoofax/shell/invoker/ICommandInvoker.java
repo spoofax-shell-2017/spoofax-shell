@@ -59,7 +59,6 @@ public interface ICommandInvoker {
                 split.length > 1 ? Arrays.copyOfRange(split, 1, split.length) : new String[0];
             return commandFromName(commandName).execute(argument);
         } else {
-            // TODO: create sensible way to set default
             return getDefault().execute(optionallyPrefixedCommandName);
         }
     }

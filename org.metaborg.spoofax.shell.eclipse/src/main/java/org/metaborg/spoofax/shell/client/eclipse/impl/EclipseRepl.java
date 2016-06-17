@@ -77,7 +77,6 @@ public class EclipseRepl implements IRepl, Observer<String> {
         // it back to a format of the language currently being used. As such, it cannot be
         // highlighted.
         Style style = new Style(null, null, true, false, false);
-        // FIXME: Input is not really a "message"...
         this.display.displayStyledText(new StyledText(style, input));
     }
 
