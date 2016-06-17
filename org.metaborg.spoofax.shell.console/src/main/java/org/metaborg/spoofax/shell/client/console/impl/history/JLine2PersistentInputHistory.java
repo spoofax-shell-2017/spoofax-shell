@@ -3,9 +3,12 @@ package org.metaborg.spoofax.shell.client.console.impl.history;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Function;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+
+import jline.console.history.History;
 
 /**
  * An extension to the adapter for JLine2's History implementation. This adapter implementation
@@ -49,10 +52,10 @@ public class JLine2PersistentInputHistory extends JLine2InputHistory {
      *         used instead.
      */
     @Override
-    protected jline.console.history.History delegate() {
+    protected History delegate() {
         // orElse does not work on a subtype, but it does if you put flatMap in between.
         return delegateFileHist
-            .flatMap((jline.console.history.History fileHist) -> Optional.of(fileHist))
+            .flatMap((Function<History, Optional<History>>) Optional::of)
             .orElse(super.delegate());
     }
 

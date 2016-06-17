@@ -25,7 +25,7 @@ public final class Main {
     private static StyledText error(String[] args) {
         StringBuilder invalidArgs = new StringBuilder();
         for (String arg : args) {
-            invalidArgs.append(arg + ", ");
+            invalidArgs.append(arg).append(", ");
         }
         // Remove the appended ", " from the string.
         invalidArgs.delete(invalidArgs.length() - 2, invalidArgs.length());

@@ -48,13 +48,10 @@ public class TerminalUserInterface implements IDisplay {
      *            The {@link PrintStream} to write errors to.
      * @param hist
      *            The input history adapter for JLine2.
-     * @throws IOException
-     *             When an IO error occurs.
      */
     @Inject
     public TerminalUserInterface(ConsoleReader reader, @Named("out") OutputStream out,
-                                 @Named("err") OutputStream err, IInputHistory hist)
-        throws IOException {
+                                 @Named("err") OutputStream err, IInputHistory hist) {
         this.reader = reader;
         this.hist = hist;
         reader.setExpandEvents(false);
