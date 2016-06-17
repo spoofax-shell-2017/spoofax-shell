@@ -7,7 +7,7 @@
     <description>Spoofax Shell Eclipse client</description>
     <packaging>eclipse-plugin</packaging>
     <url>http://spoofax-shell.github.io/</url>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
 
     <parent>
         <groupId>org.metaborg</groupId>
@@ -37,12 +37,12 @@
         <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.shell.core</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.shell.eclipse.externaldeps</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

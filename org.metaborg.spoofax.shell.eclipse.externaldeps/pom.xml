@@ -7,7 +7,7 @@
     <description>Bundle to import meta non-Eclipse external dependencies into Eclipse</description>
     <packaging>bundle</packaging>
     <url>http://spoofax-shell.github.io/</url>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
 
     <parent>
         <groupId>org.metaborg</groupId>

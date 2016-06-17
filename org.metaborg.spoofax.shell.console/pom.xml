@@ -6,7 +6,7 @@
     <name>Spoofax Shell Console Client</name>
     <description>Spoofax Shell console client</description>
     <url>http://spoofax-shell.github.io/</url>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
 
     <parent>
         <groupId>org.metaborg</groupId>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.metaborg</groupId>
             <artifactId>org.metaborg.spoofax.shell.core</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>jline</groupId>
