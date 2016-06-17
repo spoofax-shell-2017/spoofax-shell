@@ -2,7 +2,7 @@ package org.metaborg.spoofax.shell.client.eclipse;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.metaborg.spoofax.shell.client.eclipse.impl.EclipseReplModule;
+import org.metaborg.spoofax.shell.client.EclipseReplModule;
 import org.osgi.framework.BundleContext;
 
 import com.google.inject.Guice;

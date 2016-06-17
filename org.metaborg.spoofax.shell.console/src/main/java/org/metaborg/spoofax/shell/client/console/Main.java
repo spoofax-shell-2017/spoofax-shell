@@ -3,9 +3,9 @@ package org.metaborg.spoofax.shell.client.console;
 import java.awt.Color;
 
 import org.metaborg.core.style.Style;
+import org.metaborg.spoofax.shell.client.ConsoleReplModule;
 import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
-import org.metaborg.spoofax.shell.client.console.impl.ConsoleReplModule;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Guice;

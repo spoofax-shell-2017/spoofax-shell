@@ -1,15 +1,13 @@
-package org.metaborg.spoofax.shell.client.console.impl;
+package org.metaborg.spoofax.shell.client;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.metaborg.spoofax.shell.client.IResultVisitor;
-import org.metaborg.spoofax.shell.client.IEditor;
-import org.metaborg.spoofax.shell.client.IInputHistory;
-import org.metaborg.spoofax.shell.client.IRepl;
-import org.metaborg.spoofax.shell.client.ReplModule;
+import org.metaborg.spoofax.shell.ReplModule;
 import org.metaborg.spoofax.shell.client.console.commands.ExitCommand;
+import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
+import org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterface;
 import org.metaborg.spoofax.shell.client.console.impl.history.JLine2InputHistory;
 import org.metaborg.spoofax.shell.client.console.impl.history.JLine2PersistentInputHistory;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
