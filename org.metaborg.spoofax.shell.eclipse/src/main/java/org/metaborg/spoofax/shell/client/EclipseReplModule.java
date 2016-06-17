@@ -1,8 +1,9 @@
-package org.metaborg.spoofax.shell.client.eclipse.impl;
+package org.metaborg.spoofax.shell.client;
 
-import org.metaborg.spoofax.shell.client.IInputHistory;
-import org.metaborg.spoofax.shell.client.ReplModule;
+import org.metaborg.spoofax.shell.ReplModule;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
+import org.metaborg.spoofax.shell.client.eclipse.impl.EclipseInputHistory;
+import org.metaborg.spoofax.shell.client.eclipse.impl.IWidgetFactory;
 
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
