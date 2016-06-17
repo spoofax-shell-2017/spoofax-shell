@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.junit.Test;
-import org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterface;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Guice;
@@ -37,7 +36,6 @@ public class TerminalUserInterfaceTest {
     /* >>> */ + "qwerty" + ENTER
     /* ... */ + ENTER;
     private TerminalUserInterface ui;
-    private ByteArrayInputStream in;
     private ByteArrayOutputStream out;
 
     /**
@@ -49,7 +47,7 @@ public class TerminalUserInterfaceTest {
      *             When an IO error occurs upon construction of the {@link ConsoleReader}.
      */
     public void setUp(String inputString) throws IOException {
-        in = new ByteArrayInputStream(inputString.getBytes("UTF-8"));
+        ByteArrayInputStream in = new ByteArrayInputStream(inputString.getBytes("UTF-8"));
         out = new ByteArrayOutputStream();
 
         Injector injector = Guice.createInjector(new UserInputSimulationModule(in, out));

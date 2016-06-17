@@ -20,7 +20,7 @@ public class HelpCommand implements IReplCommand {
     private final ICommandInvoker invoker;
 
     /**
-     * Instantiates a new HelpCommand.
+     * Instantiates a new {@link HelpCommand}.
      *
      * @param invoker
      *            The {@link ICommandInvoker}.
@@ -41,7 +41,7 @@ public class HelpCommand implements IReplCommand {
      * @return a formatted string
      */
     public String formathelp(Map<String, IReplCommand> commands) {
-        int longestCommand = commands.keySet().stream().mapToInt(a -> a.length()).max().orElse(0);
+        int longestCommand = commands.keySet().stream().mapToInt(String::length).max().orElse(0);
         String format = "%-" + longestCommand + "s %s";
 
         return commands.keySet().stream().flatMap(name -> {

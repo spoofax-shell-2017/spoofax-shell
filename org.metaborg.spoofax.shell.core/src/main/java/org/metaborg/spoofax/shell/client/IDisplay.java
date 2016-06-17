@@ -49,7 +49,7 @@ public interface IDisplay extends IResultVisitor {
         StyledText styled = highlightMessagesInSource(sourceText, messages);
 
         String concat =
-            messages.stream().map(message -> message.message()).collect(Collectors.joining("\n"));
+            messages.stream().map(IMessage::message).collect(Collectors.joining("\n"));
         visitMessage(styled.append("\n").append(Color.RED, concat));
     }
 
@@ -64,7 +64,7 @@ public interface IDisplay extends IResultVisitor {
      * @return The highlighted {@link StyledText}
      */
     default StyledText highlightMessagesInSource(String sourceText, List<IMessage> messages) {
-        List<ISourceRegion> regions = messages.stream().map(message -> message.region())
+        List<ISourceRegion> regions = messages.stream().map(IMessage::region)
             .filter(Objects::nonNull).collect(Collectors.toList());
         StyledText styled = new StyledText();
         IStyle style = new Style(Color.RED, null, true, false, false);

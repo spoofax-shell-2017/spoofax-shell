@@ -206,12 +206,13 @@ public class StyledText {
     @Override
     public int hashCode() {
         return source.stream()
-                .map(e -> e.fragment().hashCode() * e.style().hashCode())
-                .reduce(1, (a, b) -> a * b);
+            .map(e -> (e.fragment() == null ? 1 : e.fragment().hashCode())
+                      * (e.style() == null ? 1 : e.style().hashCode()))
+            .reduce(1, (a, b) -> a * b);
     }
 
     @Override
     public String toString() {
-        return source.stream().map(e -> e.fragment()).collect(Collectors.joining());
+        return source.stream().map(IRegionStyle::fragment).collect(Collectors.joining());
     }
 }

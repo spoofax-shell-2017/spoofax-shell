@@ -53,6 +53,21 @@ public class ConsoleRepl implements IRepl {
     }
 
     /**
+     * Evaluate {@code input}, without having to enter the main loop in {@link #run()}. This is
+     * useful to initialize some state before control is handed to the user.
+     *
+     * @param input
+     *            The input to evaluate.
+     */
+    public void runOnce(String input) {
+        try {
+            eval(input).accept(display);
+        } catch (CommandNotFoundException e) {
+            this.display.displayStyledText(new StyledText(Color.RED, e.getMessage()));
+        }
+    }
+
+    /**
      * Run {@link IRepl#eval(String)} in a loop, for as long as {@code running} is {@code true}.
      *
      * @see IRepl#eval(String)
@@ -65,11 +80,7 @@ public class ConsoleRepl implements IRepl {
             String input;
             setRunning(true);
             while (running && (input = this.iface.getInput()) != null) {
-                try {
-                    eval(input).accept(display);
-                } catch (CommandNotFoundException e) {
-                    this.display.displayStyledText(new StyledText(Color.RED, e.getMessage()));
-                }
+                runOnce(input);
             }
 
             this.iface.history().persistToDisk();

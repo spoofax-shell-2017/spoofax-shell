@@ -9,7 +9,9 @@ import org.metaborg.core.project.SimpleProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.resource.ResourceService;
 import org.metaborg.spoofax.core.SpoofaxModule;
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
+import org.metaborg.spoofax.shell.commands.DefaultCommand;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
@@ -61,7 +63,8 @@ public abstract class ReplModule extends SpoofaxModule {
     protected void bindCommands(MapBinder<String, IReplCommand> commandBinder) {
         commandBinder.addBinding("help").to(HelpCommand.class);
         commandBinder.addBinding("load").to(LanguageCommand.class);
-
+        bind(IReplCommand.class).annotatedWith(Names.named("default_command"))
+        .to(DefaultCommand.class);
         bind(ICommandInvoker.class).to(SpoofaxCommandInvoker.class);
     }
 

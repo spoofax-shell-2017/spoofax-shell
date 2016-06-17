@@ -58,16 +58,16 @@ import com.oracle.truffle.api.vm.PolyglotEngine.Value;
 public class ClassPathInterpreterLoaderTest {
     private static final String NO_EXCEPTION = "No exception should be thrown";
     protected static final String SPEC_TERM_CONSTANT = "specification term";
-    protected ClassPathInterpreterLoader cpInterpLoader = new ClassPathInterpreterLoader();
+    protected final ClassPathInterpreterLoader cpInterpLoader = new ClassPathInterpreterLoader();
     protected static final RuleRoot MOCK_RULE_ROOT = Mockito.mock(RuleRoot.class);
     protected ILanguageImpl mockLangImpl;
     @SuppressWarnings("unused")
     private static final TestCPLoaderLanguage LANG = TestCPLoaderLanguage.INSTANCE;
 
     private static boolean reachedLanguageParse = false;
-    private Iterable<FileObject> langImplLocations;
-    private String expectedExceptionMessage;
-    private Class<?> expectedExceptionCauseClass;
+    private final Iterable<FileObject> langImplLocations;
+    private final String expectedExceptionMessage;
+    private final Class<?> expectedExceptionCauseClass;
 
     /**
      * @param langImplLocations
@@ -136,8 +136,7 @@ public class ClassPathInterpreterLoaderTest {
 
     }
 
-    private static Supplier<List<FileObject>> goodWeatherLocations(FileObject rootDir)
-        throws FileSystemException {
+    private static Supplier<List<FileObject>> goodWeatherLocations(FileObject rootDir) {
         return () -> {
             try {
                 rootDir.createFolder();
@@ -151,7 +150,7 @@ public class ClassPathInterpreterLoaderTest {
                 printWriter.flush();
                 printWriter.close();
                 dynSemProperties.close();
-                List<FileObject> res = new ArrayList<FileObject>(1);
+                List<FileObject> res = new ArrayList<>(1);
                 res.add(rootDir);
                 return res;
             } catch (FileSystemException e) {
@@ -161,8 +160,7 @@ public class ClassPathInterpreterLoaderTest {
         };
     }
 
-    private static Supplier<List<FileObject>> missingDynSemProperties(FileObject rootDir)
-        throws FileSystemException {
+    private static Supplier<List<FileObject>> missingDynSemProperties(FileObject rootDir) {
         return () -> {
             try {
                 rootDir.createFolder();
@@ -174,7 +172,7 @@ public class ClassPathInterpreterLoaderTest {
                 printWriter.flush();
                 printWriter.close();
                 noDynSemProperties.close();
-                List<FileObject> res = new ArrayList<FileObject>(1);
+                List<FileObject> res = new ArrayList<>(1);
                 res.add(rootDir);
                 return res;
             } catch (FileSystemException e) {
@@ -184,8 +182,7 @@ public class ClassPathInterpreterLoaderTest {
         };
     }
 
-    private static Supplier<Iterable<FileObject>> multipleLocations(FileObject rootDir)
-        throws FileSystemException {
+    private static Supplier<Iterable<FileObject>> multipleLocations(FileObject rootDir) {
         return () -> {
             try {
                 rootDir.createFolder();
@@ -219,7 +216,7 @@ public class ClassPathInterpreterLoaderTest {
                 printWriter.flush();
                 printWriter.close();
                 dynSemProperties.close();
-                List<FileObject> res = new ArrayList<FileObject>(1);
+                List<FileObject> res = new ArrayList<>(1);
                 res.add(rootDir);
                 return res;
             } catch (FileSystemException e) {

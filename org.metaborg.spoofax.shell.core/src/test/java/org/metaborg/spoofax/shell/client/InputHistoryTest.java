@@ -45,7 +45,7 @@ public class InputHistoryTest {
     }
 
     /**
-     * Test {@link IInputHistory@get(int)}.
+     * Test {@link IInputHistory#get(int)}.
      */
     @Test(expected = IndexOutOfBoundsException.class)
     public void testGet() {
@@ -56,7 +56,7 @@ public class InputHistoryTest {
 
     /**
      * Test the stateful {@link IInputHistory#getPrevious()}, {@link IInputHistory#getNext()} and
-     * {@link IInputHisytory#reset()} methods.
+     * {@link IInputHistory#reset()} methods.
      */
     @Test
     public void testGetStateful() {

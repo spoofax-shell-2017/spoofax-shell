@@ -14,7 +14,7 @@ import com.google.inject.Inject;
  * Command for processing a String as an expression in some language.
  *
  * @param <In>
- *            The argument type of the {@link #apply(In)} method.
+ *            The argument type of the {@link #apply(Object)} method.
  * @param <Success>
  *            The type of a successful {@link ISpoofaxResult}.
  */
@@ -30,11 +30,11 @@ public abstract class AbstractSpoofaxFunction<In, Success extends ISpoofaxResult
      * Instantiate a {@link AbstractSpoofaxFunction}.
      *
      * @param resultFactory
-     *            The {@link ResulFactory}.
+     *            The {@link IResultFactory}.
      * @param project
-     *            The project in which this command should operate.
+     *            The {@link IProject} in which this command should operate.
      * @param lang
-     *            The language to which this command applies.
+     *            The {@link ILanguageImpl} to which this command applies.
      */
     @Inject
     public AbstractSpoofaxFunction(IResultFactory resultFactory, IProject project,
@@ -46,7 +46,7 @@ public abstract class AbstractSpoofaxFunction<In, Success extends ISpoofaxResult
 
     /**
      * Apply the argument, optionally throwing an exception. The exception is caught in the
-     * {@link #apply(ISpoofaxResult)} function, to be returned as an {@link ExceptionResult}.
+     * {@link #apply(Object)} function, to be returned as an {@link ExceptionResult}.
      *
      * @param a
      *            The input argument.

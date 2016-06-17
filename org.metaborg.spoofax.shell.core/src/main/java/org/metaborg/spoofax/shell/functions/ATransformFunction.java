@@ -35,7 +35,7 @@ public class ATransformFunction extends ContextualSpoofaxFunction<AnalyzeResult,
      * @param transformService
      *            The {@link ISpoofaxTransformService}.
      * @param resultFactory
-     *            The {@link ResultFactory}.
+     *            The {@link IResultFactory}.
      * @param project
      *            The {@link IProject} in which this command should operate.
      * @param lang

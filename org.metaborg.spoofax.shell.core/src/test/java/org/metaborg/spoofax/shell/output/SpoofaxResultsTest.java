@@ -40,13 +40,13 @@ public class SpoofaxResultsTest {
     private static final String ACTUAL_TO_STRING = "actual";
     private static final String ACTUAL_SOURCE = "actual source";
 
-    private AbstractSpoofaxResult<?> abstractResult;
-    private List<IMessage> expectedMessages;
-    private Optional<IStrategoTerm> expectedAst;
-    private Optional<IContext> expectedContext;
-    private FileObject expectedSource;
-    private boolean expectedValid;
-    private String expectedString;
+    private final AbstractSpoofaxResult<?> abstractResult;
+    private final List<IMessage> expectedMessages;
+    private final Optional<IStrategoTerm> expectedAst;
+    private final Optional<IContext> expectedContext;
+    private final FileObject expectedSource;
+    private final boolean expectedValid;
+    private final String expectedString;
 
     /**
      * Instantiate parameters.

@@ -7,7 +7,7 @@ import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResult;
 
 /**
- * A {@link java.util.Function} that may result in a failure. This is our domain-specific equivalent
+ * A {@link Function} that may result in a failure. This is our domain-specific equivalent
  * of a Kleisli arrow in Haskell.
  *
  * @param <In>

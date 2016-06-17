@@ -29,6 +29,7 @@ import com.google.inject.Inject;
  * Represents a command that loads a Spoofax language.
  */
 public class LanguageCommand implements IReplCommand {
+    private static final String[] ARCHIVES = { "zip", "jar", "tar", "tgz", "tbz2", };
     private final ILanguageDiscoveryService langDiscoveryService;
     private final IResourceService resourceService;
     private final IMenuService menuService;
@@ -72,9 +73,12 @@ public class LanguageCommand implements IReplCommand {
 
     /**
      * Load a {@link ILanguageImpl} from a {@link FileObject}.
-     * @param langloc the {@link FileObject} containing the {@link ILanguageImpl}
-     * @return        the {@link ILanguageImpl}
-     * @throws MetaborgException when loading fails
+     *
+     * @param langloc
+     *            the {@link FileObject} containing the {@link ILanguageImpl}
+     * @return the {@link ILanguageImpl}
+     * @throws MetaborgException
+     *             when loading fails
      */
     public ILanguageImpl load(FileObject langloc) throws MetaborgException {
         Iterable<ILanguageDiscoveryRequest> requests = langDiscoveryService.request(langloc);
@@ -89,11 +93,12 @@ public class LanguageCommand implements IReplCommand {
         return lang;
     }
 
-    // FIXME: there really should be a better way to go about this. Perhaps Apache Tika?
     private FileObject resolveLanguage(String path) {
         String extension = resourceService.resolveToName(path).getExtension();
-        if (extension.equals("zip")) {
-            return resourceService.resolve(extension + ":" + path + "!/");
+        for (String archive : ARCHIVES) {
+            if (extension.equals(archive)) {
+                return resourceService.resolve(extension + ":" + path + "!/");
+            }
         }
         return resourceService.resolve(path);
     }
@@ -101,25 +106,28 @@ public class LanguageCommand implements IReplCommand {
     private void loadCommands(ILanguageImpl lang) {
         boolean analyze = lang.hasFacet(AnalyzerFacet.class);
         CommandBuilder<?> builder = factory.createBuilder(project, lang);
+
+        IReplCommand eval;
         Function<ITransformAction, CommandBuilder<TransformResult>> transform;
 
         invoker.resetCommands();
         invoker.addCommand("parse", builder.parse().description("Parse the expression").build());
         if (analyze) {
             invoker.addCommand("analyze", builder.analyze()
-                               .description("Analyze the expression").build());
-            invoker.addCommand("eval", builder.evalAnalyzed()
-                               .description("Evaluate an analyzed expression").build());
-            transform = (action) -> builder.transformAnalyzed(action);
-        } else {
-            invoker.addCommand("eval", builder.evalParsed()
-                               .description("Evaluate a parsed expression").build());
-            transform = (action) -> builder.transformParsed(action);
-        }
+                .description("Analyze the expression").build());
 
-        new TransformVisitor(menuService).getActions(lang).forEach((key, action) -> {
-            invoker.addCommand(key, transform.apply(action).description(action.name()).build());
-        });
+            eval = builder.evalAnalyzed().description("Evaluate an analyzed expression").build();
+            transform = builder::transformAnalyzed;
+        } else {
+            eval = builder.evalParsed().description("Evaluate a parsed expression").build();
+            transform = builder::transformParsed;
+        }
+        invoker.addCommand("eval", eval);
+        invoker.setDefault(eval);
+
+        new TransformVisitor(menuService).getActions(lang).forEach((key, action) ->
+                invoker.addCommand(key, transform.apply(action).description(action.name())
+                        .build()));
     }
 
     @Override
@@ -132,8 +140,7 @@ public class LanguageCommand implements IReplCommand {
             ILanguageImpl lang = load(resolveLanguage(args[0]));
             loadCommands(lang);
 
-            return (visitor) -> visitor
-                    .visitMessage(new StyledText("Loaded language " + lang));
+            return (visitor) -> visitor.visitMessage(new StyledText("Loaded language " + lang));
         } catch (MetaborgException e) {
             return new ExceptionResult(e);
         }

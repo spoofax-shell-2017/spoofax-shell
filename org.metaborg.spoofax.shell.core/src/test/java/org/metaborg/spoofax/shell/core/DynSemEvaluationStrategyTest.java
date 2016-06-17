@@ -48,7 +48,7 @@ import com.oracle.truffle.api.vm.PolyglotEngine.Value;
 @RunWith(Parameterized.class)
 public class DynSemEvaluationStrategyTest {
     private final DynSemEvaluationStrategy evalStrategy;
-    private IStrategoTerm input;
+    private final IStrategoTerm input;
     private static final int DEFAULT_SHELL_RULE_ANSWER = 42;
     private static final String NO_EXCEPTION = "No exception should be thrown";
     private final String expectedExceptionMessage;
@@ -132,7 +132,7 @@ public class DynSemEvaluationStrategyTest {
      * An {@link IInterpreterLoader} that returns a mock interpreter.
      */
     static final class MockInterpreterLoader implements IInterpreterLoader {
-        private String ruleKey;
+        private final String ruleKey;
 
         private MockInterpreterLoader(String ruleKey) {
             this.ruleKey = ruleKey;

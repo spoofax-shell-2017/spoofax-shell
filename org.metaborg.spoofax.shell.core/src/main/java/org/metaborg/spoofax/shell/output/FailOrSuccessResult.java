@@ -84,7 +84,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
      */
     public static <S extends IResult, F extends IResult> FailOrSuccessResult<S, F>
             successful(S successfulResult) {
-        return new Successful<S, F>(successfulResult);
+        return new Successful<>(successfulResult);
     }
 
     /**
@@ -100,7 +100,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
      */
     public static <S extends IResult, F extends IResult> FailOrSuccessResult<S, F>
             failed(F failedResult) {
-        return new Failed<S, F>(failedResult);
+        return new Failed<>(failedResult);
     }
 
     /**

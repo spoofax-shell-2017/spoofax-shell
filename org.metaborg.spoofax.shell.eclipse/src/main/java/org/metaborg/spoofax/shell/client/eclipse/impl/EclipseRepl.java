@@ -8,8 +8,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.style.Style;
-import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.client.IDisplay;
+import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.IResult;
@@ -29,9 +29,6 @@ import rx.Observer;
  * Note that this class evaluates input in a separate thread.
  */
 public class EclipseRepl implements IRepl, Observer<String> {
-    private static final int INPUT_RED = 232;
-    private static final int INPUT_GREEN = 242;
-    private static final int INPUT_BLUE = 254;
     private final IDisplay display;
     private final ICommandInvoker invoker;
 
@@ -79,8 +76,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
         // TODO: Style input! Output cannot be styled since there is no way to "pretty-prettyprint"
         // it back to a format of the language currently being used. As such, it cannot be
         // highlighted.
-        Color inputBackgroundColor = new Color(INPUT_RED, INPUT_GREEN, INPUT_BLUE);
-        Style style = new Style(null, inputBackgroundColor, false, false, false);
+        Style style = new Style(null, null, true, false, false);
         this.display.displayStyledText(new StyledText(style, input));
     }
 

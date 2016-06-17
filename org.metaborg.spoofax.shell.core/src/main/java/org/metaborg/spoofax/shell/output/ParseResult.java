@@ -9,13 +9,14 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 /**
- * Represents a {@link ParseResult} as returned by the {@link SpoofaxCommand}.
+ * Represents a {@link ParseResult} as returned by the {@link IReplCommand}.
  * Wraps a {@link ISpoofaxParseUnit}.
  */
 public class ParseResult extends AbstractSpoofaxResult<ISpoofaxParseUnit> {

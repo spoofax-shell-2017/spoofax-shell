@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.client.eclipse.impl;
 import java.util.List;
 import java.util.Observer;
 
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -24,7 +25,7 @@ import rx.Observable;
 import rx.Subscriber;
 
 /**
- * A multiline input editor for the {@link EclipseRepl}, with a {@link Sourceviewer} backend. It
+ * A multiline input editor for the {@link EclipseRepl}, with a {@link SourceViewer} backend. It
  * attaches itself as a {@link KeyListener} to listen for certain keypresses. When the Return key
  * (e.g. linefeed or carriage return) is pressed, the {@link Observer}s are notified with the text
  * typed so far.
@@ -37,9 +38,6 @@ import rx.Subscriber;
 public class EclipseEditor extends KeyAdapter implements ModifyListener {
     private final IInputHistory history;
     private final SourceViewer input;
-    // TODO: Use ReplDocument to provide custom partitioning? Perhaps more something for the output
-    // as opposed to input. Should be relatively easy for output to at least partition different
-    // input/output combinations.
     private final IDocument document;
     private final List<Subscriber<? super String>> observers;
 
@@ -57,6 +55,8 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         this.history = history;
         this.document = new Document();
         this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
+        this.input.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
+        this.input.getTextWidget().setAlwaysShowScrollBars(false);
         this.input.setDocument(document);
         this.input.getTextWidget().addKeyListener(this);
         this.observers = Lists.newArrayList();
@@ -77,9 +77,8 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      * @return A new {@link Observable} from this editor.
      */
     public Observable<String> asObservable() {
-        return Observable.create(s -> {
-            EclipseEditor.this.observers.add(s);
-        });
+        return Observable
+            .create((Observable.OnSubscribe<String>) EclipseEditor.this.observers::add);
     }
 
     /**
@@ -110,9 +109,6 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         this.document.set("");
     }
 
-    private void offerCompletions() {
-    }
-
     private void setTextFromHistory(String text) {
         document.set(text);
         input.setSelectedRange(text.length(), 0);
@@ -125,11 +121,6 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         case SWT.CR:
             if ((event.stateMask & (SWT.CTRL | SWT.SHIFT)) == 0) {
                 enterPressed();
-            }
-            break;
-        case SWT.SPACE:
-            if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
-                offerCompletions();
             }
             break;
         case SWT.PAGE_DOWN:

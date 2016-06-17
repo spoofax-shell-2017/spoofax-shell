@@ -27,9 +27,9 @@ import com.oracle.truffle.api.vm.PolyglotEngine;
 
 /**
  * Loads an interpreter that is present in the class path. This {@link IInterpreterLoader} uses
- * reflection to load the generated {@link DynSemEntryPoint} and {@link DynSemLanguage} subclasses.
- * It instantiates a {@link PolyglotEngine} with the {@link NonParser} that is provided, by using
- * the supported {@link DynSemLanguage#PARSER configuration parameter}.
+ * reflection to load the generated {@link DynSemEntryPoint} subclass. It instantiates a
+ * {@link PolyglotEngine} and initializes the interpreter by evaluating the DynSem specification
+ * term.
  */
 public class ClassPathInterpreterLoader implements IInterpreterLoader {
     private String langName;
@@ -88,7 +88,7 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
     private DynSemEntryPoint getEntryPoint() throws InterpreterLoadException {
         try {
             Class<DynSemEntryPoint> entryPointClass =
-                this.<DynSemEntryPoint> getGeneratedClass("EntryPoint");
+                this.getGeneratedClass("EntryPoint");
             return ConstructorUtils.invokeConstructor(entryPointClass);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
                  | InvocationTargetException e) {

@@ -26,8 +26,6 @@ import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
 import org.metaborg.spoofax.shell.commands.CommandBuilder;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
-import org.metaborg.spoofax.shell.functions.AnalyzeFunction;
-import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.FailResult;
@@ -71,7 +69,6 @@ public class AnalyzeFunctionTest {
     @Captor private ArgumentCaptor<ISpoofaxResult<?>> resultCaptor;
     @Captor private ArgumentCaptor<Exception> exceptionCaptor;
 
-    private FileObject sourceFile;
     private IReplCommand analyzeCommand;
 
     /**
@@ -81,7 +78,7 @@ public class AnalyzeFunctionTest {
      */
     @Before
     public void setup() throws FileSystemException, MetaborgException {
-        sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
+        FileObject sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
         when(project.location()).thenReturn(sourceFile);
 
         AnalyzeFunction analyzeFunction = new AnalyzeFunction(contextService, analysisService,

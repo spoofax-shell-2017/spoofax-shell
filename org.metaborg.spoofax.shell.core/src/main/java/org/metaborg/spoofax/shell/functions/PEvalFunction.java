@@ -2,6 +2,7 @@ package org.metaborg.spoofax.shell.functions;
 
 import java.util.Map;
 
+import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
@@ -50,9 +51,12 @@ public class PEvalFunction extends ContextualSpoofaxFunction<ParseResult, Evalua
     protected FailOrSuccessResult<EvaluateResult, IResult>
             applyThrowing(IContext context, ParseResult a) throws Exception {
         ShellFacet facet = context.language().facet(ShellFacet.class);
+        if (facet == null) {
+            throw new MetaborgException("Cannot find the shell facet.");
+        }
+
         IEvaluationStrategy evalStrategy = evaluationStrategies.get(facet.getEvaluationMethod());
         IStrategoTerm result = evalStrategy.evaluate(a, context);
-
         return FailOrSuccessResult.ofSpoofaxResult(resultFactory.createEvaluateResult(a, result));
     }
 }

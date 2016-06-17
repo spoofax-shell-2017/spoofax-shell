@@ -6,6 +6,7 @@ import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 /**
  * Default implementation of an {@link ICommandInvoker}.
@@ -13,16 +14,21 @@ import com.google.inject.Inject;
 public class SpoofaxCommandInvoker implements ICommandInvoker {
     private final Map<String, IReplCommand> defaults;
     private final Map<String, IReplCommand> commands;
+    private IReplCommand defaultCommand;
 
     /**
      * Instantiates a new SpoofaxCommandInvoker.
      *
      * @param defaults
      *            The commands, with their command names as key (without prefix).
+     * @param defaultCommand
+     *            The command that will be executed by default.
      */
     @Inject
-    public SpoofaxCommandInvoker(Map<String, IReplCommand> defaults) {
+    public SpoofaxCommandInvoker(Map<String, IReplCommand> defaults,
+                                 @Named("default_command") IReplCommand defaultCommand) {
         this.defaults = defaults;
+        this.defaultCommand = defaultCommand;
         this.commands = Maps.newConcurrentMap();
         this.resetCommands();
     }
@@ -38,6 +44,16 @@ public class SpoofaxCommandInvoker implements ICommandInvoker {
     @Override
     public String commandPrefix() {
         return ":";
+    }
+
+    @Override
+    public IReplCommand getDefault() {
+        return defaultCommand;
+    }
+
+    @Override
+    public void setDefault(IReplCommand defaultCommand) {
+        this.defaultCommand = defaultCommand;
     }
 
     @Override

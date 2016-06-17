@@ -92,11 +92,10 @@ public class EvaluateFunctionTest {
     @Captor
     private ArgumentCaptor<Exception> exceptionCaptor;
 
-    private FileObject sourceFile;
-    private String description;
-    private EvaluateResult result;
-    private IReplCommand command;
-    private Function<IResultFactory, EvaluateResult> check;
+    private final String description;
+    private final EvaluateResult result;
+    private final IReplCommand command;
+    private final Function<IResultFactory, EvaluateResult> check;
 
     /**
      * Parameters to test {@link AEvalFunction} and {@link PEvalFunction}.
@@ -105,10 +104,8 @@ public class EvaluateFunctionTest {
      */
     @Parameters(name = "{index}: {0}")
     public static List<Object[]> functions() {
-        Function<CommandBuilder<?>, CommandBuilder<?>> parsedEval =
-            (builder) -> builder.evalParsed();
-        Function<CommandBuilder<?>, CommandBuilder<?>> analyzedEval =
-            (builder) -> builder.evalAnalyzed();
+        Function<CommandBuilder<?>, CommandBuilder<?>> parsedEval = CommandBuilder::evalParsed;
+        Function<CommandBuilder<?>, CommandBuilder<?>> analyzedEval = CommandBuilder::evalAnalyzed;
         Function<IResultFactory, EvaluateResult> checkParsed =
             (factory) -> factory.createEvaluateResult(any(ParseResult.class), any());
         Function<IResultFactory, EvaluateResult> checkAnalyzed =
@@ -165,7 +162,7 @@ public class EvaluateFunctionTest {
     }
 
     private void mockServices() throws FileSystemException, MetaborgException {
-        sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
+        FileObject sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
         when(project.location()).thenReturn(sourceFile);
         when(parseResult.context()).thenReturn(Optional.empty());
         when(analyzeResult.context()).thenReturn(Optional.empty());
