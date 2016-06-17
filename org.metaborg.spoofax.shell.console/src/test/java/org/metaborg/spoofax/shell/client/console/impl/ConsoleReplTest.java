@@ -1,6 +1,5 @@
 package org.metaborg.spoofax.shell.client.console.impl;
 
-import static org.junit.Assert.fail;
 import static org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterfaceTest.C_D;
 import static org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterfaceTest.ENTER;
 import static org.mockito.Matchers.anyString;
@@ -92,18 +91,40 @@ public class ConsoleReplTest {
     }
 
     /**
-     * Test whether the REPl exits when Control-D is pressed.
+     * Test {@link ConsoleRepl#runOnce(String)}.
+     *
+     * @throws IOException
+     *             Should not happen.
+     * @throws CommandNotFoundException
+     *             Should not happen.
      */
     @Test
-    public void testCtrlDDoesExit() {
-        try {
-            setUpCtrlD();
-            repl.run();
-            // Ensure that the command invoker is never called with any command.
-            verify(invokerMock, never()).execute(anyString());
-        } catch (IOException | CommandNotFoundException e) {
-            fail("Should not happen");
-        }
+    public void testRunOnce() throws IOException, CommandNotFoundException {
+        String fake = ":fakecommand foo";
+        setUp(fake);
+        invokerMock = mock(ICommandInvoker.class, RETURNS_MOCKS);
+
+        // Create a user input simulated ConsoleRepl with the mock invoker.
+        createRepl(new UserInputSimulationModule(in, out), new MockModule(invokerMock));
+
+        repl.runOnce(fake);
+        verify(invokerMock, times(1)).execute(fake);
+    }
+
+    /**
+     * Test whether the REPl exits when Control-D is pressed.
+     *
+     * @throws IOException
+     *             Should not happen.
+     * @throws CommandNotFoundException
+     *             Should not happen.
+     */
+    @Test
+    public void testCtrlDDoesExit() throws CommandNotFoundException, IOException {
+        setUpCtrlD();
+        repl.run();
+        // Ensure that the command invoker is never called with any command.
+        verify(invokerMock, never()).execute(anyString());
     }
 
     private void setUpExit() throws IOException {
@@ -118,28 +139,29 @@ public class ConsoleReplTest {
 
     /**
      * Tests the {@link ExitCommand}.
+     *
+     * @throws IOException
+     *             Should not happen.
+     * @throws CommandNotFoundException
+     *             Should not happen.
      */
     @Test
-    public void testExitCommand() {
-        try {
-            setUpExit();
+    public void testExitCommand() throws IOException, CommandNotFoundException {
+        setUpExit();
 
-            // Stub the invoker so that it returns an exit command which we can spy on.
-            ExitCommand exitCommandMock = spy(new ExitCommand(() -> repl));
-            when(invokerMock.commandFromName("exit")).thenReturn(exitCommandMock);
+        // Stub the invoker so that it returns an exit command which we can spy on.
+        ExitCommand exitCommandMock = spy(new ExitCommand(() -> repl));
+        when(invokerMock.commandFromName("exit")).thenReturn(exitCommandMock);
 
-            repl.run();
+        repl.run();
 
-            // Ensure that the command was given to the invoker just once.
-            verify(invokerMock, times(1)).execute(":exit");
+        // Ensure that the command was given to the invoker just once.
+        verify(invokerMock, times(1)).execute(":exit");
 
-            // Ensure that exitCommand was executed once.
-            verify(exitCommandMock, times(1)).execute();
+        // Ensure that exitCommand was executed once.
+        verify(exitCommandMock, times(1)).execute();
 
-            // Verify that the Editor was not asked for input after the exit command was executed.
-            verify(ifaceSpy, times(1)).getInput();
-        } catch (IOException | CommandNotFoundException e) {
-            fail("Should not happen");
-        }
+        // Verify that the Editor was not asked for input after the exit command was executed.
+        verify(ifaceSpy, times(1)).getInput();
     }
 }

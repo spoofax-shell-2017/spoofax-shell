@@ -15,18 +15,29 @@ import com.google.inject.Injector;
  * This class launches a {@link ConsoleRepl}, a console based REPL.
  */
 public final class Main {
+    private static final String ERROR = "Invalid commandline parameters: %s%nThe only argument "
+                                        + "accepted is the path to a language implementation "
+                                        + "location, being either a .zip file or a parent "
+                                        + "directory.";
 
     private Main() {
+    }
+
+    private static StyledText error(String[] args) {
+        StringBuilder invalidArgs = new StringBuilder();
+        for (String arg : args) {
+            invalidArgs.append(arg);
+        }
+        return new StyledText(Color.RED, String.format(ERROR, invalidArgs.toString()));
     }
 
     /**
      * Instantiates and runs a new {@link ConsoleRepl}.
      *
      * @param args
-     *            The path to a language implementation location, using any URI supported by Apache
-     *            VFS.
+     *            The path to a language implementation location, being either a .zip file or a
+     *            parent directory.
      */
-    // TODO: make the argument work again.
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ConsoleReplModule());
         IDisplay display = injector.getInstance(IDisplay.class);
@@ -37,6 +48,12 @@ public final class Main {
         display.displayStyledText(message);
 
         ConsoleRepl repl = injector.getInstance(ConsoleRepl.class);
+        if (args.length == 1) {
+            repl.runOnce(":load " + args[0]);
+        } else if (args.length > 1) {
+            display.displayStyledText(error(args));
+        }
+
         repl.run();
     }
 }
