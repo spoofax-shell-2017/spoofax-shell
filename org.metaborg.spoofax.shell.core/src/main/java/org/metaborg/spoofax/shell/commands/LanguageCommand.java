@@ -32,8 +32,7 @@ public class LanguageCommand implements IReplCommand {
     private final IMenuService menuService;
     private final ICommandInvoker invoker;
     private final IProject project;
-    private ILanguageImpl lang;
-    private IFunctionFactory factory;
+    private final IFunctionFactory factory;
 
     /**
      * Instantiate a {@link LanguageCommand}. Loads all commands applicable to a lanugage.
@@ -80,7 +79,7 @@ public class LanguageCommand implements IReplCommand {
         Iterable<ILanguageComponent> components = langDiscoveryService.discover(requests);
 
         Set<ILanguageImpl> implementations = LanguageUtils.toImpls(components);
-        lang = LanguageUtils.active(implementations);
+        ILanguageImpl lang = LanguageUtils.active(implementations);
 
         if (lang == null) {
             throw new MetaborgException("Cannot find a language implementation");
