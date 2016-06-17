@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.client.eclipse.impl;
 import java.util.List;
 import java.util.Observer;
 
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -37,9 +38,6 @@ import rx.Subscriber;
 public class EclipseEditor extends KeyAdapter implements ModifyListener {
     private final IInputHistory history;
     private final SourceViewer input;
-    // TODO: Use ReplDocument to provide custom partitioning? Perhaps more something for the output
-    // as opposed to input. Should be relatively easy for output to at least partition different
-    // input/output combinations.
     private final IDocument document;
     private final List<Subscriber<? super String>> observers;
 
@@ -57,6 +55,8 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         this.history = history;
         this.document = new Document();
         this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
+        this.input.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
+        this.input.getTextWidget().setAlwaysShowScrollBars(false);
         this.input.setDocument(document);
         this.input.getTextWidget().addKeyListener(this);
         this.observers = Lists.newArrayList();

@@ -27,6 +27,9 @@ import com.google.inject.assistedinject.AssistedInject;
  * Note that this class should always be run in and accessed from the UI thread!
  */
 public class EclipseDisplay implements IDisplay {
+    // TODO: Use ReplDocument to provide custom partitioning? Perhaps more something for the output
+    // as opposed to input. Should be relatively easy for output to at least partition different
+    // input/output combinations.
     private final ITextViewer output;
     private final ColorManager colorManager;
 
