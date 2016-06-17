@@ -2,26 +2,20 @@ package org.metaborg.spoofax.shell.output;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.unit.IUnit;
-import org.metaborg.spoofax.core.stratego.IStrategoCommon;
-import org.metaborg.spoofax.shell.commands.IReplCommand;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * Represents an {@link AbstractSpoofaxResult} as returned by the {@link IReplCommand}.
  * Wraps Spoofax {@link IUnit} of various types.
  * @param <T> the wrapped subtype of {@link IUnit}
  */
-public abstract class AbstractSpoofaxResult<T extends IUnit> implements ISpoofaxResult<IUnit> {
-    private final IStrategoCommon common;
-    private final T unit;
+public abstract class AbstractSpoofaxResult<T extends IUnit> implements ISpoofaxResult<T> {
+    private T unit;
 
     /**
-     * Constructor for an {@link AbstractSpoofaxResult}.
-     * @param common  the {@link IStrategoCommon} service
+     * Constructor for an {@link AbstractResult}.
      * @param unit    the wrapped {@link IUnit}
      */
-    public AbstractSpoofaxResult(IStrategoCommon common, T unit) {
-        this.common = common;
+    public AbstractSpoofaxResult(T unit) {
         this.unit = unit;
     }
 
@@ -33,22 +27,5 @@ public abstract class AbstractSpoofaxResult<T extends IUnit> implements ISpoofax
     @Override
     public T unit() {
         return unit;
-    }
-
-    /**
-     * Returns a textual representation of a term.
-     * @param term  the term
-     * @return a string
-     */
-    public StyledText toString(IStrategoTerm term) {
-        return new StyledText(common.toString(term));
-    }
-
-    @Override
-    public StyledText styled() {
-        if (!valid() || !ast().isPresent()) {
-            return new StyledText(messages().toString());
-        }
-        return toString(ast().get());
     }
 }

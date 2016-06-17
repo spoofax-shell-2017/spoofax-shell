@@ -24,7 +24,7 @@ import com.google.inject.assistedinject.AssistedInject;
  * {@link ISpoofaxTransformUnit}.
  */
 public abstract class TransformResult
-    extends AbstractSpoofaxResult<ISpoofaxTransformUnit<?>> {
+    extends AbstractSpoofaxTermResult<ISpoofaxTransformUnit<?>> {
 
     /**
      * The result of the transformation of an analyzed AST.

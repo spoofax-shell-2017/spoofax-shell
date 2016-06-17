@@ -63,14 +63,8 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     @Override
-    public IStrategoTerm evaluate(ParseResult parsed, IContext context) throws MetaborgException {
-        return evaluate(parsed.ast().get(), context.language());
-    }
-
-    @Override
-    public IStrategoTerm evaluate(AnalyzeResult analyzed, IContext context)
-        throws MetaborgException {
-        return evaluate(analyzed.ast().get(), context.language());
+    public IStrategoTerm evaluate(IStrategoTerm term, IContext context) throws MetaborgException {
+        return evaluate(term, context.language());
     }
 
     private IStrategoTerm evaluate(IStrategoTerm input, ILanguageImpl langImpl)

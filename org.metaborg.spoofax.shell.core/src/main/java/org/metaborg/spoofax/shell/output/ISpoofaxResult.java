@@ -7,8 +7,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.messages.IMessage;
 import org.metaborg.core.unit.IUnit;
-import org.metaborg.spoofax.shell.commands.IReplCommand;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * Represents an {@link ISpoofaxResult} as returned by the {@link IReplCommand}.
@@ -16,11 +14,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @param <T> the wrapped subtype of {@link IUnit}
  */
 public interface ISpoofaxResult<T extends IUnit> extends IResult {
-    /**
-     * Returns the ast of this unit as a {@link IStrategoTerm} if present.
-     * @return a {@link IStrategoTerm} or null
-     */
-    Optional<IStrategoTerm> ast();
 
     /**
      * Returns the context of this unit if present.

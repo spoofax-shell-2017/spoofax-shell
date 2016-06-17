@@ -7,12 +7,9 @@ import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.messages.IMessage;
-import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
 import org.metaborg.spoofax.core.unit.ISpoofaxUnitService;
-import org.metaborg.spoofax.shell.commands.IReplCommand;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Lists;
 import com.google.inject.assistedinject.Assisted;
@@ -27,21 +24,17 @@ public class InputResult extends AbstractSpoofaxResult<ISpoofaxInputUnit> {
     /**
      * Create a {@link InputResult}.
      *
-     * @param common
-     *            the {@link IStrategoCommon} service
      * @param unit
      *            the wrapped {@link ISpoofaxInputUnit}
      */
     @AssistedInject
-    public InputResult(IStrategoCommon common, @Assisted ISpoofaxInputUnit unit) {
-        super(common, unit);
+    public InputResult(@Assisted ISpoofaxInputUnit unit) {
+        super(unit);
     }
 
     /**
      * Create a {@link InputResult} from source.
      *
-     * @param common
-     *            the {@link IStrategoCommon} service
      * @param unitService
      *            the {@link ISpoofaxUnitService}
      * @param lang
@@ -54,17 +47,15 @@ public class InputResult extends AbstractSpoofaxResult<ISpoofaxInputUnit> {
      *            the parser configuration
      */
     @AssistedInject
-    public InputResult(IStrategoCommon common, ISpoofaxUnitService unitService,
+    public InputResult(ISpoofaxUnitService unitService,
                        @Assisted ILanguageImpl lang, @Assisted FileObject file,
                        @Assisted String source, @Assisted JSGLRParserConfiguration parserConfig) {
-        super(common, unitService.inputUnit(file, source, lang, null, parserConfig));
+        super(unitService.inputUnit(file, source, lang, null, parserConfig));
     }
 
     /**
      * Create a {@link InputResult} from source.
      *
-     * @param common
-     *            the {@link IStrategoCommon} service
      * @param unitService
      *            the {@link ISpoofaxUnitService}
      * @param lang
@@ -75,15 +66,10 @@ public class InputResult extends AbstractSpoofaxResult<ISpoofaxInputUnit> {
      *            the source string
      */
     @AssistedInject
-    public InputResult(IStrategoCommon common, ISpoofaxUnitService unitService,
+    public InputResult(ISpoofaxUnitService unitService,
                        @Assisted ILanguageImpl lang, @Assisted FileObject file,
                        @Assisted String source) {
-        this(common, unitService, lang, file, source, null);
-    }
-
-    @Override
-    public Optional<IStrategoTerm> ast() {
-        return Optional.empty();
+        this(unitService, lang, file, source, null);
     }
 
     @Override

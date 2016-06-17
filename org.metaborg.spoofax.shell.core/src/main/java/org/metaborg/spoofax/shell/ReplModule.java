@@ -19,13 +19,12 @@ import org.metaborg.spoofax.shell.core.ClassPathInterpreterLoader;
 import org.metaborg.spoofax.shell.core.DynSemEvaluationStrategy;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader;
-import org.metaborg.spoofax.shell.functions.AEvalFunction;
 import org.metaborg.spoofax.shell.functions.ATransformFunction;
 import org.metaborg.spoofax.shell.functions.AnalyzeFunction;
+import org.metaborg.spoofax.shell.functions.EvaluateFunction;
 import org.metaborg.spoofax.shell.functions.FailableFunction;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.functions.InputFunction;
-import org.metaborg.spoofax.shell.functions.PEvalFunction;
 import org.metaborg.spoofax.shell.functions.PTransformFunction;
 import org.metaborg.spoofax.shell.functions.ParseFunction;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -35,6 +34,7 @@ import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.IResultVisitor;
+import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
@@ -94,8 +94,6 @@ public abstract class ReplModule extends SpoofaxModule {
         .implement(TransformResult.class, Names.named("parsed"), TransformResult.Parsed.class)
         .implement(TransformResult.class,
                        Names.named("analyzed"), TransformResult.Analyzed.class)
-        .implement(EvaluateResult.class, Names.named("parsed"), EvaluateResult.Parsed.class)
-        .implement(EvaluateResult.class, Names.named("analyzed"), EvaluateResult.Analyzed.class)
         .build(IResultFactory.class));
 
         install(new FactoryModuleBuilder()
@@ -109,10 +107,9 @@ public abstract class ReplModule extends SpoofaxModule {
                    PTransformFunction.class)
         .implement(new TypeLiteral<FailableFunction<AnalyzeResult, TransformResult, IResult>>() { },
                    ATransformFunction.class)
-        .implement(new TypeLiteral<FailableFunction<ParseResult, EvaluateResult, IResult>>() { },
-                   PEvalFunction.class)
-        .implement(new TypeLiteral<FailableFunction<AnalyzeResult, EvaluateResult, IResult>>() { },
-                   AEvalFunction.class)
+        .implement(new TypeLiteral<FailableFunction<ISpoofaxTermResult<?>,
+                                   EvaluateResult, IResult>>() { },
+                   EvaluateFunction.class)
         .build(IFunctionFactory.class));
     }
 

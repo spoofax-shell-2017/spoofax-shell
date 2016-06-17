@@ -38,7 +38,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
 
         @Override
         public <NewS extends IResult> FailOrSuccessResult<NewS, F>
-                flatMap(FailableFunction<S, NewS, F> failable) {
+                flatMap(FailableFunction<? super S, NewS, F> failable) {
             Objects.requireNonNull(failable);
             return failable.apply(result);
         }
@@ -65,7 +65,7 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
 
         @Override
         public <NewS extends IResult> FailOrSuccessResult<NewS, F>
-                flatMap(FailableFunction<S, NewS, F> failable) {
+                flatMap(FailableFunction<? super S, NewS, F> failable) {
             Objects.requireNonNull(failable);
             return failed(result);
         }
@@ -133,12 +133,12 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
      * success, otherwise just returns the same cause of the failure. The result of the mapping can
      * in turn be a success or a failure.
      *
-     * @param failable
+     * @param other
      *            The {@link FailableFunction} to apply when this was a success.
      * @return The result, either a success or a failure.
      * @param <S>
      *            the new type of a successful result.
      */
     public abstract <S extends IResult> FailOrSuccessResult<S, Fail>
-            flatMap(FailableFunction<Success, S, Fail> failable);
+            flatMap(FailableFunction<? super Success, S, Fail> other);
 }

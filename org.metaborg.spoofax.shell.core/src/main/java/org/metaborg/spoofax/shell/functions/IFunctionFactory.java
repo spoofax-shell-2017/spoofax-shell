@@ -8,6 +8,7 @@ import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
@@ -69,22 +70,13 @@ public interface IFunctionFactory {
                                                 ITransformAction action);
 
     /**
-     * Factory method for creating a {@link PEvalFunction} from a {@link ParseFunction}.
+     * Factory method for creating a {@link EvaluateFunction}.
      * @param project   The associated {@link IProject}
      * @param lang      The associated {@link ILanguageImpl}
      * @return          an {@link PEvalFunction}
      */
-    FailableFunction<ParseResult, EvaluateResult, IResult>
-    createPEvalFunction(IProject project, ILanguageImpl lang);
-
-    /**
-     * Factory method for creating an {@link AEvalFunction} from an {@link AnalyzeFunction}.
-     * @param project   The associated {@link IProject}
-     * @param lang      The associated {@link ILanguageImpl}
-     * @return          an {@link AEvalFunction}
-     */
-    FailableFunction<AnalyzeResult, EvaluateResult, IResult>
-    createAEvalFunction(IProject project, ILanguageImpl lang);
+    FailableFunction<ISpoofaxTermResult<?>, EvaluateResult, IResult>
+    createEvaluateFunction(IProject project, ILanguageImpl lang);
 
     /**
      * Factory method for creating a {@link CommandBuilder}.

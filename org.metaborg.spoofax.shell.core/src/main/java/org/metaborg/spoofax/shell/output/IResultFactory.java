@@ -76,20 +76,12 @@ public interface IResultFactory {
 
     /**
      * Create an {@link EvaluateResult} that can be passed to the Repl.
-     * @param parsed the wrapped {@link ParseResult}
-     * @param result the result of the evaluation.
+     * @param inputTermResult the wrapped {@link ISpoofaxTermResult} that was the input
+     *                        of the evaluation.
+     * @param result          the result of the evaluation.
      * @return a {@link EvaluateResult}
      */
-    @Named("parsed")
-    EvaluateResult createEvaluateResult(ParseResult parsed, IStrategoTerm result);
-
-    /**
-     * Create an {@link EvaluateResult} that can be passed to the Repl.
-     * @param analyzed the wrapped {@link AnalyzeResult}
-     * @param result the result of the evaluation.
-     * @return a {@link EvaluateResult}
-     */
-    @Named("analyzed")
-    EvaluateResult createEvaluateResult(AnalyzeResult analyzed, IStrategoTerm result);
+    EvaluateResult createEvaluateResult(ISpoofaxTermResult<?> inputTermResult,
+                                        IStrategoTerm result);
 
 }
