@@ -17,8 +17,7 @@ import com.google.inject.Injector;
 public final class Main {
     private static final String ERROR = "Invalid commandline parameters: %s%nThe only argument "
                                         + "accepted is the path to a language implementation "
-                                        + "location, being either a .zip file or a parent "
-                                        + "directory.";
+                                        + "location, using any filesystem supported by Apache VFS";
 
     private Main() {
     }
@@ -35,8 +34,8 @@ public final class Main {
      * Instantiates and runs a new {@link ConsoleRepl}.
      *
      * @param args
-     *            The path to a language implementation location, being either a .zip file or a
-     *            parent directory.
+     *            The path to a language implementation location, using any filesystem supported by
+     *            Apache VFS.
      */
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ConsoleReplModule());
