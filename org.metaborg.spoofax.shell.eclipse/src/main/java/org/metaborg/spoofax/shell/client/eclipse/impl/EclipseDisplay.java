@@ -111,8 +111,6 @@ public class EclipseDisplay implements IDisplay {
             style(e.style(), offset, e.region().length());
         });
 
-        // TODO: this always append a newline, which means there will be an empty line between input
-        // (which has its newline appended) and output.
         append(doc, doc.getLength(), "\n");
         scrollText();
     }
