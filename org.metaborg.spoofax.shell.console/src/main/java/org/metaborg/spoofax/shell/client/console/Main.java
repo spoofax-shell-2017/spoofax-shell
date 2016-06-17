@@ -25,8 +25,10 @@ public final class Main {
     private static StyledText error(String[] args) {
         StringBuilder invalidArgs = new StringBuilder();
         for (String arg : args) {
-            invalidArgs.append(arg);
+            invalidArgs.append(arg + ", ");
         }
+        // Remove the appended ", " from the string.
+        invalidArgs.delete(invalidArgs.length() - 2, invalidArgs.length());
         return new StyledText(Color.RED, String.format(ERROR, invalidArgs.toString()));
     }
 
