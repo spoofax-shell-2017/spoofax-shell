@@ -62,7 +62,8 @@ public abstract class ReplModule extends SpoofaxModule {
     protected void bindCommands(MapBinder<String, IReplCommand> commandBinder) {
         commandBinder.addBinding("help").to(HelpCommand.class);
         commandBinder.addBinding("load").to(LanguageCommand.class);
-
+        bind(IReplCommand.class).annotatedWith(Names.named("default_command"))
+        .to(HelpCommand.class);
         bind(ICommandInvoker.class).to(SpoofaxCommandInvoker.class);
     }
 

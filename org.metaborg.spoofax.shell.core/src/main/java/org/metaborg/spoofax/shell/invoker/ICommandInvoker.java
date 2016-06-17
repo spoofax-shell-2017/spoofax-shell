@@ -30,6 +30,17 @@ public interface ICommandInvoker {
     String commandPrefix();
 
     /**
+     * @return the command that will be executed by default.
+     */
+    IReplCommand getDefault();
+
+    /**
+     * Set the default command to the provided {@link IReplCommand}.
+     * @param defaultCommand the new default {@link IReplCommand}.
+     */
+    void setDefault(IReplCommand defaultCommand);
+
+    /**
      * Execute the {@link IReplCommand} which is bound to the given command name, minus the prefix.
      *
      * @param optionallyPrefixedCommandName
@@ -49,7 +60,7 @@ public interface ICommandInvoker {
             return commandFromName(commandName).execute(argument);
         } else {
             // TODO: create sensible way to set default
-            return commandFromName("eval").execute(optionallyPrefixedCommandName);
+            return getDefault().execute(optionallyPrefixedCommandName);
         }
     }
 

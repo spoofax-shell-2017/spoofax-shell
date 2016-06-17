@@ -106,21 +106,24 @@ public class LanguageCommand implements IReplCommand {
     private void loadCommands(ILanguageImpl lang) {
         boolean analyze = lang.hasFacet(AnalyzerFacet.class);
         CommandBuilder<?> builder = factory.createBuilder(project, lang);
+
+        IReplCommand eval;
         Function<ITransformAction, CommandBuilder<TransformResult>> transform;
 
         invoker.resetCommands();
         invoker.addCommand("parse", builder.parse().description("Parse the expression").build());
         if (analyze) {
-            invoker.addCommand("analyze",
-                               builder.analyze().description("Analyze the expression").build());
-            invoker.addCommand("eval", builder.evalAnalyzed()
-                .description("Evaluate an analyzed expression").build());
+            invoker.addCommand("analyze", builder.analyze()
+                .description("Analyze the expression").build());
+
+            eval = builder.evalAnalyzed().description("Evaluate an analyzed expression").build();
             transform = (action) -> builder.transformAnalyzed(action);
         } else {
-            invoker.addCommand("eval", builder.evalParsed()
-                .description("Evaluate a parsed expression").build());
+            eval = builder.evalParsed().description("Evaluate a parsed expression").build();
             transform = (action) -> builder.transformParsed(action);
         }
+        invoker.addCommand("eval", eval);
+        invoker.setDefault(eval);
 
         new TransformVisitor(menuService).getActions(lang).forEach((key, action) -> {
             invoker.addCommand(key, transform.apply(action).description(action.name()).build());

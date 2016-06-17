@@ -2,9 +2,11 @@ package org.metaborg.spoofax.shell.invoker;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.metaborg.spoofax.shell.commands.IReplCommand;
 
 import com.google.common.collect.Maps;
 
@@ -19,7 +21,7 @@ public class SpoofaxCommandInvokerTest {
      */
     @Before
     public void setUp() {
-        invoker = new SpoofaxCommandInvoker(Maps.newHashMap());
+        invoker = new SpoofaxCommandInvoker(Maps.newHashMap(), mock(IReplCommand.class));
     }
 
     /**
