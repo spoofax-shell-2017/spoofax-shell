@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.client;
+package org.metaborg.spoofax.shell.output;
 
 import java.util.function.Consumer;
 

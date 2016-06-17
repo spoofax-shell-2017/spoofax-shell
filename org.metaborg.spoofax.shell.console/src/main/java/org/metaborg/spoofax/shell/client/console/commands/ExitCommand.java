@@ -1,8 +1,8 @@
 package org.metaborg.spoofax.shell.client.console.commands;
 
-import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
+import org.metaborg.spoofax.shell.output.IResult;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

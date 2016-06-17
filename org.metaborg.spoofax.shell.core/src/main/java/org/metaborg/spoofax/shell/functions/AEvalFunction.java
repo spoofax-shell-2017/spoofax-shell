@@ -7,11 +7,11 @@ import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
-import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
+import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 

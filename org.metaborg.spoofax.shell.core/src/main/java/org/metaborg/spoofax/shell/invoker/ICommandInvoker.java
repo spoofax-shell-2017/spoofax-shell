@@ -3,9 +3,9 @@ package org.metaborg.spoofax.shell.invoker;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.metaborg.spoofax.shell.client.IResult;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
+import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.IResultVisitor;
 
 /**
  * An interface for binding and executing {@link IReplCommand}s.

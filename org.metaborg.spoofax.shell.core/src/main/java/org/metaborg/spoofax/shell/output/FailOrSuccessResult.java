@@ -2,8 +2,6 @@ package org.metaborg.spoofax.shell.output;
 
 import java.util.Objects;
 
-import org.metaborg.spoofax.shell.client.IResult;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.functions.FailableFunction;
 
 /**

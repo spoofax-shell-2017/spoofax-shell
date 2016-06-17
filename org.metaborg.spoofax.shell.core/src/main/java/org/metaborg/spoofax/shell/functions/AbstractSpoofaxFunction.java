@@ -2,9 +2,9 @@ package org.metaborg.spoofax.shell.functions;
 
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
-import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.output.ExceptionResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
+import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 

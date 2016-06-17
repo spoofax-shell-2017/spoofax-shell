@@ -11,8 +11,8 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
+import org.metaborg.spoofax.shell.output.IResultVisitor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import org.metaborg.core.source.ISourceRegion;
 import org.metaborg.core.source.SourceRegion;
@@ -13,6 +14,9 @@ import org.metaborg.core.style.RegionStyle;
 import org.metaborg.core.style.Style;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 /**
  * Represents a styled text containing several styled strings, each represented by an
@@ -68,6 +72,13 @@ public class StyledText {
     }
 
     /**
+     * Create an empty {@link StyledText}.
+     */
+    public StyledText() {
+        this.source = Lists.newArrayList();
+    }
+
+    /**
      * Return all the styled strings in this text.
      *
      * @return All the styled strings in this text.
@@ -115,6 +126,38 @@ public class StyledText {
     }
 
     /**
+     * Append a string with multiple regions and a style to this styled text. All of the regions in
+     * the given text will be styled with the given style, the rest of the text will have no style.
+     * Internally, the given regions will be sorted.
+     *
+     * @param regions
+     *            The regions to style.
+     * @param style
+     *            The style to apply.
+     * @param text
+     *            The unstyled text.
+     * @return The styled text.
+     */
+    public StyledText append(Iterable<ISourceRegion> regions, IStyle style, String text) {
+        RangeSet<Integer> rangeSet = TreeRangeSet.create();
+        StreamSupport.stream(regions.spliterator(), false)
+            .map(r -> Range.closed(r.startOffset(), r.endOffset())).forEach(rangeSet::add);
+        List<Range<Integer>> sortedRanges = rangeSet.asRanges().stream()
+            .sorted((a, b) -> a.lowerEndpoint() - b.lowerEndpoint()).collect(Collectors.toList());
+        int curOffset = 0;
+        for (Range<Integer> r : sortedRanges) {
+            String sub = text.substring(curOffset, r.lowerEndpoint());
+            this.append(sub);
+            String errorRegion = text.substring(r.lowerEndpoint(), r.upperEndpoint() + 1);
+            this.append(style, errorRegion);
+            curOffset = r.upperEndpoint() + 1;
+        }
+        // Add the rest.
+        this.append(text.substring(curOffset));
+        return this;
+    }
+
+    /**
      * Append a string with a region and a style to this styled text.
      *
      * @param region
@@ -125,7 +168,7 @@ public class StyledText {
      *            The unstyled text.
      * @return The styled text.
      */
-    private StyledText append(ISourceRegion region, IStyle style, String text) {
+    public StyledText append(ISourceRegion region, IStyle style, String text) {
         this.source.add(new RegionStyle<>(region, style, text));
 
         return this;

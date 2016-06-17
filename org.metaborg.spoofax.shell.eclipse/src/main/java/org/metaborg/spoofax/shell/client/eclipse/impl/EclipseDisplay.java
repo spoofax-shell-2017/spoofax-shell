@@ -13,22 +13,20 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.metaborg.core.style.IStyle;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
-import org.metaborg.spoofax.shell.output.FailResult;
-import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 /**
- * An Eclipse-based {@link IResultVisitor}, which uses a {@link TextViewer} to display results and
+ * An Eclipse-based {@link IDisplay}, which uses a {@link TextViewer} to display results and
  * error messages.
  *
  * Note that this class should always be run in and accessed from the UI thread!
  */
-public class EclipseDisplay implements IResultVisitor {
+public class EclipseDisplay implements IDisplay {
     private final ITextViewer output;
     private final ColorManager colorManager;
 
@@ -103,26 +101,10 @@ public class EclipseDisplay implements IResultVisitor {
     }
 
     @Override
-    public void visitResult(ISpoofaxResult<?> result) {
-        // TODO: use the information in the result to print better error messages.
+    public void displayStyledText(StyledText text) {
         IDocument doc = getDocument();
 
-        result.styled().getSource().forEach(e -> {
-            int offset = doc.getLength();
-
-            append(doc, offset, e.fragment());
-            style(e.style(), offset, e.region().length());
-        });
-
-        append(doc, doc.getLength(), "\n");
-        scrollText();
-    }
-
-    @Override
-    public void visitMessage(StyledText message) {
-        IDocument doc = getDocument();
-
-        message.getSource().forEach(e -> {
+        text.getSource().forEach(e -> {
             int offset = doc.getLength();
 
             append(doc, offset, e.fragment());
@@ -133,15 +115,5 @@ public class EclipseDisplay implements IResultVisitor {
         // (which has its newline appended) and output.
         append(doc, doc.getLength(), "\n");
         scrollText();
-    }
-
-    @Override
-    public void visitFailure(FailResult errorResult) {
-        visitMessage(errorResult.getCause().styled());
-    }
-
-    @Override
-    public void visitException(Throwable thrown) {
-        visitMessage(new StyledText(Color.RED, thrown.getMessage()));
     }
 }

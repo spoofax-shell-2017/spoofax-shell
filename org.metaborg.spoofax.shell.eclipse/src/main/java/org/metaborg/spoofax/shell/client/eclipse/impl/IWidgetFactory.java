@@ -1,7 +1,7 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
 import org.eclipse.swt.widgets.Composite;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
+import org.metaborg.spoofax.shell.client.IDisplay;
 
 /**
  * An interface for Guice's {@link com.google.inject.assistedinject.FactoryModuleBuilder}.
@@ -31,10 +31,10 @@ public interface IWidgetFactory {
     /**
      * Instantiate a new {@link EclipseRepl}.
      *
-     * @param visitor
-     *            The {@link IResultVisitor} to visit results with.
+     * @param display
+     *            The {@link IDisplay} for displaying results.
      * @return The created {@link EclipseRepl}.
      */
-    EclipseRepl createRepl(IResultVisitor visitor);
+    EclipseRepl createRepl(IDisplay display);
 
 }

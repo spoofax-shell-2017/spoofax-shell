@@ -3,8 +3,8 @@ package org.metaborg.spoofax.shell.client.console.impl;
 import java.awt.Color;
 import java.io.IOException;
 
+import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 public class ConsoleRepl implements IRepl {
     private final ICommandInvoker invoker;
     private final TerminalUserInterface iface;
-    private final IResultVisitor visitor;
+    private final IDisplay display;
     private boolean running;
 
     /**
@@ -28,17 +28,16 @@ public class ConsoleRepl implements IRepl {
      *
      * @param iface
      *            The {@link TerminalUserInterface} to retrieve user input from.
-     * @param visitor
-     *            The {@link IResultVisitor} for visiting the results.
+     * @param display
+     *            The {@link IDisplay} for displaying the results.
      * @param invoker
      *            The {@link ICommandInvoker} for executing user input.
      */
     @Inject
-    public ConsoleRepl(TerminalUserInterface iface, IResultVisitor visitor,
-                       ICommandInvoker invoker) {
+    public ConsoleRepl(TerminalUserInterface iface, IDisplay display, ICommandInvoker invoker) {
         this.invoker = invoker;
         this.iface = iface;
-        this.visitor = visitor;
+        this.display = display;
     }
 
     /**
@@ -67,15 +66,15 @@ public class ConsoleRepl implements IRepl {
             setRunning(true);
             while (running && (input = this.iface.getInput()) != null) {
                 try {
-                    eval(input).accept(visitor);
+                    eval(input).accept(display);
                 } catch (CommandNotFoundException e) {
-                    this.visitor.visitMessage(new StyledText(Color.RED, e.getMessage()));
+                    this.display.displayStyledText(new StyledText(Color.RED, e.getMessage()));
                 }
             }
 
             this.iface.history().persistToDisk();
         } catch (IOException e) {
-            this.visitor.visitMessage(new StyledText(Color.RED, e.getMessage()));
+            this.display.displayStyledText(new StyledText(Color.RED, e.getMessage()));
         }
     }
 

@@ -10,8 +10,6 @@ import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.resource.ResourceService;
 import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.shell.client.IRepl;
-import org.metaborg.spoofax.shell.client.IResult;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
@@ -32,7 +30,9 @@ import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
+import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
+import org.metaborg.spoofax.shell.output.IResultVisitor;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
@@ -47,7 +47,8 @@ import com.google.inject.name.Names;
 
 /**
  * This class binds the core classes. It is intended to be subclassed by client implementations.
- * These subclasses should bind their implementations of {@link IRepl} and {@link IResultVisitor}.
+ * These subclasses should bind their implementations of {@link IRepl} and either
+ * {@link IResultVisitor} or {@link IDisplay} (which is also an {@link IResultVisitor}).
  */
 public abstract class ReplModule extends SpoofaxModule {
 

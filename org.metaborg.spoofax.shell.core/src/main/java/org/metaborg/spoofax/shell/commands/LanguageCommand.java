@@ -15,11 +15,11 @@ import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
-import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.ExceptionResult;
+import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.metaborg.spoofax.shell.output.TransformResult;
 

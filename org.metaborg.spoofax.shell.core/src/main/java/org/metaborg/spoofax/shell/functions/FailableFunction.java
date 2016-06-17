@@ -3,8 +3,8 @@ package org.metaborg.spoofax.shell.functions;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.metaborg.spoofax.shell.client.IResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
+import org.metaborg.spoofax.shell.output.IResult;
 
 /**
  * A {@link java.util.Function} that may result in a failure. This is our domain-specific equivalent
