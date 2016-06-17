@@ -52,7 +52,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 /**
- * Test creating and using a {@link IReplCommand} created from the {@link TransformFunction}.
+ * Test creating and using a {@link IReplCommand} created from the {@link PTransformFunction} and
+ * the {@link ATransformFuntion}.
  */
 @RunWith(Parameterized.class)
 public class TransformFunctionTest {

@@ -94,7 +94,7 @@ public class LanguageCommandTest {
      * Instantiate a new {@link LanguageCommandTest}.
      *
      * @param archiveExtension
-     *            The archive extension to run the tests with, see {@link #data()}.
+     *            The archive extension to run the tests with, see {@link #archives()}.
      */
     public LanguageCommandTest(String archiveExtension) {
         this.extension = archiveExtension;

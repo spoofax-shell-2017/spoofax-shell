@@ -46,7 +46,7 @@ public abstract class AbstractSpoofaxFunction<In, Success extends ISpoofaxResult
 
     /**
      * Apply the argument, optionally throwing an exception. The exception is caught in the
-     * {@link #apply(ISpoofaxResult)} function, to be returned as an {@link ExceptionResult}.
+     * {@link #apply(Object)} function, to be returned as an {@link ExceptionResult}.
      *
      * @param a
      *            The input argument.
