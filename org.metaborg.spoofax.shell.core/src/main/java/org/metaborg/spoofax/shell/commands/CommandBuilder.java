@@ -118,11 +118,13 @@ public class CommandBuilder<R extends IResult> {
     }
 
     private FailableFunction<String, EvaluateResult, IResult> pEvaluateFunction() {
-        return parseFunction().kleisliCompose(functionFactory.createPEvalFunction(project, lang));
+        return parseFunction()
+            .kleisliCompose(functionFactory.createEvaluateFunction(project, lang));
     }
 
     private FailableFunction<String, EvaluateResult, IResult> aEvaluateFunction() {
-        return analyzeFunction().kleisliCompose(functionFactory.createAEvalFunction(project, lang));
+        return analyzeFunction()
+            .kleisliCompose(functionFactory.createEvaluateFunction(project, lang));
     }
 
     /**

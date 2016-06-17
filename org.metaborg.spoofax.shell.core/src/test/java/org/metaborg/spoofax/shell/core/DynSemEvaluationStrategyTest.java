@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +27,6 @@ import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
 import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
-import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.util.StrategoUtil;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -111,17 +109,15 @@ public class DynSemEvaluationStrategyTest {
      */
     @Test
     public void testEnvironmentPropagation() {
-        AnalyzeResult analyzeResultMock =
-            when(mock(AnalyzeResult.class).ast()).thenReturn(Optional.of(input)).getMock();
         try {
             // First invocation causes an update in the environment.
             IStrategoTerm firstResult = evalStrategy
-                .evaluate(analyzeResultMock, mock(IContext.class, Mockito.RETURNS_MOCKS));
+                .evaluate(input, mock(IContext.class, Mockito.RETURNS_MOCKS));
             assertTrue(firstResult.toString().contains("0"));
 
             // Second invocation has a different result due to a different environment.
             IStrategoTerm secondResult = evalStrategy
-                .evaluate(analyzeResultMock, mock(IContext.class, Mockito.RETURNS_MOCKS));
+                .evaluate(input, mock(IContext.class, Mockito.RETURNS_MOCKS));
             assertTrue(secondResult.toString().contains(String.valueOf(DEFAULT_SHELL_RULE_ANSWER)));
         } catch (MetaborgException e) {
             assertEquals(expectedExceptionMessage, e.getMessage());

@@ -1,8 +1,10 @@
 package org.metaborg.spoofax.shell.functions;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -48,6 +50,7 @@ import org.metaborg.spoofax.shell.output.ParseResult;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * Test creating and using a {@link IReplCommand} created from the {@link AEvalFunction} and
@@ -164,8 +167,12 @@ public class EvaluateFunctionTest {
     private void mockServices() throws FileSystemException, MetaborgException {
         FileObject sourceFile = VFS.getManager().resolveFile("ram://junit-temp");
         when(project.location()).thenReturn(sourceFile);
+        when(parseResult.ast()).thenReturn(Optional.of(mock(IStrategoTerm.class)));
+        when(analyzeResult.ast()).thenReturn(Optional.of(mock(IStrategoTerm.class)));
         when(parseResult.context()).thenReturn(Optional.empty());
         when(analyzeResult.context()).thenReturn(Optional.empty());
+        doCallRealMethod().when(parseResult).accept(any(IResultVisitor.class));
+        doCallRealMethod().when(analyzeResult).accept(any(IResultVisitor.class));
         when(contextService.get(any(), any(), any())).thenReturn(context);
 
         when(resultFactory.createEvaluateResult(any(ParseResult.class), any())).thenReturn(result);
@@ -176,10 +183,8 @@ public class EvaluateFunctionTest {
     private void mockFunctions() {
         Map<String, IEvaluationStrategy> evalStrategies = new HashMap<>(1);
         evalStrategies.put("mock", evalStrategy);
-        PEvalFunction pEvalFunction =
-            new PEvalFunction(evalStrategies, contextService, resultFactory, project, lang);
-        AEvalFunction aEvalFunction =
-            new AEvalFunction(evalStrategies, contextService, resultFactory, project, lang);
+        EvaluateFunction pEvalFunction =
+            new EvaluateFunction(evalStrategies, contextService, resultFactory, project, lang);
 
         when(functionFactory.createInputFunction(any(), any()))
             .thenReturn((input) -> FailOrSuccessResult.successful(inputResult));
@@ -188,8 +193,7 @@ public class EvaluateFunctionTest {
         when(functionFactory.createAnalyzeFunction(any(), any()))
             .thenReturn((input) -> FailOrSuccessResult.successful(analyzeResult));
 
-        when(functionFactory.createPEvalFunction(any(), any())).thenReturn(pEvalFunction);
-        when(functionFactory.createAEvalFunction(any(), any())).thenReturn(aEvalFunction);
+        when(functionFactory.createEvaluateFunction(any(), any())).thenReturn(pEvalFunction);
     }
 
     /**
@@ -198,6 +202,26 @@ public class EvaluateFunctionTest {
     @Test
     public void testDescription() {
         assertEquals(description, command.description());
+    }
+
+    /**
+     * Test failing of command when input has no AST present.
+     *
+     * @throws MetaborgException
+     *             on unexpected Spoofax exceptions
+     */
+    @Test
+    public void testEvaluateNoAST() throws MetaborgException {
+        when(parseResult.ast()).thenReturn(Optional.empty());
+        when(analyzeResult.ast()).thenReturn(Optional.empty());
+
+        IResult execute = command.execute("test");
+        assertTrue(execute instanceof FailOrSuccessResult);
+
+        execute.accept(visitor);
+        verify(visitor, times(1)).visitFailure(failCaptor.capture());
+        ISpoofaxResult<?> failureCause = failCaptor.getValue().getCause();
+        assertTrue(parseResult == failureCause || analyzeResult == failureCause);
     }
 
     /**
@@ -259,17 +283,16 @@ public class EvaluateFunctionTest {
     }
 
     /**
-     * Test creating a {@link EvaluateResult} resulting in an exception.
+     * Test evaluation strategy invocation resulting in an exception.
      *
      * @throws MetaborgException
      *             on unexpected Spoofax exceptions
      */
     @Test
-    public void testEvaluateException() throws MetaborgException {
+    public void testEvaluationStrategyException() throws MetaborgException {
         MetaborgException evalException = new MetaborgException("error");
 
-        when(evalStrategy.evaluate(any(ParseResult.class), eq(context))).thenThrow(evalException);
-        when(evalStrategy.evaluate(any(AnalyzeResult.class), eq(context))).thenThrow(evalException);
+        when(evalStrategy.evaluate(any(IStrategoTerm.class), eq(context))).thenThrow(evalException);
 
         IResult execute = command.execute("test");
         verify(visitor, never()).visitException(any());
@@ -277,6 +300,26 @@ public class EvaluateFunctionTest {
         execute.accept(visitor);
         verify(visitor, times(1)).visitException(exceptionCaptor.capture());
         assertEquals(evalException, exceptionCaptor.getValue());
+    }
+
+    /**
+     * Test throwing an exception when there is no {@link ShellFacet}.
+     *
+     * @throws MetaborgException
+     *             on unexpected Spoofax exceptions
+     */
+    @Test
+    public void testAbsentShellFacetException() throws MetaborgException {
+        ILanguageImpl langMock =
+            when(mock(ILanguageImpl.class).facet(ShellFacet.class)).thenReturn(null).getMock();
+        when(context.language()).thenReturn(langMock);
+
+        IResult execute = command.execute("test");
+        verify(visitor, never()).visitException(any());
+
+        execute.accept(visitor);
+        verify(visitor, times(1)).visitException(exceptionCaptor.capture());
+        assertEquals("Cannot find the shell facet.", exceptionCaptor.getValue().getMessage());
     }
 
 }

@@ -15,8 +15,6 @@ import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleResult;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
-import org.metaborg.spoofax.shell.output.AnalyzeResult;
-import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.util.StrategoUtil;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -42,8 +40,8 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
     /**
      * Construct a new {@link DynSemEvaluationStrategy}. This does not yet load the interpreter for
-     * the language. Rather, this is done when first invoking
-     * {@link #evaluate(AnalyzeResult, IContext)} or {@link #evaluate(ParseResult, IContext)}.
+     * the language. Rather, this is done when invoking {@link #evaluate(IStrategoTerm, IContext)}
+     * for the first time.
      *
      * @param interpLoader
      *            The loader for a generated DynSem interpreter.
@@ -63,14 +61,8 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     @Override
-    public IStrategoTerm evaluate(ParseResult parsed, IContext context) throws MetaborgException {
-        return evaluate(parsed.ast().get(), context.language());
-    }
-
-    @Override
-    public IStrategoTerm evaluate(AnalyzeResult analyzed, IContext context)
-        throws MetaborgException {
-        return evaluate(analyzed.ast().get(), context.language());
+    public IStrategoTerm evaluate(IStrategoTerm term, IContext context) throws MetaborgException {
+        return evaluate(term, context.language());
     }
 
     private IStrategoTerm evaluate(IStrategoTerm input, ILanguageImpl langImpl)
@@ -168,8 +160,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         initializeExecutionEnvironment();
     }
 
-    private void initializeExecutionEnvironment()
-        throws InterpreterLoadException {
+    private void initializeExecutionEnvironment() throws InterpreterLoadException {
         ITermFactory termFactory = termFactService.getGeneric();
         IStrategoConstructor termConstr = termFactory.makeConstructor("ShellInit", 0);
         IStrategoAppl shellInitAppl = termFactory.makeAppl(termConstr);

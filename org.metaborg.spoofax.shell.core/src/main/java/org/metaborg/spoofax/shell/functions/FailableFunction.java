@@ -43,7 +43,7 @@ public interface FailableFunction<In, Success extends IResult, Fail extends IRes
      *            The return type of a successful result.
      */
     default <NewSuccess extends IResult> FailableFunction<In, NewSuccess, Fail>
-        kleisliCompose(FailableFunction<Success, NewSuccess, Fail> other) {
+        kleisliCompose(FailableFunction<? super Success, NewSuccess, Fail> other) {
         Objects.requireNonNull(other);
         return a -> this.apply(a).flatMap(other);
     }

@@ -7,6 +7,16 @@ package org.metaborg.spoofax.shell.output;
 public interface IResultVisitor {
 
     /**
+     * Visit an {@link ISpoofaxTermResult}.
+     *
+     * @param result
+     *            The result to be visited.
+     */
+    default void visitTermResult(ISpoofaxTermResult<?> result) {
+        visitResult(result);
+    }
+
+    /**
      * Visit an {@link ISpoofaxResult}.
      *
      * @param result
