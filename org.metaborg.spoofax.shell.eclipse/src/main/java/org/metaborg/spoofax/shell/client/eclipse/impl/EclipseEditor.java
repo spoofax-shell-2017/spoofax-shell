@@ -25,7 +25,7 @@ import rx.Observable;
 import rx.Subscriber;
 
 /**
- * A multiline input editor for the {@link EclipseRepl}, with a {@link Sourceviewer} backend. It
+ * A multiline input editor for the {@link EclipseRepl}, with a {@link SourceViewer} backend. It
  * attaches itself as a {@link KeyListener} to listen for certain keypresses. When the Return key
  * (e.g. linefeed or carriage return) is pressed, the {@link Observer}s are notified with the text
  * typed so far.
@@ -77,9 +77,8 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      * @return A new {@link Observable} from this editor.
      */
     public Observable<String> asObservable() {
-        return Observable.create(s -> {
-            EclipseEditor.this.observers.add(s);
-        });
+        return Observable
+            .create((Observable.OnSubscribe<String>) EclipseEditor.this.observers::add);
     }
 
     /**
@@ -110,9 +109,6 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         this.document.set("");
     }
 
-    private void offerCompletions() {
-    }
-
     private void setTextFromHistory(String text) {
         document.set(text);
         input.setSelectedRange(text.length(), 0);
@@ -125,11 +121,6 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         case SWT.CR:
             if ((event.stateMask & (SWT.CTRL | SWT.SHIFT)) == 0) {
                 enterPressed();
-            }
-            break;
-        case SWT.SPACE:
-            if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
-                offerCompletions();
             }
             break;
         case SWT.PAGE_DOWN:

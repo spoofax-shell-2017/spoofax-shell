@@ -18,16 +18,13 @@ import org.eclipse.swt.widgets.Display;
  * Note that the ColorManager is not thread-safe.
  */
 public class ColorManager {
-    private Map<RGB, Color> colors = new HashMap<RGB, Color>();
+    private final Map<RGB, Color> colors = new HashMap<>();
 
     /**
      * Dispose all created colors.
      */
     public void dispose() {
-        for (Color color : colors.values()) {
-            color.dispose();
-        }
-
+        colors.values().stream().forEach(Color::dispose);
         colors.clear();
     }
 
