@@ -16,12 +16,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.fusesource.jansi.Ansi;
-import org.metaborg.core.completion.ICompletionService;
 import org.metaborg.core.style.IStyle;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
-import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IInputHistory;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -32,9 +29,10 @@ import com.google.inject.name.Named;
 import jline.console.ConsoleReader;
 
 /**
- * A terminal UI which is both an {@link IEditor} and an {@link IResultVisitor}.
+ * A terminal UI, offering a way of entering input and implementing {@link IResultVisitor} to
+ * display results.
  */
-public class TerminalUserInterface implements IEditor, IResultVisitor {
+public class TerminalUserInterface implements IResultVisitor {
     private final ConsoleReader reader;
     private final ArrayList<String> lines;
     private final PrintWriter out;
@@ -107,8 +105,11 @@ public class TerminalUserInterface implements IEditor, IResultVisitor {
         continuationPrompt = promptString;
     }
 
-    // -------------- IEditor --------------
-    @Override
+    /**
+     * Get input from the user. This method blocks until the user presses the Return key.
+     *
+     * @return The input as typed by the user, or {@code null} in case of an exception.
+     */
     public String getInput() {
         String input = null;
         String lastLine;
@@ -131,19 +132,15 @@ public class TerminalUserInterface implements IEditor, IResultVisitor {
         return input;
     }
 
-    @Override
-    public void setSpoofaxCompletion(ICompletionService<ISpoofaxParseUnit> completionService) {
-        reader.addCompleter((buffer, cursor, candidates) -> {
-            return cursor;
-        });
-    }
-
-    @Override
+    /**
+     * Return the {@link IInputHistory} kept by this user interface.
+     *
+     * @return The {@link IInputHistory} implementation.
+     */
     public IInputHistory history() {
         return hist;
     }
 
-    // -------------- IResultVisitor --------------
     @Override
     public void visitResult(ISpoofaxResult<?> result) {
         visitMessage(result.styled());

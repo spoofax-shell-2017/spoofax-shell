@@ -1,7 +1,6 @@
 package org.metaborg.spoofax.shell.client.console.impl;
 
 import org.metaborg.spoofax.shell.client.IResultVisitor;
-import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 import com.google.inject.AbstractModule;
@@ -11,12 +10,12 @@ import com.google.inject.AbstractModule;
  */
 public class MockModule extends AbstractModule {
     private final ICommandInvoker invokerMock;
-    private final IEditor editorMock;
+    private final TerminalUserInterface ifaceMock;
     private final IResultVisitor visitorMock;
 
     /**
-     * Instantiates a new MockModule with a {@code null} @{link IEditor} and a {@code null}
-     * {@link IResultVisitor}.
+     * Instantiates a new MockModule with a {@code null} @{link TerminalUserInterface} and a
+     * {@code null} {@link IResultVisitor}.
      *
      * @param invokerMock
      *            The mock {@link ICommandInvoker}.
@@ -30,23 +29,23 @@ public class MockModule extends AbstractModule {
      *
      * @param invokerMock
      *            The mock {@link ICommandInvoker}.
-     * @param editorMock
-     *            The mock {@link IEditor}.
+     * @param ifaceMock
+     *            The mock {@link TerminalUserInterface}.
      */
-    public MockModule(ICommandInvoker invokerMock, IEditor editorMock) {
-        this(invokerMock, editorMock, null);
+    public MockModule(ICommandInvoker invokerMock, TerminalUserInterface ifaceMock) {
+        this(invokerMock, ifaceMock, null);
     }
 
     /**
      * Instantiates a new MockModule with a {@code null} {@link ICommandInvoker}.
      *
-     * @param editorMock
-     *            The mock {@link IEditor}.
+     * @param ifaceMock
+     *            The mock {@link TerminalUserInterface}.
      * @param visitorMock
      *            The mock {@link IResultVisitor}.
      */
-    public MockModule(IEditor editorMock, IResultVisitor visitorMock) {
-        this(null, editorMock, visitorMock);
+    public MockModule(TerminalUserInterface ifaceMock, IResultVisitor visitorMock) {
+        this(null, ifaceMock, visitorMock);
     }
 
     /**
@@ -54,14 +53,15 @@ public class MockModule extends AbstractModule {
      *
      * @param invokerMock
      *            The mock {@link ICommandInvoker}.
-     * @param editorMock
-     *            The mock {@link IEditor}.
+     * @param ifaceMock
+     *            The mock {@link TerminalUserInterface}.
      * @param visitorMock
      *            The mock {@link IResultVisitor}.
      */
-    public MockModule(ICommandInvoker invokerMock, IEditor editorMock, IResultVisitor visitorMock) {
+    public MockModule(ICommandInvoker invokerMock, TerminalUserInterface ifaceMock,
+                      IResultVisitor visitorMock) {
         this.invokerMock = invokerMock;
-        this.editorMock = editorMock;
+        this.ifaceMock = ifaceMock;
         this.visitorMock = visitorMock;
     }
 
@@ -70,8 +70,8 @@ public class MockModule extends AbstractModule {
         if (invokerMock != null) {
             bind(ICommandInvoker.class).toInstance(invokerMock);
         }
-        if (editorMock != null) {
-            bind(IEditor.class).toInstance(editorMock);
+        if (ifaceMock != null) {
+            bind(TerminalUserInterface.class).toInstance(ifaceMock);
         }
         if (visitorMock != null) {
             bind(IResultVisitor.class).toInstance(visitorMock);

@@ -4,9 +4,8 @@ import java.awt.Color;
 import java.io.IOException;
 
 import org.metaborg.core.MetaborgException;
-import org.metaborg.spoofax.shell.client.IResultVisitor;
-import org.metaborg.spoofax.shell.client.IEditor;
 import org.metaborg.spoofax.shell.client.IRepl;
+import org.metaborg.spoofax.shell.client.IResultVisitor;
 import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -21,24 +20,25 @@ import com.google.inject.Inject;
  */
 public class ConsoleRepl implements IRepl {
     private final ICommandInvoker invoker;
-    private final IEditor editor;
+    private final TerminalUserInterface iface;
     private final IResultVisitor visitor;
     private boolean running;
 
     /**
      * Instantiates a new ConsoleRepl.
      *
-     * @param editor
-     *            The {@link IEditor} for receiving input.
+     * @param iface
+     *            The {@link TerminalUserInterface} to retrieve user input from.
      * @param visitor
      *            The {@link IResultVisitor} for visiting the results.
      * @param invoker
      *            The {@link ICommandInvoker} for executing user input.
      */
     @Inject
-    public ConsoleRepl(IEditor editor, IResultVisitor visitor, ICommandInvoker invoker) {
+    public ConsoleRepl(TerminalUserInterface iface, IResultVisitor visitor,
+                       ICommandInvoker invoker) {
         this.invoker = invoker;
-        this.editor = editor;
+        this.iface = iface;
         this.visitor = visitor;
     }
 
@@ -67,11 +67,11 @@ public class ConsoleRepl implements IRepl {
      */
     public void run() {
         try {
-            this.editor.history().loadFromDisk();
+            this.iface.history().loadFromDisk();
 
             String input;
             setRunning(true);
-            while (running && (input = editor.getInput()) != null) {
+            while (running && (input = this.iface.getInput()) != null) {
                 try {
                     eval(input).accept(visitor);
                 } catch (CommandNotFoundException | MetaborgException e) {
@@ -79,7 +79,7 @@ public class ConsoleRepl implements IRepl {
                 }
             }
 
-            this.editor.history().persistToDisk();
+            this.iface.history().persistToDisk();
         } catch (IOException e) {
             this.visitor.visitMessage(new StyledText(Color.RED, e.getMessage()));
         }
