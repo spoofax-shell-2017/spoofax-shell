@@ -58,29 +58,35 @@ public class DynSemEvaluationStrategyTest {
      *
      * @param ruleKey
      *            The key of the shell rule, to cover the branch in the private rule lookup method.
+     * @param mockInitRule
+     *            The rule for initializing the environment.
      * @param input
      *            The {@link IStrategoTerm} test input.
      * @param expectedExceptionMessage
      *            The exception message that is expected when an exception has been thrown.
      */
-    public DynSemEvaluationStrategyTest(String ruleKey, IStrategoTerm input,
-                                        String expectedExceptionMessage) {
+    public DynSemEvaluationStrategyTest(String ruleKey, Value mockInitRule,
+                                        IStrategoTerm input, String expectedExceptionMessage) {
         this.input = input;
         this.expectedExceptionMessage = expectedExceptionMessage;
         ITermFactoryService termFactService = INJECTOR.getInstance(ITermFactoryService.class);
         evalStrategy =
-            new DynSemEvaluationStrategy(new MockInterpreterLoader(ruleKey), termFactService);
+            new DynSemEvaluationStrategy(new MockInterpreterLoader(ruleKey, mockInitRule),
+                                         termFactService);
     }
 
     /**
      * @return Parameters for the tests.
+     * @throws IOException
+     *             Should not happen.
      */
+    // CHECKSTYLE.OFF: MethodLength
     @Parameters(name = "{index}: {0}")
-    public static Collection<Object[]> inputAndRuleParameters() {
+    public static Collection<Object[]> inputAndRuleParameters() throws IOException {
         ITermFactory termFact = INJECTOR.getInstance(ITermFactoryService.class).getGeneric();
         IStrategoAppl existingTerm =
             termFact.makeAppl(termFact.makeConstructor("Add", 2),
-                              termFact.makeInt(DEFAULT_SHELL_RULE_ANSWER - 2), termFact.makeInt(2));
+                              termFact.makeInt(0), termFact.makeInt(0));
         StrategoUtil.setSortForTerm(existingTerm, "Expr");
 
         IStrategoAppl nonExistingRuleForTerm =
@@ -91,17 +97,37 @@ public class DynSemEvaluationStrategyTest {
         IStrategoTerm wrongTypeTerm = termFact.makeList();
         IStrategoTerm noSortTerm = termFact.makeAppl(termFact.makeConstructor("Thing", 0));
 
-        return Arrays.asList(new Object[][] {
-            { "shell/_Expr/1", existingTerm, NO_EXCEPTION },
-            { "shell/Add/2", existingTerm, NO_EXCEPTION },
-            { "shell/noSuchRule/2", nonExistingRuleForTerm, "No shell rule found to be applied "
-                    + "to term \"nonExistingRuleForTerm(0,0)\"." },
-            { "shell/wrongArgumentType/0", wrongTypeTerm, "Expected a StrategoAppl, but a "
-                    + "StrategoList was found: \"[]\"." },
-            { "shell/_Expr/1", noSortTerm, "No shell rule found to be applied "
-                    + "to term \"Thing\". No sort found for term." },
-            { "shell/Thing/0", noSortTerm, NO_EXCEPTION }
-        });
+        return Arrays
+            .asList(new Object[][] { { "shell/_Expr/1", mockInitRule(), existingTerm,
+                                        NO_EXCEPTION },
+                                     { "shell/Add/2", mockInitRule(), existingTerm, NO_EXCEPTION },
+                                     { "shell/noSuchRule/2", mockInitRule(), nonExistingRuleForTerm,
+                                       "No shell rule found to be applied "
+                                       + "to term \"nonExistingRuleForTerm(0,0)\"." },
+                                     { "shell/wrongArgumentType/0", mockInitRule(), wrongTypeTerm,
+                                       "Expected a StrategoAppl, but a "
+                                       + "StrategoList was found: \"[]\"." },
+                                     { "shell/_Expr/1", mockInitRule(), noSortTerm,
+                                       "No shell rule found to be applied "
+                                       + "to term \"Thing\". No sort found for term." },
+                                     { "shell/Thing/0", mockInitRule(), noSortTerm, NO_EXCEPTION },
+                                     { "Non-existing init rule", null,
+                                       noSortTerm, "No shell initialization rule found.\n"
+                                               + "Initialize the semantic components for the"
+                                               + " \"shell\" rules with a rule of the form "
+                                               + "\"ShellInit() -init-> ShellInit() :: "
+                                               + "<RW>*\"." } });
+    }
+    // CHECKSTYLE.ON: MethodLength
+
+    private static Value mockInitRule() throws IOException {
+        // Mock the init rule.
+        Value mockInitRuleResult = when(mock(Value.class).as(RuleResult.class))
+            .thenReturn(new RuleResult(null, new Object[] { new HashMap<String, Integer>() }))
+            .getMock();
+        Value mockInitRule =
+            when(mock(Value.class).execute(any())).thenReturn(mockInitRuleResult).getMock();
+        return mockInitRule;
     }
 
     /**
@@ -111,14 +137,17 @@ public class DynSemEvaluationStrategyTest {
     public void testEnvironmentPropagation() {
         try {
             // First invocation causes an update in the environment.
-            IStrategoTerm firstResult = evalStrategy
-                .evaluate(input, mock(IContext.class, Mockito.RETURNS_MOCKS));
-            assertTrue(firstResult.toString().contains("0"));
+            IStrategoTerm firstResult =
+                evalStrategy.evaluate(input, mock(IContext.class, Mockito.RETURNS_MOCKS));
+            assertEquals("\"0\"", firstResult.toString());
 
             // Second invocation has a different result due to a different environment.
-            IStrategoTerm secondResult = evalStrategy
-                .evaluate(input, mock(IContext.class, Mockito.RETURNS_MOCKS));
+            IStrategoTerm secondResult =
+                evalStrategy.evaluate(input, mock(IContext.class, Mockito.RETURNS_MOCKS));
             assertTrue(secondResult.toString().contains(String.valueOf(DEFAULT_SHELL_RULE_ANSWER)));
+            if (expectedExceptionMessage != NO_EXCEPTION) {
+                fail("Exception was expected, but not thrown.");
+            }
         } catch (MetaborgException e) {
             assertEquals(expectedExceptionMessage, e.getMessage());
         }
@@ -129,9 +158,11 @@ public class DynSemEvaluationStrategyTest {
      */
     static final class MockInterpreterLoader implements IInterpreterLoader {
         private final String ruleKey;
+        private final Value mockInitRule;
 
-        private MockInterpreterLoader(String ruleKey) {
+        private MockInterpreterLoader(String ruleKey, Value mockInitRule) {
             this.ruleKey = ruleKey;
+            this.mockInitRule = mockInitRule;
         }
 
         // Method length is ignored because this is just a test.
@@ -142,13 +173,6 @@ public class DynSemEvaluationStrategyTest {
             try {
                 PolyglotEngine mockInterpreter = mock(PolyglotEngine.class);
 
-                // Mock the init rule.
-                Value mockInitRuleResult = when(mock(Value.class).as(RuleResult.class))
-                    .thenReturn(new RuleResult(null,
-                                               new Object[] { new HashMap<String, Integer>() }))
-                    .getMock();
-                Value mockInitRule =
-                    when(mock(Value.class).execute(any())).thenReturn(mockInitRuleResult).getMock();
                 when(mockInterpreter.findGlobalSymbol("init/ShellInit/0")).thenReturn(mockInitRule);
 
                 // Mock the shell rule. It extends the environment.
