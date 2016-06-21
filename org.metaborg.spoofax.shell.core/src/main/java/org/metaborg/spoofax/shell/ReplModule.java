@@ -77,7 +77,11 @@ public abstract class ReplModule extends SpoofaxModule {
      */
     protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
         bind(IInterpreterLoader.class).to(ClassPathInterpreterLoader.class);
-        evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class).in(Singleton.class);
+
+        // Make sure the DynSemEvaluationStrategy is a singleton so the REPL
+        // always uses the same unique rwSemanticComponents to evaluate in context.
+        bind(DynSemEvaluationStrategy.class).in(Singleton.class);
+        evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
     }
 
     @Override

@@ -194,9 +194,16 @@ public class CommandBuilder<R extends IResult> {
         return function(aEvaluateFunction());
     }
 
-    public CommandBuilder<EvaluateResult> evalOpen() {
+    public CommandBuilder<EvaluateResult> evalPOpen() {
         return function(functionFactory.createOpenInputFunction(project, lang)
                 .kleisliCompose(functionFactory.createParseFunction(project, lang))
+                .kleisliCompose(functionFactory.createEvaluateFunction(project, lang)));
+    }
+
+    public CommandBuilder<EvaluateResult> evalAOpen() {
+        return function(functionFactory.createOpenInputFunction(project, lang)
+                .kleisliCompose(functionFactory.createParseFunction(project, lang))
+                .kleisliCompose(functionFactory.createAnalyzeFunction(project, lang))
                 .kleisliCompose(functionFactory.createEvaluateFunction(project, lang)));
     }
 
