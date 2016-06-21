@@ -113,6 +113,7 @@ public class LanguageCommand implements IReplCommand {
 
         invoker.resetCommands();
         invoker.addCommand("parse", builder.parse().description("Parse the expression").build());
+        invoker.addCommand("open", builder.evalOpen().description("Open and evaluate a file").build());
         if (analyze) {
             invoker.addCommand("analyze", builder.analyze()
                 .description("Analyze the expression").build());

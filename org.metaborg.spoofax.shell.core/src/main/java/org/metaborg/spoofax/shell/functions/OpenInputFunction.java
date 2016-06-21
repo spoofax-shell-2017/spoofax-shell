@@ -1,11 +1,11 @@
 package org.metaborg.spoofax.shell.functions;
 
-import javax.inject.Named;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
+import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
@@ -16,10 +16,9 @@ import org.metaborg.spoofax.shell.output.InputResult;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-/**
- * Creates an {@link InputResult} from a given source string.
- */
-public class InputFunction extends AbstractSpoofaxFunction<String, InputResult> {
+public class OpenInputFunction extends AbstractSpoofaxFunction<String, InputResult> {
+
+    private IResourceService resourceService;
 
     /**
      * Instantiate a {@link InputFunction}.
@@ -32,20 +31,22 @@ public class InputFunction extends AbstractSpoofaxFunction<String, InputResult> 
      *            The {@link ILanguageImpl} to which this command applies.
      */
     @Inject
-    public InputFunction(IResultFactory resultFactory, @Assisted IProject project,
-                         @Assisted ILanguageImpl lang) {
+    public OpenInputFunction(IResultFactory resultFactory, IResourceService resourceService,
+                             @Assisted IProject project, @Assisted ILanguageImpl lang) {
         super(resultFactory, project, lang);
+        this.resourceService = resourceService;
     }
 
     @Override
-    protected FailOrSuccessResult<InputResult, IResult> applyThrowing(String source)
+    protected FailOrSuccessResult<InputResult, IResult> applyThrowing(String path)
         throws Exception {
         ShellFacet shellFacet = lang.facet(ShellFacet.class);
         if (shellFacet == null) {
             throw new MetaborgException("Cannot find the shell facet.");
         }
 
-        FileObject file = project.location().resolveFile("temp");
+        FileObject file = resourceService.resolve(path);
+        String source = IOUtils.toString(file.getContent().getInputStream());
         return FailOrSuccessResult.ofSpoofaxResult(resultFactory
             .createInputResult(lang, file, source,
                                new JSGLRParserConfiguration(shellFacet.getShellStartSymbol())));

@@ -194,6 +194,12 @@ public class CommandBuilder<R extends IResult> {
         return function(aEvaluateFunction());
     }
 
+    public CommandBuilder<EvaluateResult> evalOpen() {
+        return function(functionFactory.createOpenInputFunction(project, lang)
+                .kleisliCompose(functionFactory.createParseFunction(project, lang))
+                .kleisliCompose(functionFactory.createEvaluateFunction(project, lang)));
+    }
+
     /**
      * Set the function for a new builder with the current parameters. Discards the current function
      * of this builder.

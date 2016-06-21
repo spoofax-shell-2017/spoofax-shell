@@ -1,5 +1,7 @@
 package org.metaborg.spoofax.shell.functions;
 
+import javax.inject.Named;
+
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
@@ -26,6 +28,7 @@ public interface IFunctionFactory {
      * @param lang     The associated {@link ILanguageImpl}
      * @return         a {@link InputFunction}
      */
+    @Named("Source")
     FailableFunction<String, InputResult, IResult>
     createInputFunction(IProject project, ILanguageImpl lang);
 
@@ -92,4 +95,8 @@ public interface IFunctionFactory {
      * @return          an {@link CommandBuilder}
      */
     CommandBuilder<?> createBuilder(IProject project, ILanguageImpl lang);
+
+    @Named("Open")
+    FailableFunction<String, InputResult, IResult>
+    createOpenInputFunction(IProject project, ILanguageImpl lang);
 }
