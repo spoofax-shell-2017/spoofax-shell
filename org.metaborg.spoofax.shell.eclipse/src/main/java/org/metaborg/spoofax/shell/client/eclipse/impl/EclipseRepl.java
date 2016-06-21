@@ -12,7 +12,6 @@ import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
-import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -89,16 +88,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 try {
-                    IResult result = pool.submit(() -> {
-                        IResult eval;
-                        try {
-                            eval = eval(input);
-                        } catch (CommandNotFoundException e) {
-                            eval = (visitor) -> visitor.visitException(e);
-                        }
-                        return eval;
-                    }).get();
-
+                    IResult result = pool.submit(() -> eval(input)).get();
                     runAsUIJob(result);
                     return Status.OK_STATUS;
                 } catch (InterruptedException | ExecutionException e) {

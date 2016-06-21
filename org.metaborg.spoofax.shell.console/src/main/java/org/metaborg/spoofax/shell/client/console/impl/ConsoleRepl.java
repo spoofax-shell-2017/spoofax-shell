@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
-import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 
 import com.google.inject.Inject;
@@ -58,11 +57,7 @@ public class ConsoleRepl implements IRepl {
      *            The input to evaluate.
      */
     public void runOnce(String input) {
-        try {
-            eval(input).accept(display);
-        } catch (CommandNotFoundException e) {
-            this.display.visitException(e);
-        }
+        eval(input).accept(display);
     }
 
     /**
