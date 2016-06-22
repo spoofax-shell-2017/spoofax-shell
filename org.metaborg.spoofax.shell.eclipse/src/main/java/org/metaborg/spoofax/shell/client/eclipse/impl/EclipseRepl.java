@@ -32,7 +32,7 @@ import rx.Observer;
 public class EclipseRepl implements IRepl, Observer<String> {
     private final IDisplay display;
     private final ICommandInvoker invoker;
-    private ExecutorService pool;
+    private final ExecutorService pool;
 
     /**
      * Instantiates a new EclipseRepl.
