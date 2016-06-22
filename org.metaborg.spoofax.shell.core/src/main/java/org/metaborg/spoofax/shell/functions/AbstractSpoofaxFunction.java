@@ -60,8 +60,6 @@ public abstract class AbstractSpoofaxFunction<In, Success extends ISpoofaxResult
     public FailOrSuccessResult<Success, IResult> apply(In a) {
         try {
             return this.applyThrowing(a);
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
             return FailOrSuccessResult.failed(new ExceptionResult(e));
         }

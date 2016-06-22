@@ -87,6 +87,11 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     private Value lookupRuleForInput(IStrategoTerm input) throws MetaborgException {
+        return lookupRuleForInput("shell", input);
+    }
+
+    private Value lookupRuleForInput(String ruleName, IStrategoTerm input)
+        throws MetaborgException {
         if (!Tools.isTermAppl(input)) {
             throw new MetaborgException("Expected a StrategoAppl, but a "
                                         + input.getClass().getSimpleName() + " was found: \""
@@ -95,14 +100,14 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
         // First try "Cast" rules of the form "e : Expr --> ...". Silently continue if no sort can
         // be retrieved from the term.
-        Value rule = lookupCastRule(input);
+        Value rule = lookupCastRule(ruleName, input);
         if (rule != null) {
             return rule;
         }
 
         // Then try "Con" rules of the form "Add(_, _) --> ...".
         // Look up "-shell->" rule.
-        rule = lookupConRule(input);
+        rule = lookupConRule(ruleName, input);
 
         if (rule == null) {
             String extraMessage =
@@ -113,22 +118,22 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         return rule;
     }
 
-    private @Nullable Value lookupCastRule(IStrategoTerm input) {
+    private @Nullable Value lookupCastRule(String ruleName, IStrategoTerm input) {
         Value rule = null;
         String termSort = StrategoUtil.getSortForTerm(input);
         if (termSort != null) {
             rule =
-                polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", '_' + termSort, 1));
+                polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey(ruleName, '_' + termSort, 1));
         }
         return rule;
     }
 
-    private @Nullable Value lookupConRule(IStrategoTerm input) {
+    private @Nullable Value lookupConRule(String ruleName, IStrategoTerm input) {
         IStrategoConstructor inputCtor = ((IStrategoAppl) input).getConstructor();
         String ctorName = inputCtor.getName();
         int arity = inputCtor.getArity();
 
-        return polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey("shell", ctorName, arity));
+        return polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey(ruleName, ctorName, arity));
     }
 
     private IStrategoTerm invoke(Value rule, ITerm programTerm) throws MetaborgException {
@@ -154,25 +159,30 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         return polyglotEngine == null;
     }
 
-    private void initialize(ILanguageImpl langImpl) throws InterpreterLoadException {
+    private void initialize(ILanguageImpl langImpl) throws MetaborgException {
         polyglotEngine = interpLoader.loadInterpreterForLanguage(langImpl);
 
         initializeExecutionEnvironment();
     }
 
-    private void initializeExecutionEnvironment() throws InterpreterLoadException {
+    private void initializeExecutionEnvironment() throws MetaborgException {
         ITermFactory termFactory = termFactService.getGeneric();
         IStrategoConstructor termConstr = termFactory.makeConstructor("ShellInit", 0);
         IStrategoAppl shellInitAppl = termFactory.makeAppl(termConstr);
         StrategoUtil.setSortForTerm(shellInitAppl, "ShellInit");
-        Value shellInitRule = polyglotEngine.findGlobalSymbol(RuleRegistry
-            .makeKey("init", termConstr.getName(), termConstr.getArity()));
         try {
+            Value shellInitRule = lookupRuleForInput("init", shellInitAppl);
             RuleResult ruleResult = shellInitRule
                 .execute(interpLoader.getProgramTerm(shellInitAppl)).as(RuleResult.class);
             rwSemanticComponents = ruleResult.components;
         } catch (IOException e) {
             throw new InterpreterLoadException(e);
+        } catch (MetaborgException e) {
+            throw new InterpreterLoadException("No shell initialization rule found.\n"
+                                               + "Initialize the semantic components for the"
+                                               + " \"shell\" rules with a rule of the form "
+                                               + "\"ShellInit() -init-> ShellInit() :: <RW>*\".",
+                                               e);
         }
     }
 }
