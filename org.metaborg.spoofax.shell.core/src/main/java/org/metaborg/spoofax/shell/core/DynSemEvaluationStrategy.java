@@ -156,7 +156,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     private boolean uninitialized() {
-        return polyglotEngine == null;
+        return polyglotEngine == null || rwSemanticComponents == null;
     }
 
     private void initialize(ILanguageImpl langImpl) throws MetaborgException {

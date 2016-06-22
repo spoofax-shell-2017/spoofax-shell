@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.MetaborgRuntimeException;
 import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.analysis.AnalyzerFacet;
 import org.metaborg.core.language.ILanguageComponent;
@@ -141,7 +142,7 @@ public class LanguageCommand implements IReplCommand {
             loadCommands(lang);
 
             return (visitor) -> visitor.visitMessage(new StyledText("Loaded language " + lang));
-        } catch (MetaborgException e) {
+        } catch (MetaborgException | MetaborgRuntimeException e) {
             return new ExceptionResult(e);
         }
     }

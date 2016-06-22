@@ -1,6 +1,8 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
-import java.awt.Color;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -10,7 +12,6 @@ import org.eclipse.ui.progress.UIJob;
 import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
-import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.StyledText;
@@ -31,6 +32,7 @@ import rx.Observer;
 public class EclipseRepl implements IRepl, Observer<String> {
     private final IDisplay display;
     private final ICommandInvoker invoker;
+    private final ExecutorService pool;
 
     /**
      * Instantiates a new EclipseRepl.
@@ -44,6 +46,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
     public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display) {
         this.display = display;
         this.invoker = invoker;
+        pool = Executors.newSingleThreadExecutor();
     }
 
     @Override
@@ -85,11 +88,10 @@ public class EclipseRepl implements IRepl, Observer<String> {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 try {
-                    runAsUIJob(eval(input));
+                    IResult result = pool.submit(() -> eval(input)).get();
+                    runAsUIJob(result);
                     return Status.OK_STATUS;
-                } catch (CommandNotFoundException e) {
-                    StyledText message = new StyledText(Color.RED, e.getMessage());
-                    runAsUIJob((visitor) -> visitor.visitMessage(message));
+                } catch (InterruptedException | ExecutionException e) {
                     return Status.CANCEL_STATUS;
                 }
             }

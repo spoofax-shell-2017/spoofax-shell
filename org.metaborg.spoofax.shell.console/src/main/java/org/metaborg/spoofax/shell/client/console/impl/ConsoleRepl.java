@@ -1,13 +1,10 @@
 package org.metaborg.spoofax.shell.client.console.impl;
 
-import java.awt.Color;
 import java.io.IOException;
 
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
-import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
-import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.Inject;
 
@@ -60,11 +57,7 @@ public class ConsoleRepl implements IRepl {
      *            The input to evaluate.
      */
     public void runOnce(String input) {
-        try {
-            eval(input).accept(display);
-        } catch (CommandNotFoundException e) {
-            this.display.displayStyledText(new StyledText(Color.RED, e.getMessage()));
-        }
+        eval(input).accept(display);
     }
 
     /**
@@ -85,7 +78,7 @@ public class ConsoleRepl implements IRepl {
 
             this.iface.history().persistToDisk();
         } catch (IOException e) {
-            this.display.displayStyledText(new StyledText(Color.RED, e.getMessage()));
+            this.display.visitException(e);
         }
     }
 
