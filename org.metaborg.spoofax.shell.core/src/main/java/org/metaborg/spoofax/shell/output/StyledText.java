@@ -141,16 +141,16 @@ public class StyledText {
     public StyledText append(Iterable<ISourceRegion> regions, IStyle style, String text) {
         RangeSet<Integer> rangeSet = TreeRangeSet.create();
         StreamSupport.stream(regions.spliterator(), false)
-            .map(r -> Range.closed(r.startOffset(), r.endOffset())).forEach(rangeSet::add);
+            .map(r -> Range.closed(r.startOffset(), r.endOffset() + 1)).forEach(rangeSet::add);
         List<Range<Integer>> sortedRanges = rangeSet.asRanges().stream()
             .sorted((a, b) -> a.lowerEndpoint() - b.lowerEndpoint()).collect(Collectors.toList());
         int curOffset = 0;
         for (Range<Integer> r : sortedRanges) {
             String sub = text.substring(curOffset, r.lowerEndpoint());
             this.append(sub);
-            String errorRegion = text.substring(r.lowerEndpoint(), r.upperEndpoint() + 1);
+            String errorRegion = text.substring(r.lowerEndpoint(), r.upperEndpoint());
             this.append(style, errorRegion);
-            curOffset = r.upperEndpoint() + 1;
+            curOffset = r.upperEndpoint();
         }
         // Add the rest.
         this.append(text.substring(curOffset));
