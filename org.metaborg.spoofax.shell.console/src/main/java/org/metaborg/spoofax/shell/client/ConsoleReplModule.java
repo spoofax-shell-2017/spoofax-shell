@@ -15,6 +15,8 @@ import com.google.inject.Singleton;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Names;
 
+import jline.console.ConsoleReader;
+
 /**
  * Bindings for the console REPL.
  */
@@ -32,6 +34,7 @@ public class ConsoleReplModule extends ReplModule {
     protected void bindUserInterface() {
         bind(IRepl.class).to(ConsoleRepl.class);
         bind(ConsoleRepl.class).in(Singleton.class);
+        bind(ConsoleReader.class).in(Singleton.class);
         bind(IInputHistory.class).to(JLine2InputHistory.class);
         bind(JLine2InputHistory.class).to(JLine2PersistentInputHistory.class);
 
