@@ -68,7 +68,7 @@ public class EvaluateFunction extends ContextualSpoofaxFunction<ISpoofaxTermResu
     private ShellFacet shellFacet(ILanguageImpl langImpl) throws MetaborgException {
         ShellFacet facet = langImpl.facet(ShellFacet.class);
         if (facet == null) {
-            throw new MetaborgException("Cannot find the shell facet.");
+            throw new MetaborgException("No ESV configuration found for the REPL.");
         }
         return facet;
     }

@@ -320,7 +320,8 @@ public class EvaluateFunctionTest {
 
         execute.accept(visitor);
         verify(visitor, times(1)).visitException(exceptionCaptor.capture());
-        assertEquals("Cannot find the shell facet.", exceptionCaptor.getValue().getMessage());
+        assertEquals("No ESV configuration found for the REPL.",
+                     exceptionCaptor.getValue().getMessage());
     }
 
     /**
