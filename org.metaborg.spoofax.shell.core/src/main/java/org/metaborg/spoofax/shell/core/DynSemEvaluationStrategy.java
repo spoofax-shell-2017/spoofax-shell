@@ -35,6 +35,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
     private PolyglotEngine polyglotEngine;
     private Object[] rwSemanticComponents;
+    private ILanguageImpl langImpl;
 
     /**
      * Construct a new {@link DynSemEvaluationStrategy}. This does not yet load the interpreter for
@@ -65,7 +66,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
     private IStrategoTerm evaluate(IStrategoTerm input, ILanguageImpl langImpl)
         throws MetaborgException {
-        if (uninitialized()) {
+        if (uninitialized() || this.langImpl != langImpl) {
             initialize(langImpl);
         }
 
@@ -143,6 +144,7 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     private void initialize(ILanguageImpl langImpl) throws MetaborgException {
+        this.langImpl = langImpl;
         polyglotEngine = interpLoader.loadInterpreterForLanguage(langImpl);
 
         initializeExecutionEnvironment();
