@@ -98,9 +98,7 @@ public class DynSemEvaluationStrategyTest {
         IStrategoTerm noSortTerm = termFact.makeAppl(termFact.makeConstructor("Thing", 0));
 
         return Arrays
-            .asList(new Object[][] { { "shell/_Expr/1", mockInitRule(), existingTerm,
-                                        NO_EXCEPTION },
-                                     { "shell/Add/2", mockInitRule(), existingTerm, NO_EXCEPTION },
+            .asList(new Object[][] { { "shell/Add/2", mockInitRule(), existingTerm, NO_EXCEPTION },
                                      { "shell/noSuchRule/2", mockInitRule(), nonExistingRuleForTerm,
                                        "No shell rule found to be applied "
                                        + "to term \"nonExistingRuleForTerm(0,0)\"." },
@@ -213,24 +211,8 @@ public class DynSemEvaluationStrategyTest {
                 }
 
                 @Override
-                public String constructor() {
-                    if (!(term instanceof IStrategoAppl)) {
-                        return "";
-                    }
-                    return ((IStrategoAppl) term).getConstructor().getName();
-                }
-
-                @Override
-                public int arity() {
-                    if (!(term instanceof IStrategoAppl)) {
-                        return 0;
-                    }
-                    return ((IStrategoAppl) term).getConstructor().getArity();
-                }
-
-                @Override
-                public Object[] allSubterms() {
-                    return null;
+                public int size() {
+                    return 0;
                 }
             };
         }

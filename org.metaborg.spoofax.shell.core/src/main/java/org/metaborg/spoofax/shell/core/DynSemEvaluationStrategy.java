@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleResult;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
@@ -98,16 +97,9 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
                                         + input.toString(1) + "\".");
         }
 
-        // First try "Cast" rules of the form "e : Expr --> ...". Silently continue if no sort can
-        // be retrieved from the term.
-        Value rule = lookupCastRule(ruleName, input);
-        if (rule != null) {
-            return rule;
-        }
-
-        // Then try "Con" rules of the form "Add(_, _) --> ...".
-        // Look up "-shell->" rule.
-        rule = lookupConRule(ruleName, input);
+        // Look up "-shell->" rule. This automatically dispatches to sort rules if there is no
+        // constructor rule to be found for this term.
+        Value rule = lookupRule(ruleName, input);
 
         if (rule == null) {
             String extraMessage =
@@ -118,22 +110,12 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         return rule;
     }
 
-    private @Nullable Value lookupCastRule(String ruleName, IStrategoTerm input) {
-        Value rule = null;
-        String termSort = StrategoUtil.getSortForTerm(input);
-        if (termSort != null) {
-            rule =
-                polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey(ruleName, '_' + termSort, 1));
-        }
-        return rule;
-    }
-
-    private @Nullable Value lookupConRule(String ruleName, IStrategoTerm input) {
+    private @Nullable Value lookupRule(String ruleName, IStrategoTerm input) {
         IStrategoConstructor inputCtor = ((IStrategoAppl) input).getConstructor();
         String ctorName = inputCtor.getName();
         int arity = inputCtor.getArity();
 
-        return polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey(ruleName, ctorName, arity));
+        return polyglotEngine.findGlobalSymbol(ruleName + "/" + ctorName + "/" + arity);
     }
 
     private IStrategoTerm invoke(Value rule, ITerm programTerm) throws MetaborgException {

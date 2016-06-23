@@ -34,7 +34,7 @@ import org.metaborg.meta.lang.dynsem.interpreter.DynSemRule;
 import org.metaborg.meta.lang.dynsem.interpreter.IDynSemLanguageParser;
 import org.metaborg.meta.lang.dynsem.interpreter.ITermRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
-import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRoot;
+import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleUnionRoot;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
 import org.metaborg.util.resource.FileSelectorUtils;
@@ -59,7 +59,7 @@ public class ClassPathInterpreterLoaderTest {
     private static final String NO_EXCEPTION = "No exception should be thrown";
     protected static final String SPEC_TERM_CONSTANT = "specification term";
     protected final ClassPathInterpreterLoader cpInterpLoader = new ClassPathInterpreterLoader();
-    protected static final RuleRoot MOCK_RULE_ROOT = Mockito.mock(RuleRoot.class);
+    protected static final RuleUnionRoot MOCK_RULE_ROOT = Mockito.mock(RuleUnionRoot.class);
     protected ILanguageImpl mockLangImpl;
     @SuppressWarnings("unused")
     private static final TestCPLoaderLanguage LANG = TestCPLoaderLanguage.INSTANCE;
@@ -246,8 +246,7 @@ public class ClassPathInterpreterLoaderTest {
             assertNull(expectedExceptionCauseClass);
 
             // Test finding a rule.
-            Value testRuleValue =
-                engine.findGlobalSymbol(RuleRegistry.makeKey("testrule", "TestCtor", 0));
+            Value testRuleValue = engine.findGlobalSymbol("testrule/TestCtor/0");
             DynSemRule testRule = testRuleValue.as(DynSemRule.class);
 
             assertEquals(testRule.getRuleTarget(), MOCK_RULE_ROOT);
@@ -287,13 +286,17 @@ public class ClassPathInterpreterLoaderTest {
             return null;
         }
 
+        @SuppressWarnings({ "rawtypes", "unchecked" })
         private static ITermRegistry mockTermRegistry() {
-            return null;
+            ITermRegistry mock = Mockito.mock(ITermRegistry.class);
+            return Mockito.when(mock.getConstructorClass("TestCtor", 0))
+                .thenReturn((Class) ClassPathInterpreterLoaderTest.class).getMock();
         }
 
         private static RuleRegistry mockRuleRegistry() {
             RuleRegistry mock = Mockito.mock(RuleRegistry.class);
-            Mockito.when(mock.lookupRule("testrule", "TestCtor", 0)).thenReturn(MOCK_RULE_ROOT);
+            Mockito.when(mock.lookupRules("testrule", ClassPathInterpreterLoaderTest.class))
+                .thenReturn(MOCK_RULE_ROOT);
             return mock;
         }
 
@@ -337,6 +340,16 @@ public class ClassPathInterpreterLoaderTest {
 
         @Override
         public boolean isSafeComponentsEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isFullBacktrackingEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isTermCachingEnabled() {
             return false;
         }
     }
