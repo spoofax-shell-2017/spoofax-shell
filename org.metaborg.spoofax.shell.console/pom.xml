@@ -57,6 +57,11 @@
             <artifactId>org.metaborg.spoofax.core</artifactId>
             <version>${metaborg-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.21</version>
+        </dependency>
 
         <!-- From here on, all dependencies are inherited. -->
         <dependency>

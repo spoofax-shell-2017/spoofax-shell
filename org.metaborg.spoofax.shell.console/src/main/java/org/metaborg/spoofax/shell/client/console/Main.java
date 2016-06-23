@@ -40,6 +40,9 @@ public final class Main {
      *            Apache VFS.
      */
     public static void main(String[] args) {
+        System.setProperty("org.apache.commons.logging.Log",
+                "org.apache.commons.logging.impl.NoOpLog");
+
         Injector injector = Guice.createInjector(new ConsoleReplModule());
         IDisplay display = injector.getInstance(IDisplay.class);
 
