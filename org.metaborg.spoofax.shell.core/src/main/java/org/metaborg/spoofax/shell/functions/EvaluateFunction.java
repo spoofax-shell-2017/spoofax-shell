@@ -1,6 +1,7 @@
 package org.metaborg.spoofax.shell.functions;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
@@ -43,8 +44,8 @@ public class EvaluateFunction extends ContextualSpoofaxFunction<ISpoofaxTermResu
      */
     @Inject
     public EvaluateFunction(Map<String, IEvaluationStrategy> evaluationStrategies,
-                         IContextService contextService, IResultFactory resultFactory,
-                         @Assisted IProject project, @Assisted ILanguageImpl lang) {
+                            IContextService contextService, IResultFactory resultFactory,
+                            @Assisted IProject project, @Assisted ILanguageImpl lang) {
         super(contextService, resultFactory, project, lang);
         this.evaluationStrategies = evaluationStrategies;
     }
@@ -55,14 +56,33 @@ public class EvaluateFunction extends ContextualSpoofaxFunction<ISpoofaxTermResu
         if (!a.ast().isPresent()) {
             return FailOrSuccessResult.failed(new FailResult(a));
         }
-        ShellFacet facet = context.language().facet(ShellFacet.class);
-        if (facet == null) {
-            throw new MetaborgException("Cannot find the shell facet.");
-        }
+        ShellFacet facet = shellFacet(context.language());
 
-        IEvaluationStrategy evalStrategy = evaluationStrategies.get(facet.getEvaluationMethod());
+        IEvaluationStrategy evalStrategy = evaluationStrategy(facet.getEvaluationMethod());
+
         IStrategoTerm result = evalStrategy.evaluate(a.ast().get(), context);
 
         return FailOrSuccessResult.ofSpoofaxResult(resultFactory.createEvaluateResult(a, result));
+    }
+
+    private ShellFacet shellFacet(ILanguageImpl langImpl) throws MetaborgException {
+        ShellFacet facet = langImpl.facet(ShellFacet.class);
+        if (facet == null) {
+            throw new MetaborgException("Cannot find the shell facet.");
+        }
+        return facet;
+    }
+
+    private IEvaluationStrategy evaluationStrategy(String evaluationMethod)
+        throws MetaborgException {
+        IEvaluationStrategy evalStrategy = evaluationStrategies.get(evaluationMethod);
+        Iterable<String> quoted = evaluationStrategies.keySet().stream().map(e -> '\"' + e + '\"')
+            .collect(Collectors.toList());
+        if (evalStrategy == null) {
+            throw new MetaborgException("Evaluation method \"" + evaluationMethod
+                                        + "\" not supported.\n" + "Supported evaluation method(s): "
+                                        + String.join(", ", quoted));
+        }
+        return evalStrategy;
     }
 }
