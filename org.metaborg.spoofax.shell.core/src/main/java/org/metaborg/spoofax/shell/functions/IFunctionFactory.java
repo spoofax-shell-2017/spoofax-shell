@@ -33,6 +33,16 @@ public interface IFunctionFactory {
     createInputFunction(IProject project, ILanguageImpl lang);
 
     /**
+     * Factory method for creating a {@link OpenInputFunction} that reads source by opening a file.
+     * @param project  The associated {@link IProject}
+     * @param lang     The associated {@link ILanguageImpl}
+     * @return         a {@link InputFunction}
+     */
+    @Named("Open")
+    FailableFunction<String, InputResult, IResult>
+    createOpenInputFunction(IProject project, ILanguageImpl lang);
+
+    /**
      * Factory method for creating a {@link ParseFunction}.
      * @param project  The associated {@link IProject}
      * @param lang     The associated {@link ILanguageImpl}
@@ -96,7 +106,4 @@ public interface IFunctionFactory {
      */
     CommandBuilder<?> createBuilder(IProject project, ILanguageImpl lang);
 
-    @Named("Open")
-    FailableFunction<String, InputResult, IResult>
-    createOpenInputFunction(IProject project, ILanguageImpl lang);
 }

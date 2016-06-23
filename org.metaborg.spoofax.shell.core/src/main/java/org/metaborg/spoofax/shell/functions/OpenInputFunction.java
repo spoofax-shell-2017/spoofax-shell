@@ -16,6 +16,8 @@ import org.metaborg.spoofax.shell.output.InputResult;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+/**
+ */
 public class OpenInputFunction extends AbstractSpoofaxFunction<String, InputResult> {
 
     private IResourceService resourceService;
@@ -25,6 +27,8 @@ public class OpenInputFunction extends AbstractSpoofaxFunction<String, InputResu
      *
      * @param resultFactory
      *            The {@link IResultFactory}.
+     * @param resourceService
+     *            The {@link IResourceService}.
      * @param project
      *            The {@link IProject} in which this command should operate.
      * @param lang

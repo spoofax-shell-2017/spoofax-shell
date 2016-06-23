@@ -1,7 +1,5 @@
 package org.metaborg.spoofax.shell.functions;
 
-import javax.inject.Named;
-
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;

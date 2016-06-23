@@ -194,12 +194,22 @@ public class CommandBuilder<R extends IResult> {
         return function(aEvaluateFunction());
     }
 
+    /**
+     * Returns a function that creates a parsed {@link EvaluateResult} from a file path.
+     *
+     * @return the builder
+     */
     public CommandBuilder<EvaluateResult> evalPOpen() {
         return function(functionFactory.createOpenInputFunction(project, lang)
                 .kleisliCompose(functionFactory.createParseFunction(project, lang))
                 .kleisliCompose(functionFactory.createEvaluateFunction(project, lang)));
     }
 
+    /**
+     * Returns a function that creates an analyzed {@link EvaluateResult} from a file path.
+     *
+     * @return the builder
+     */
     public CommandBuilder<EvaluateResult> evalAOpen() {
         return function(functionFactory.createOpenInputFunction(project, lang)
                 .kleisliCompose(functionFactory.createParseFunction(project, lang))
