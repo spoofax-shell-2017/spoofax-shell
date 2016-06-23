@@ -27,7 +27,6 @@ import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
 import org.metaborg.spoofax.core.SpoofaxModule;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
-import org.metaborg.spoofax.shell.util.StrategoUtil;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -87,12 +86,10 @@ public class DynSemEvaluationStrategyTest {
         IStrategoAppl existingTerm =
             termFact.makeAppl(termFact.makeConstructor("Add", 2),
                               termFact.makeInt(0), termFact.makeInt(0));
-        StrategoUtil.setSortForTerm(existingTerm, "Expr");
 
         IStrategoAppl nonExistingRuleForTerm =
             termFact.makeAppl(termFact.makeConstructor("nonExistingRuleForTerm", 2),
                               termFact.makeInt(0), termFact.makeInt(0));
-        StrategoUtil.setSortForTerm(nonExistingRuleForTerm, "Expr");
 
         IStrategoTerm wrongTypeTerm = termFact.makeList();
         IStrategoTerm noSortTerm = termFact.makeAppl(termFact.makeConstructor("Thing", 0));
@@ -107,7 +104,7 @@ public class DynSemEvaluationStrategyTest {
                                        + "StrategoList was found: \"[]\"." },
                                      { "shell/_Expr/1", mockInitRule(), noSortTerm,
                                        "No shell rule found to be applied "
-                                       + "to term \"Thing\". No sort found for term." },
+                                       + "to term \"Thing\"." },
                                      { "shell/Thing/0", mockInitRule(), noSortTerm, NO_EXCEPTION },
                                      { "Non-existing init rule", null,
                                        noSortTerm, "No shell initialization rule found.\n"
@@ -202,7 +199,7 @@ public class DynSemEvaluationStrategyTest {
         }
 
         @Override
-        public ITerm getProgramTerm(IStrategoTerm term) {
+        public ITerm getProgramTerm(IStrategoAppl appl) {
             return new ITerm() {
 
                 @Override

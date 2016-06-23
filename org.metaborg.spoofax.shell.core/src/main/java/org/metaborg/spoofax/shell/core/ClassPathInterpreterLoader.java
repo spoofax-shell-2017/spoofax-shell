@@ -19,8 +19,8 @@ import org.metaborg.meta.lang.dynsem.interpreter.ITermRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
-import org.metaborg.spoofax.shell.util.StrategoUtil;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.vm.PolyglotEngine;
@@ -35,6 +35,7 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
     private String langName;
     private String targetPackage;
     private ITermTransformer transformer;
+    private ITermRegistry termRegistry;
 
     @Override
     public PolyglotEngine loadInterpreterForLanguage(ILanguageImpl langImpl)
@@ -46,7 +47,7 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         transformer = entryPoint.getTransformer();
         IDynSemLanguageParser parser = entryPoint.getParser();
         RuleRegistry ruleRegistry = entryPoint.getRuleRegistry();
-        ITermRegistry termRegistry = entryPoint.getTermRegistry();
+        termRegistry = entryPoint.getTermRegistry();
 
         String mimeType = entryPoint.getMimeType();
         PolyglotEngine builtEngine =
@@ -66,15 +67,15 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ITerm getProgramTerm(IStrategoTerm input) throws InterpreterLoadException {
+    public ITerm getProgramTerm(IStrategoAppl appl) throws InterpreterLoadException {
+        IStrategoConstructor constructor = appl.getConstructor();
         try {
-            String termSort = StrategoUtil.getSortForTerm(input);
-            // Get the abstract class for the sort of the term.
-            Class<? extends ITerm> generatedTermClass = (Class<? extends ITerm>) ClassUtils
-                .getClass(targetPackage + ".terms.I" + termSort + "Term");
-            return (ITerm) MethodUtils.invokeStaticMethod(generatedTermClass, "create", input);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                 | InvocationTargetException cause) {
+            // Get the generated class of the term.
+            Class<? extends ITerm> generatedTermClass =
+                (Class<? extends ITerm>) termRegistry.getConstructorClass(constructor.getName(),
+                                                                          constructor.getArity());
+            return (ITerm) MethodUtils.invokeStaticMethod(generatedTermClass, "create", appl);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException cause) {
             throw new InterpreterLoadException("Error constructing program term from input.",
                                                cause);
         }
@@ -87,8 +88,7 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
 
     private DynSemEntryPoint getEntryPoint() throws InterpreterLoadException {
         try {
-            Class<DynSemEntryPoint> entryPointClass =
-                this.getGeneratedClass("EntryPoint");
+            Class<DynSemEntryPoint> entryPointClass = this.getGeneratedClass("EntryPoint");
             return ConstructorUtils.invokeConstructor(entryPointClass);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
                  | InvocationTargetException e) {
