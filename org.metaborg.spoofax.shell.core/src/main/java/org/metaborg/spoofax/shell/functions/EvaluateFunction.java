@@ -1,7 +1,6 @@
 package org.metaborg.spoofax.shell.functions;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
@@ -76,9 +75,9 @@ public class EvaluateFunction extends ContextualSpoofaxFunction<ISpoofaxTermResu
     private IEvaluationStrategy evaluationStrategy(String evaluationMethod)
         throws MetaborgException {
         IEvaluationStrategy evalStrategy = evaluationStrategies.get(evaluationMethod);
-        Iterable<String> quoted = evaluationStrategies.keySet().stream().map(e -> '\"' + e + '\"')
-            .collect(Collectors.toList());
         if (evalStrategy == null) {
+            Iterable<String> quoted = evaluationStrategies.keySet().stream()
+                .map(s -> '\"' + s + '\"')::iterator;
             throw new MetaborgException("Evaluation method \"" + evaluationMethod
                                         + "\" not supported.\n" + "Supported evaluation method(s): "
                                         + String.join(", ", quoted));
