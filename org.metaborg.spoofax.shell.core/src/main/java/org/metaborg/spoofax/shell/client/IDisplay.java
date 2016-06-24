@@ -74,7 +74,7 @@ public interface IDisplay extends IResultVisitor {
 
     @Override
     default void visitException(Throwable thrown) {
-        visitMessage(new StyledText(Color.RED, thrown.getMessage()));
+        visitMessage(new StyledText(Color.RED, String.format("%s", thrown.getMessage())));
     }
 
 }
