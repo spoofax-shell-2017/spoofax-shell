@@ -105,6 +105,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
             @Override
             public IStatus runInUIThread(IProgressMonitor arg0) {
                 result.accept(display);
+                display.displayStyledText(new StyledText());
                 return Status.OK_STATUS;
             }
         };

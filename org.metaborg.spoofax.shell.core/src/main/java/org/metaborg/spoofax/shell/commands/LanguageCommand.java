@@ -17,7 +17,6 @@ import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
-import org.metaborg.spoofax.shell.invoker.CommandNotFoundException;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.ExceptionResult;
 import org.metaborg.spoofax.shell.output.IResult;
@@ -137,7 +136,7 @@ public class LanguageCommand implements IReplCommand {
     @Override
     public IResult execute(String... args) {
         if (args.length == 0 || args.length > 1) {
-            return new ExceptionResult(new CommandNotFoundException("Syntax: :lang <path>"));
+            return new ExceptionResult(new MetaborgException("Syntax: :load <path>"));
         }
 
         try {
