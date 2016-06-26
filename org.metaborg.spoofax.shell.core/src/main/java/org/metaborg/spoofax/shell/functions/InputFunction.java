@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.functions;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.language.ResourceExtensionFacet;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.shell.ShellFacet;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
@@ -11,6 +12,7 @@ import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.IResultFactory;
 import org.metaborg.spoofax.shell.output.InputResult;
 
+import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -43,7 +45,10 @@ public class InputFunction extends AbstractSpoofaxFunction<String, InputResult> 
             throw new MetaborgException("Cannot find the shell facet.");
         }
 
-        FileObject file = project.location().resolveFile("temp");
+        ResourceExtensionFacet extensionFacet = lang.facet(ResourceExtensionFacet.class);
+        String extension = Iterables.getFirst(extensionFacet.extensions(), null);
+        FileObject file =
+            project.location().resolveFile("temp" + (extension != null ? "." + extension : ""));
         return FailOrSuccessResult.ofSpoofaxResult(resultFactory
             .createInputResult(lang, file, source,
                                new JSGLRParserConfiguration(shellFacet.getShellStartSymbol())));
