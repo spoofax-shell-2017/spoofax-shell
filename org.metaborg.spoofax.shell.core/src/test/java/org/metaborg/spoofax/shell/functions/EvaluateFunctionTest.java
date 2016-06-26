@@ -183,6 +183,7 @@ public class EvaluateFunctionTest {
     private void mockFunctions() {
         Map<String, IEvaluationStrategy> evalStrategies = new HashMap<>(1);
         evalStrategies.put("mock", evalStrategy);
+        evalStrategies.put("anotherOne", null);
         EvaluateFunction pEvalFunction =
             new EvaluateFunction(evalStrategies, contextService, resultFactory, project, lang);
 
@@ -319,7 +320,29 @@ public class EvaluateFunctionTest {
 
         execute.accept(visitor);
         verify(visitor, times(1)).visitException(exceptionCaptor.capture());
-        assertEquals("Cannot find the shell facet.", exceptionCaptor.getValue().getMessage());
+        assertEquals("No ESV configuration found for the REPL.",
+                     exceptionCaptor.getValue().getMessage());
+    }
+
+    /**
+     * Test throwing an exception when evaluation method of the {@link ShellFacet} does not exist.
+     *
+     * @throws MetaborgException
+     *             on unexpected Spoofax exceptions
+     */
+    @Test
+    public void testMissingEvalMethodException() throws MetaborgException {
+        ShellFacet facetMock = context.language().facet(ShellFacet.class);
+        when(facetMock.getEvaluationMethod()).thenReturn("non-existing");
+
+        IResult execute = command.execute("test");
+        verify(visitor, never()).visitException(any());
+
+        execute.accept(visitor);
+        verify(visitor, times(1)).visitException(exceptionCaptor.capture());
+        assertEquals("Evaluation method \"non-existing\" not supported.\n"
+                     + "Supported evaluation method(s): \"mock\", \"anotherOne\"",
+                     exceptionCaptor.getValue().getMessage());
     }
 
 }
