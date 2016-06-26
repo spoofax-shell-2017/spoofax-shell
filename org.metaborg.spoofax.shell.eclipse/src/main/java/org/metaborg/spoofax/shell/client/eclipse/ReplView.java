@@ -17,6 +17,7 @@ import com.google.inject.Injector;
  * Eclipse as a singleton, at most one ReplView will be active at any given time.
  */
 public class ReplView extends ViewPart {
+    public static final String ID = Activator.getPluginID() + ".view";
     private static final int DISPLAYWEIGHT = 5;
     private static final int EDITORWEIGHT = 1;
     private EclipseEditor editor;

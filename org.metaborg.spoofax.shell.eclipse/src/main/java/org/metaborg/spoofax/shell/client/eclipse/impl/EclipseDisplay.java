@@ -114,7 +114,9 @@ public class EclipseDisplay implements IDisplay {
             style(e.style(), offset, e.region().length());
         });
 
-        append(doc, doc.getLength(), "\n");
-        scrollText();
+        if (doc != null) {
+            append(doc, doc.getLength(), "\n");
+            scrollText();
+        }
     }
 }
