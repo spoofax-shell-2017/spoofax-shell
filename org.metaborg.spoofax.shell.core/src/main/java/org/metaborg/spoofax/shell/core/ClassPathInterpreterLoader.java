@@ -79,23 +79,15 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
         return entryPoint.getTransformer();
     }
 
+    @SuppressWarnings("unchecked")
     private static DynSemEntryPoint getEntryPoint(Properties props)
-            throws InterpreterLoadException {
+        throws InterpreterLoadException {
         try {
-            Class<DynSemEntryPoint> entryPointClass = getGeneratedClass(props, "EntryPoint");
+            String className = targetPackage(props) + "." + langName(props) + "EntryPoint";
+            Class<DynSemEntryPoint> entryPointClass =
+                (Class<DynSemEntryPoint>) ClassUtils.getClass(className);
             return ConstructorUtils.invokeConstructor(entryPointClass);
         } catch (ReflectiveOperationException e) {
-            throw new InterpreterLoadException(e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Class<T> getGeneratedClass(Properties props, String className)
-            throws InterpreterLoadException {
-        try {
-            String name = targetPackage(props) + "." + langName(props) + className;
-            return (Class<T>) ClassUtils.getClass(name);
-        } catch (ClassNotFoundException e) {
             throw new InterpreterLoadException(e);
         }
     }
