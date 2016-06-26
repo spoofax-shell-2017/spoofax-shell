@@ -33,8 +33,8 @@ import org.metaborg.meta.lang.dynsem.interpreter.DynSemLanguage;
 import org.metaborg.meta.lang.dynsem.interpreter.DynSemRule;
 import org.metaborg.meta.lang.dynsem.interpreter.IDynSemLanguageParser;
 import org.metaborg.meta.lang.dynsem.interpreter.ITermRegistry;
+import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.JointRuleRoot;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
-import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleUnionRoot;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
 import org.metaborg.util.resource.FileSelectorUtils;
@@ -59,7 +59,7 @@ public class ClassPathInterpreterLoaderTest {
     private static final String NO_EXCEPTION = "No exception should be thrown";
     protected static final String SPEC_TERM_CONSTANT = "specification term";
     protected final ClassPathInterpreterLoader cpInterpLoader = new ClassPathInterpreterLoader();
-    protected static final RuleUnionRoot MOCK_RULE_ROOT = Mockito.mock(RuleUnionRoot.class);
+    protected static final JointRuleRoot MOCK_RULE_ROOT = Mockito.mock(JointRuleRoot.class);
     protected ILanguageImpl mockLangImpl;
     @SuppressWarnings("unused")
     private static final TestCPLoaderLanguage LANG = TestCPLoaderLanguage.INSTANCE;
