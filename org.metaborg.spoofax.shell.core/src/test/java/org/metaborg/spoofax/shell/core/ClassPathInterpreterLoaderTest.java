@@ -132,7 +132,9 @@ public class ClassPathInterpreterLoaderTest {
                                                 null },
                                               { badWeatherLocations(VFS.getManager()
                                                   .resolveFile("ram:///rootDirFour/")),
-                                                null, ClassNotFoundException.class } });
+                                                "Could not find the entry point to the"
+                                                + " interpreter.\nIs the generated"
+                                                + " interpreter on your classpath?", null } });
 
     }
 

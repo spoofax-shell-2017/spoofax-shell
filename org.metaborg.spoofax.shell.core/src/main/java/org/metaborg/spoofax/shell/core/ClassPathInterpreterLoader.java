@@ -88,7 +88,8 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
                 (Class<DynSemEntryPoint>) ClassUtils.getClass(className);
             return ConstructorUtils.invokeConstructor(entryPointClass);
         } catch (ReflectiveOperationException e) {
-            throw new InterpreterLoadException(e);
+            throw new InterpreterLoadException("Could not find the entry point to the "
+                    + "interpreter.\nIs the generated interpreter on your classpath?");
         }
     }
 
