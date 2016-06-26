@@ -17,6 +17,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
+ * Creates an {@link InputResult} from a file identified by the passed path.
  */
 public class OpenInputFunction extends AbstractSpoofaxFunction<String, InputResult> {
 
