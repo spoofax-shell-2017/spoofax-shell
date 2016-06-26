@@ -25,6 +25,7 @@ import org.metaborg.spoofax.shell.functions.EvaluateFunction;
 import org.metaborg.spoofax.shell.functions.FailableFunction;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.functions.InputFunction;
+import org.metaborg.spoofax.shell.functions.OpenInputFunction;
 import org.metaborg.spoofax.shell.functions.PTransformFunction;
 import org.metaborg.spoofax.shell.functions.ParseFunction;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
@@ -76,6 +77,10 @@ public abstract class ReplModule extends SpoofaxModule {
      */
     protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
         bind(IInterpreterLoader.class).to(ClassPathInterpreterLoader.class);
+
+        // Make sure the DynSemEvaluationStrategy is a singleton so the REPL
+        // always uses the same unique rwSemanticComponents to evaluate in context.
+        bind(DynSemEvaluationStrategy.class).in(Singleton.class);
         evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
     }
 
@@ -98,7 +103,9 @@ public abstract class ReplModule extends SpoofaxModule {
 
         install(new FactoryModuleBuilder()
         .implement(new TypeLiteral<FailableFunction<String, InputResult, IResult>>() { },
-                   InputFunction.class)
+                   Names.named("Source"), InputFunction.class)
+        .implement(new TypeLiteral<FailableFunction<String, InputResult, IResult>>() { },
+                   Names.named("Open"), OpenInputFunction.class)
         .implement(new TypeLiteral<FailableFunction<InputResult, ParseResult, IResult>>() { },
                    ParseFunction.class)
         .implement(new TypeLiteral<FailableFunction<ParseResult, AnalyzeResult, IResult>>() { },

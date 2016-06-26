@@ -108,7 +108,7 @@ public class LanguageCommand implements IReplCommand {
         boolean analyze = lang.hasFacet(AnalyzerFacet.class);
         CommandBuilder<?> builder = factory.createBuilder(project, lang);
 
-        IReplCommand eval;
+        IReplCommand eval, open;
         Function<ITransformAction, CommandBuilder<TransformResult>> transform;
 
         invoker.resetCommands();
@@ -118,12 +118,15 @@ public class LanguageCommand implements IReplCommand {
                 .description("Analyze the expression").build());
 
             eval = builder.evalAnalyzed().description("Evaluate an analyzed expression").build();
+            open = builder.evalAOpen().description("Evaluate and analyze a file").build();
             transform = builder::transformAnalyzed;
         } else {
             eval = builder.evalParsed().description("Evaluate a parsed expression").build();
+            open = builder.evalPOpen().description("Evaluate and parse a file").build();
             transform = builder::transformParsed;
         }
         invoker.addCommand("eval", eval);
+        invoker.addCommand("open", open);
         invoker.setDefault(eval);
 
         new TransformVisitor(menuService).getActions(lang).forEach((key, action) ->
