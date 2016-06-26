@@ -3,7 +3,6 @@ package org.metaborg.spoofax.shell.core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -19,8 +18,8 @@ import org.metaborg.meta.lang.dynsem.interpreter.ITermRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
-import org.metaborg.spoofax.shell.util.StrategoUtil;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.vm.PolyglotEngine;
@@ -32,23 +31,18 @@ import com.oracle.truffle.api.vm.PolyglotEngine;
  * term.
  */
 public class ClassPathInterpreterLoader implements IInterpreterLoader {
-    private String langName;
-    private String targetPackage;
-    private ITermTransformer transformer;
+    private DynSemEntryPoint entryPoint;
 
     @Override
     public PolyglotEngine loadInterpreterForLanguage(ILanguageImpl langImpl)
-        throws InterpreterLoadException {
-        loadDynSemProperties(langImpl);
+            throws InterpreterLoadException {
+        entryPoint = getEntryPoint(loadDynSemProperties(langImpl));
 
-        DynSemEntryPoint entryPoint = getEntryPoint();
-
-        transformer = entryPoint.getTransformer();
         IDynSemLanguageParser parser = entryPoint.getParser();
         RuleRegistry ruleRegistry = entryPoint.getRuleRegistry();
         ITermRegistry termRegistry = entryPoint.getTermRegistry();
-
         String mimeType = entryPoint.getMimeType();
+
         PolyglotEngine builtEngine =
             PolyglotEngine.newBuilder().config(mimeType, DynSemLanguage.PARSER, parser)
                 .config(mimeType, DynSemLanguage.RULE_REGISTRY, ruleRegistry)
@@ -66,50 +60,55 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ITerm getProgramTerm(IStrategoTerm input) throws InterpreterLoadException {
+    public ITerm getProgramTerm(IStrategoAppl appl) throws InterpreterLoadException {
+        IStrategoConstructor constructor = appl.getConstructor();
         try {
-            String termSort = StrategoUtil.getSortForTerm(input);
-            // Get the abstract class for the sort of the term.
-            Class<? extends ITerm> generatedTermClass = (Class<? extends ITerm>) ClassUtils
-                .getClass(targetPackage + ".terms.I" + termSort + "Term");
-            return (ITerm) MethodUtils.invokeStaticMethod(generatedTermClass, "create", input);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                 | InvocationTargetException cause) {
-            throw new InterpreterLoadException("Error constructing program term from input.",
-                                               cause);
+            // Get the generated class of the term.
+            Class<? extends ITerm> generatedTermClass =
+                    (Class<? extends ITerm>) entryPoint.getTermRegistry()
+                    .getConstructorClass(constructor.getName(),
+                                         constructor.getArity());
+            return (ITerm) MethodUtils.invokeStaticMethod(generatedTermClass, "create", appl);
+        } catch (ReflectiveOperationException e) {
+            throw new InterpreterLoadException("Error constructing program term from input.", e);
         }
     }
 
     @Override
     public ITermTransformer getTransformer() {
-        return transformer;
-    }
-
-    private DynSemEntryPoint getEntryPoint() throws InterpreterLoadException {
-        try {
-            Class<DynSemEntryPoint> entryPointClass =
-                this.getGeneratedClass("EntryPoint");
-            return ConstructorUtils.invokeConstructor(entryPointClass);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
-                 | InvocationTargetException e) {
-            throw new InterpreterLoadException(e);
-        }
+        return entryPoint.getTransformer();
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Class<T> getGeneratedClass(String className) throws InterpreterLoadException {
+    private static DynSemEntryPoint getEntryPoint(Properties props)
+        throws InterpreterLoadException {
         try {
-            return (Class<T>) ClassUtils.getClass(targetPackage + "." + langName + className);
-        } catch (ClassNotFoundException e) {
-            throw new InterpreterLoadException(e);
+            String className = targetPackage(props) + "." + langName(props) + "EntryPoint";
+            Class<DynSemEntryPoint> entryPointClass =
+                (Class<DynSemEntryPoint>) ClassUtils.getClass(className);
+            return ConstructorUtils.invokeConstructor(entryPointClass);
+        } catch (ReflectiveOperationException e) {
+            throw new InterpreterLoadException("Could not find the entry point to the "
+                    + "interpreter.\nIs the generated interpreter on your classpath?");
         }
+    }
+
+    private static String langName(Properties props) {
+        return props.getProperty("source.langname");
+    }
+
+    private static String targetPackage(Properties props) {
+        String groupId = props.getProperty("project.groupid");
+        String artifactId = props.getProperty("project.artifactid");
+
+        return props.getProperty("project.javapackage", groupId + '.' + artifactId + ".generated");
     }
 
     /* Loads the required configurations from the dynsem.properties file parsed as a Properties
      * object. */
-    private void loadDynSemProperties(ILanguageImpl langImpl) throws InterpreterLoadException {
+    private static Properties loadDynSemProperties(ILanguageImpl langImpl)
+            throws InterpreterLoadException {
         FileObject dynSemPropertiesFile = findDynSemPropertiesFileForLanguage(langImpl);
-
         Properties dynSemProperties = new Properties();
         try (InputStream in = dynSemPropertiesFile.getContent().getInputStream()) {
             dynSemProperties.load(in);
@@ -117,15 +116,11 @@ public class ClassPathInterpreterLoader implements IInterpreterLoader {
             throw new InterpreterLoadException("Error when trying to load \"dynsem.properties\".");
         }
 
-        langName = dynSemProperties.getProperty("source.langname");
-        String groupId = dynSemProperties.getProperty("project.groupid");
-        String artifactId = dynSemProperties.getProperty("project.artifactid");
-        targetPackage = dynSemProperties.getProperty("project.javapackage",
-                                                     groupId + '.' + artifactId + ".generated");
+        return dynSemProperties;
     }
 
-    private FileObject findDynSemPropertiesFileForLanguage(ILanguageImpl langImpl)
-        throws InterpreterLoadException {
+    private static FileObject findDynSemPropertiesFileForLanguage(ILanguageImpl langImpl)
+            throws InterpreterLoadException {
         FileObject dynSemPropertiesFile = null;
         for (FileObject fo : langImpl.locations()) {
             try {

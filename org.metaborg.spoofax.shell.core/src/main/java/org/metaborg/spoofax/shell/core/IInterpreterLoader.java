@@ -4,7 +4,7 @@ import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITermTransformer;
-import org.metaborg.spoofax.shell.util.StrategoUtil;
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.vm.PolyglotEngine;
@@ -27,16 +27,15 @@ public interface IInterpreterLoader {
         throws InterpreterLoadException;
 
     /**
-     * Returns a {@link ITerm} corresponding to the given {@link IStrategoTerm}. Relies on
-     * {@link StrategoUtil#getSortForTerm(IStrategoTerm)} for getting the term's sort.
+     * Returns a {@link ITerm} corresponding to the given {@link IStrategoAppl}.
      *
-     * @param term
-     *            The {@link IStrategoTerm}.
+     * @param appl
+     *            The {@link IStrategoAppl}.
      * @return The corresponding {@link ITerm}.
      * @throws InterpreterLoadException
      *             When finding the {@link ITerm} results in failure.
      */
-    ITerm getProgramTerm(IStrategoTerm term) throws InterpreterLoadException;
+    ITerm getProgramTerm(IStrategoAppl appl) throws InterpreterLoadException;
 
     /**
      * Returns the transformer which optionally transforms a given {@link IStrategoTerm} before

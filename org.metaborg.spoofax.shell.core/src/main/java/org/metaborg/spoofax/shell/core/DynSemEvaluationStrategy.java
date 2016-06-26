@@ -10,12 +10,10 @@ import javax.annotation.Nullable;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
-import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleRegistry;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleResult;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
 import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
-import org.metaborg.spoofax.shell.util.StrategoUtil;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -73,67 +71,52 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
 
         IStrategoTerm desugared = desugar(input);
 
-        ITerm programTerm = interpLoader.getProgramTerm(desugared);
+        IStrategoAppl appl = toAppl(desugared);
 
-        Value rule = lookupRuleForInput(desugared);
+        ITerm programTerm = interpLoader.getProgramTerm(appl);
+
+        Value rule = lookupRuleForInput(appl);
 
         return invoke(rule, programTerm);
     }
 
     private IStrategoTerm desugar(IStrategoTerm input) {
         IStrategoTerm desugared = interpLoader.getTransformer().transform(input);
-        StrategoUtil.setSortForTerm(desugared, StrategoUtil.getSortForTerm(input));
         return desugared;
     }
 
-    private Value lookupRuleForInput(IStrategoTerm input) throws MetaborgException {
-        return lookupRuleForInput("shell", input);
-    }
-
-    private Value lookupRuleForInput(String ruleName, IStrategoTerm input)
-        throws MetaborgException {
+    private IStrategoAppl toAppl(IStrategoTerm input) throws MetaborgException {
         if (!Tools.isTermAppl(input)) {
             throw new MetaborgException("Expected a StrategoAppl, but a "
                                         + input.getClass().getSimpleName() + " was found: \""
                                         + input.toString(1) + "\".");
         }
+        return (IStrategoAppl) input;
+    }
 
-        // First try "Cast" rules of the form "e : Expr --> ...". Silently continue if no sort can
-        // be retrieved from the term.
-        Value rule = lookupCastRule(ruleName, input);
-        if (rule != null) {
-            return rule;
-        }
+    private Value lookupRuleForInput(IStrategoAppl appl) throws MetaborgException {
+        return lookupRuleForInput("shell", appl);
+    }
 
-        // Then try "Con" rules of the form "Add(_, _) --> ...".
-        // Look up "-shell->" rule.
-        rule = lookupConRule(ruleName, input);
+    private Value lookupRuleForInput(String ruleName, IStrategoAppl appl)
+        throws MetaborgException {
+        // Look up "-shell->" rule. This automatically dispatches to sort rules if there is no
+        // constructor rule to be found for this term.
+        Value rule = lookupRule(ruleName, appl);
 
         if (rule == null) {
-            String extraMessage =
-                StrategoUtil.getSortForTerm(input) == null ? " No sort found for term." : "";
             throw new MetaborgException("No shell rule found to be applied to term \""
-                                        + input.toString(1) + "\"." + extraMessage);
+                                        + appl.toString(1) + "\".");
         }
         return rule;
     }
 
-    private @Nullable Value lookupCastRule(String ruleName, IStrategoTerm input) {
-        Value rule = null;
-        String termSort = StrategoUtil.getSortForTerm(input);
-        if (termSort != null) {
-            rule =
-                polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey(ruleName, '_' + termSort, 1));
-        }
-        return rule;
-    }
-
-    private @Nullable Value lookupConRule(String ruleName, IStrategoTerm input) {
-        IStrategoConstructor inputCtor = ((IStrategoAppl) input).getConstructor();
+    private @Nullable Value lookupRule(String ruleName, IStrategoAppl appl) {
+        IStrategoConstructor inputCtor = appl.getConstructor();
         String ctorName = inputCtor.getName();
         int arity = inputCtor.getArity();
 
-        return polyglotEngine.findGlobalSymbol(RuleRegistry.makeKey(ruleName, ctorName, arity));
+        return polyglotEngine.findGlobalSymbol(ruleName + "/" + ctorName + "/" + arity);
     }
 
     private IStrategoTerm invoke(Value rule, ITerm programTerm) throws MetaborgException {
@@ -169,7 +152,6 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
         ITermFactory termFactory = termFactService.getGeneric();
         IStrategoConstructor termConstr = termFactory.makeConstructor("ShellInit", 0);
         IStrategoAppl shellInitAppl = termFactory.makeAppl(termConstr);
-        StrategoUtil.setSortForTerm(shellInitAppl, "ShellInit");
         try {
             Value shellInitRule = lookupRuleForInput("init", shellInitAppl);
             RuleResult ruleResult = shellInitRule
