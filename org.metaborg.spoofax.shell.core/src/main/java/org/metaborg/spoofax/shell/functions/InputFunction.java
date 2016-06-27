@@ -1,5 +1,7 @@
 package org.metaborg.spoofax.shell.functions;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
@@ -45,13 +47,20 @@ public class InputFunction extends AbstractSpoofaxFunction<String, InputResult> 
             throw new MetaborgException("Cannot find the shell facet.");
         }
 
-        ResourceExtensionFacet extensionFacet = lang.facet(ResourceExtensionFacet.class);
-        String extension = Iterables.getFirst(extensionFacet.extensions(), null);
+        String extension = getExtension();
         FileObject file =
             project.location().resolveFile("temp" + (extension != null ? "." + extension : ""));
         return FailOrSuccessResult.ofSpoofaxResult(resultFactory
             .createInputResult(lang, file, source,
                                new JSGLRParserConfiguration(shellFacet.getShellStartSymbol())));
+    }
+
+    private @Nullable String getExtension() {
+        ResourceExtensionFacet extensionFacet = lang.facet(ResourceExtensionFacet.class);
+        if (extensionFacet != null) {
+            return Iterables.getFirst(extensionFacet.extensions(), null);
+        }
+        return null;
     }
 
 }
