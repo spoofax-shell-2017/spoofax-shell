@@ -30,6 +30,8 @@ import org.metaborg.core.language.ILanguageComponent;
 import org.metaborg.core.language.ILanguageDiscoveryRequest;
 import org.metaborg.core.language.ILanguageDiscoveryService;
 import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.language.LanguageIdentifier;
+import org.metaborg.core.language.LanguageVersion;
 import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
@@ -115,6 +117,8 @@ public class LanguageCommandTest {
         Mockito.<Iterable<? extends ILanguageImpl>>when(langcomp.contributesTo())
             .thenReturn(Lists.newArrayList(lang));
         when(resourceService.resolveToName(anyString())).thenReturn(langloc.getName());
+        when(lang.id()).thenReturn(new LanguageIdentifier("org.borg", "lang",
+                                                          new LanguageVersion(0, 0, 0, "snap")));
 
         when(functionFactory.createBuilder(any(), any())).thenAnswer((invocation) -> builder);
         when(builder.description(anyString())).thenReturn(builder);
@@ -208,7 +212,7 @@ public class LanguageCommandTest {
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
         when(menuService.menuItems(any())).thenReturn(Lists.newArrayList());
 
-        String expected = "Loaded language lang";
+        String expected = "Loaded language org.borg:lang:0.0.0-snap";
         langCommand.execute("res:paplj.zip").accept(visitor);
         verify(visitor, times(1)).visitMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
@@ -228,7 +232,7 @@ public class LanguageCommandTest {
         when(menuService.menuItems(any())).thenReturn(Lists.newArrayList());
         when(lang.hasFacet(AnalyzerFacet.class)).thenReturn(true);
 
-        String expected = "Loaded language lang";
+        String expected = "Loaded language org.borg:lang:0.0.0-snap";
         langCommand.execute("res:paplj.zip").accept(visitor);
         verify(visitor, times(1)).visitMessage(captor.capture());
         verify(invoker, times(1)).resetCommands();
