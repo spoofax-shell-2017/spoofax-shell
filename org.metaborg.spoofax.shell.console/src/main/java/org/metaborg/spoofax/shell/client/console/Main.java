@@ -2,7 +2,6 @@ package org.metaborg.spoofax.shell.client.console;
 
 import java.awt.Color;
 
-import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.ConsoleReplModule;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
@@ -18,6 +17,7 @@ public final class Main {
     private static final String ERROR = "Invalid commandline parameters: %s%nThe only argument "
                                         + "accepted is the path to a language implementation "
                                         + "location, using any filesystem supported by Apache VFS";
+    private static final String VERSION = "0.0.4";
 
     private Main() {
     }
@@ -46,9 +46,7 @@ public final class Main {
         Injector injector = Guice.createInjector(new ConsoleReplModule());
         IDisplay display = injector.getInstance(IDisplay.class);
 
-        StyledText message = new StyledText(Color.BLUE, "Welcome to the ")
-            .append(new Style(Color.GREEN, Color.BLUE, true, true, true), "Spoofax")
-            .append(Color.BLUE, " REPL");
+        StyledText message = new StyledText("Spoofax REPL, version " + VERSION);
         display.displayStyledText(message);
 
         ConsoleRepl repl = injector.getInstance(ConsoleRepl.class);

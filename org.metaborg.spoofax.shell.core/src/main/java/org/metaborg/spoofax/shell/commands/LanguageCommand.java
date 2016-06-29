@@ -143,7 +143,8 @@ public class LanguageCommand implements IReplCommand {
             ILanguageImpl lang = load(resolveLanguage(args[0]));
             loadCommands(lang);
 
-            return (visitor) -> visitor.visitMessage(new StyledText("Loaded language " + lang));
+            return (visitor) -> visitor.visitMessage(new StyledText("Loaded language "
+                                                                    + lang.id().toString()));
         } catch (MetaborgException | MetaborgRuntimeException e) {
             return new ExceptionResult(e);
         }
