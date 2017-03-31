@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>org.metaborg.spoofax.shell.eclipse.externaldeps</artifactId>
+    <name>Spoofax Shell Eclipse Client external dependencies</name>
+    <description>Bundle to import meta non-Eclipse external dependencies into Eclipse</description>
+    <packaging>bundle</packaging>
+    <url>http://spoofax-shell.github.io/</url>
+    <version>0.0.4-SNAPSHOT</version>
+
+    <parent>
+        <groupId>org.metaborg</groupId>
+        <artifactId>parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <relativePath>../../releng/parent</relativePath>
+    </parent>
+
+    <!-- FIXME: Metaborg parent POMs do not allow us to download snapshot releases. We need those in
+         order to build our code standalone (which is not only easier for testing locally, but
+         required on TravisCI). -->
+    <repositories>
+        <repository>
+            <id>metaborg-snapshot-repo</id>
+            <url>http://artifacts.metaborg.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>dynsem.lib.stratego.jar</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>dynsem.lib.stratego.javastrat</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.metaborg</groupId>
+            <artifactId>org.metaborg.meta.lang.dynsem.interpreter</artifactId>
+            <version>${metaborg-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.truffle</groupId>
+            <artifactId>truffle-api</artifactId>
+            <version>0.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.truffle</groupId>
+            <artifactId>truffle-dsl-processor</artifactId>
+            <version>0.11</version>
+        </dependency>
+
+        <!-- From here on, all dependencies are inherited. -->
+        <dependency>
+            <groupId>com.github.krukow</groupId>
+            <artifactId>clj-ds</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+	        <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <!-- Generate MANIFEST.MF from project, to make project available to Eclipse plugins. -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <!-- Fix names not to include the groupId. -->
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <!-- Replace SNAPSHOT in the manifest version with given qualifier. -->
+                        <Bundle-Version>$(replace;${project.version};-SNAPSHOT;.${forceContextQualifier})</Bundle-Version>
+                        <!-- Embed dependencies into plugin bundle, so they are exportable. -->
+                        <Embed-Dependency>
+                            clj-ds,
+                            dynsem.lib.stratego.jar,
+                            dynsem.lib.stratego.javastrat,
+                            org.metaborg.meta.lang.dynsem.interpreter,
+                            truffle-api,
+                            truffle-dsl-processor,
+                        </Embed-Dependency>
+                        <!-- Export dependency packages -->
+                        <Export-Package>
+                            !com.google.common.base.internal,
+                            !com.google.inject.internal.*,
+                            !org.apache.commons.logging.impl,
+                            com.github.krukow.clj_ds;provider=metaborg;mandatory:=provider,
+                            com.github.krukow.clj_lang;provider=metaborg;mandatory:=provider,
+                            com.oracle.truffle.*;provider=metaborg;mandatory:=provider,
+                            dynsem.*;provider=metaborg;mandatory:=provider,
+                            dynsem.strategies.*;provider=metaborg;mandatory:=provider,
+                            org.metaborg.*,
+                        </Export-Package>
+                        <!-- Don't declare dependency on JDK, internal, or non-existent packages. -->
+                        <Import-Package>
+                            !sun*,
+                            !javax*,
+                            !groovy*,
+                            !com.google*,
+                            !org.apache*,
+                            !org.codehaus*,
+                            !org.jruby*,
+                            *
+                        </Import-Package>
+                        <!-- Don't generate uses declarations in exported packages. -->
+                        <_nouses>true</_nouses>
+                        <!-- Allow buddy class loading, so that other bundles can merge their classpath with this bundle, which
+                             some libraries require. -->
+                        <Eclipse-BuddyPolicy>registered</Eclipse-BuddyPolicy>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <!-- Add the generated MANIFEST.MF is used in the resulting JAR file. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>${manifest-location}/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <organization>
+        <name>Delft University of Technology</name>
+        <url>http://www.ewi.tudelft.nl/en</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Gerlof Fokkema</name>
+            <email>g.r.fokkema@student.tudelft.nl</email>
+            <url>https://github.com/gfokkema</url>
+        </developer>
+        <developer>
+            <name>Jente Hidskes</name>
+            <email>hjdskes@gmail.com</email>
+            <url>https://unia.github.io</url>
+        </developer>
+        <developer>
+            <name>Skip Lentz</name>
+            <email>s.m.lentz@student.tudelft.nl</email>
+            <url>https://github.com/Balletie</url>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/spoofax-shell/spoofax-shell/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:git@github.com:spoofax-shell/spoofax-shell.git</connection>
+        <developerConnection>scm:git:git@github.com:spoofax-shell/spoofax-shell.git</developerConnection>
+        <url>https://github.com/spoofax-shell/spoofax-shell</url>
+    </scm>
+
+    <distributionManagement>
+        <site>
+            <id>github</id>
+            <name>Spoofax Shell GitHub repository</name>
+            <url>scm:git:https://github.com/spoofax-shell/spoofax-shell.github.io/</url>
+            <!--url>scm:git:ssh://git@github.com:spoofax-shell/spoofax-shell.github.io.git</url-->
+        </site>
+    </distributionManagement>
+</project>
