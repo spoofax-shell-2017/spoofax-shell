@@ -7,6 +7,10 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>org.metaborg.spoofax.shell.console</artifactId>
 
+  <properties>
+    <console-main-class>org.metaborg.spoofax.shell.client.console.Main</console-main-class>
+  </properties>
+
   <parent>
     <groupId>org.metaborg</groupId>
     <artifactId>parent.java</artifactId>
@@ -81,27 +85,62 @@
 
   <build>
     <plugins>
-      <!-- Create a standalone, executable release. -->
+      <!-- Create an executable JAR -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>org.metaborg.spoofax.shell.client.console.Main</mainClass>
-            </manifest>
-          </archive>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
+        <artifactId>maven-shade-plugin</artifactId>
         <executions>
           <execution>
-            <id>make-assembly</id>
             <phase>package</phase>
             <goals>
-              <goal>single</goal>
+              <goal>shade</goal>
             </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>${console-main-class}</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Testing if the code is runnable, and if the shaded JAR is runnable -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>test-executable</id>
+            <phase>test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath />
+                <argument>${console-main-class}</argument>
+                <argument>--exit</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-shaded-jar-executable</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-jar</argument>
+                <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
+                <argument>--exit</argument>
+              </arguments>
+            </configuration>
           </execution>
         </executions>
       </plugin>

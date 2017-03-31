@@ -51,6 +51,10 @@ public final class Main {
 
         ConsoleRepl repl = injector.getInstance(ConsoleRepl.class);
         if (args.length == 1) {
+            String arg = args[0];
+            if(arg.equals("--exit")) {
+                return;
+            }
             repl.runOnce(":load " + args[0]);
         } else if (args.length > 1) {
             display.displayStyledText(error(args));
