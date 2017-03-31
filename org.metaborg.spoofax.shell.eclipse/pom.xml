@@ -14,18 +14,4 @@
     <version>2.2.0-SNAPSHOT</version>
     <relativePath>../../releng/parent/eclipse/plugin</relativePath>
   </parent>
-
-  <!-- List dependencies that are unavailable in the target platform. -->
-  <dependencies>
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.spoofax.shell.core</artifactId>
-      <version>${metaborg-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.spoofax.shell.eclipse.externaldeps</artifactId>
-      <version>${metaborg-version}</version>
-    </dependency>
-  </dependencies>
 </project>

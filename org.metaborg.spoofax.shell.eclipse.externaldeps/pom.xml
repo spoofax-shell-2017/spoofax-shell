@@ -80,12 +80,11 @@
               !com.google.common.base.internal,
               !com.google.inject.internal.*,
               !org.apache.commons.logging.impl,
-              com.github.krukow.clj_ds;provider=metaborg;mandatory:=provider,
-              com.github.krukow.clj_lang;provider=metaborg;mandatory:=provider,
-              com.oracle.truffle.*;provider=metaborg;mandatory:=provider,
-              dynsem.*;provider=metaborg;mandatory:=provider,
-              dynsem.strategies.*;provider=metaborg;mandatory:=provider,
-              org.metaborg.*,
+              com.github.krukow.clj_ds;provider=metaborg;mandatory:=provider;version=0,
+              com.github.krukow.clj_lang;provider=metaborg;mandatory:=provider;version=0,
+              com.oracle.truffle.*;provider=metaborg;mandatory:=provider;version=0,
+              dynsem.*;provider=metaborg;mandatory:=provider;version=0,
+              dynsem.strategies.*;provider=metaborg;mandatory:=provider;version=0
             </Export-Package>
             <!-- Don't declare dependency on JDK, internal, or non-existent packages. -->
             <Import-Package>
