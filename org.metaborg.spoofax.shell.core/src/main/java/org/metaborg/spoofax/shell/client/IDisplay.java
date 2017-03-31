@@ -67,7 +67,7 @@ public interface IDisplay extends IResultVisitor {
         List<ISourceRegion> regions = messages.stream().map(IMessage::region)
             .filter(Objects::nonNull).collect(Collectors.toList());
         StyledText styled = new StyledText();
-        IStyle style = new Style(Color.RED, null, true, false, false);
+        IStyle style = new Style(Color.RED, null, true, false, false, false);
         styled.append(regions, style, sourceText);
         return styled;
     }

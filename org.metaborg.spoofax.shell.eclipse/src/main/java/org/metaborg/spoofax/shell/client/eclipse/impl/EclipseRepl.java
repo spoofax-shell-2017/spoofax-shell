@@ -79,7 +79,7 @@ public class EclipseRepl implements IRepl, Observer<String> {
         // TODO: Style input! Output cannot be styled since there is no way to "pretty-prettyprint"
         // it back to a format of the language currently being used. As such, it cannot be
         // highlighted.
-        Style style = new Style(null, null, true, false, false);
+        Style style = new Style(null, null, true, false, false, false);
         this.display.displayStyledText(new StyledText(style, input));
     }
 

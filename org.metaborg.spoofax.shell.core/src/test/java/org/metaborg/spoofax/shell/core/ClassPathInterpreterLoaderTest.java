@@ -44,6 +44,8 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.instrument.Visualizer;
+import com.oracle.truffle.api.instrument.WrapperNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
@@ -291,7 +293,7 @@ public class ClassPathInterpreterLoaderTest {
         @SuppressWarnings({ "rawtypes", "unchecked" })
         private static ITermRegistry mockTermRegistry() {
             ITermRegistry mock = Mockito.mock(ITermRegistry.class);
-            return Mockito.when(mock.getConstructorClass("TestCtor", 0))
+            return (ITermRegistry) Mockito.when(mock.getConstructorClass("TestCtor", 0))
                 .thenReturn((Class) ClassPathInterpreterLoaderTest.class).getMock();
         }
 
@@ -353,6 +355,24 @@ public class ClassPathInterpreterLoaderTest {
         @Override
         public boolean isTermCachingEnabled() {
             return false;
+        }
+
+        @Override
+        public boolean isDEBUG() {
+            // TODO: implement method; generated stub.
+            return false;
+        }
+
+        @Override
+        protected Visualizer getVisualizer() {
+            // TODO: implement method; generated stub.
+            return null;
+        }
+
+        @Override
+        protected WrapperNode createWrapperNode(Node node) {
+            // TODO: implement method; generated stub.
+            return null;
         }
     }
 }

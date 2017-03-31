@@ -176,7 +176,7 @@ public class DynSemEvaluationStrategyTest {
                         @SuppressWarnings("unchecked")
                         @Override
                         public Value answer(InvocationOnMock invocation) throws Throwable {
-                            Map<String, Integer> map = invocation.getArgumentAt(1, Map.class);
+                            Map<String, Integer> map = invocation.getArgument(1);
                             int result = map.getOrDefault("foo", 0);
                             map.put("foo", DEFAULT_SHELL_RULE_ANSWER);
                             return when(mock(Value.class).as(RuleResult.class))
@@ -210,6 +210,18 @@ public class DynSemEvaluationStrategyTest {
                 @Override
                 public int size() {
                     return 0;
+                }
+
+                @Override
+                public boolean hasStrategoTerm() {
+                    // TODO: implement method; generated stub.
+                    return false;
+                }
+
+                @Override
+                public IStrategoTerm getStrategoTerm() {
+                    // TODO: implement method; generated stub.
+                    return null;
                 }
             };
         }

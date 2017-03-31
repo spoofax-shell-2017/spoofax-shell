@@ -175,7 +175,7 @@ public class StyledText {
     }
 
     private static IStyle colorStyle(Color fg, Color bg) {
-        return new Style(fg, bg, false, false, false);
+        return new Style(fg, bg, false, false, false, false);
     }
 
     private static <T> boolean equals(T a, T b) {

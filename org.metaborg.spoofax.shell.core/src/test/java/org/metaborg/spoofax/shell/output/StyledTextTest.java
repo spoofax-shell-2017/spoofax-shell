@@ -1,8 +1,6 @@
 package org.metaborg.spoofax.shell.output;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -80,8 +78,8 @@ public class StyledTextTest {
      */
     @Test
     public void testStyledString() {
-        Style style1 = new Style(Color.BLUE, Color.CYAN, false, false, false);
-        Style style2 = new Style(Color.RED, Color.YELLOW, false, false, false);
+        Style style1 = new Style(Color.BLUE, Color.CYAN, false, false, false, false);
+        Style style2 = new Style(Color.RED, Color.YELLOW, false, false, false, false);
         StyledText styledText = new StyledText(style1, "Hello ").append(style2, "world");
 
         assertEquals("Hello world", styledText.toString());
@@ -102,7 +100,7 @@ public class StyledTextTest {
         final int end2 = 9;
         List<ISourceRegion> regions =
             Arrays.asList(new SourceRegion(start1, end1), new SourceRegion(start2, end2));
-        Style style = new Style(Color.BLUE, Color.CYAN, false, false, false);
+        Style style = new Style(Color.BLUE, Color.CYAN, false, false, false, false);
 
         StyledText styledText = new StyledText().append(regions, style, "Hello, world");
 
@@ -125,7 +123,7 @@ public class StyledTextTest {
         final int end2 = 9;
         List<ISourceRegion> regions =
             Arrays.asList(new SourceRegion(start1, end1), new SourceRegion(start2, end2));
-        Style style = new Style(Color.BLUE, Color.CYAN, false, false, false);
+        Style style = new Style(Color.BLUE, Color.CYAN, false, false, false, false);
 
         StyledText styledText = new StyledText().append(regions, style, "Hello, world");
 

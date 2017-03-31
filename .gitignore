@@ -8,6 +8,7 @@
 # Eclipse generated files
 .checkstyle
 .classpath
+.factorypath
 .project
 .settings/
 
