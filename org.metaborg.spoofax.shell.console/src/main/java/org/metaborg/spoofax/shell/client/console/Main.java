@@ -2,29 +2,26 @@ package org.metaborg.spoofax.shell.client.console;
 
 import java.awt.Color;
 
+import org.metaborg.core.MetaborgException;
+import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.shell.client.ConsoleReplModule;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.output.StyledText;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 /**
  * This class launches a {@link ConsoleRepl}, a console based REPL.
  */
 public final class Main {
-    private static final String ERROR = "Invalid commandline parameters: %s%nThe only argument "
-                                        + "accepted is the path to a language implementation "
-                                        + "location, using any filesystem supported by Apache VFS";
-    private static final String VERSION = "0.0.4";
-
-    private Main() {
-    }
+    private static final String ERROR =
+        "Invalid commandline parameters: %s%nThe only argument " + "accepted is the path to a language implementation "
+            + "location, using any filesystem supported by Apache VFS";
 
     private static StyledText error(String[] args) {
         StringBuilder invalidArgs = new StringBuilder();
-        for (String arg : args) {
+        for(String arg : args) {
             invalidArgs.append(arg).append(", ");
         }
         // Remove the appended ", " from the string.
@@ -32,34 +29,34 @@ public final class Main {
         return new StyledText(Color.RED, String.format(ERROR, invalidArgs.toString()));
     }
 
+
     /**
      * Instantiates and runs a new {@link ConsoleRepl}.
      *
      * @param args
-     *            The path to a language implementation location, using any filesystem supported by
-     *            Apache VFS.
+     *            The path to a language implementation location, using any filesystem supported by Apache VFS.
+     * @throws MetaborgException
+     *             When Spoofax initialization fails.
      */
-    public static void main(String[] args) {
-        System.setProperty("org.apache.commons.logging.Log",
-                "org.apache.commons.logging.impl.NoOpLog");
+    public static void main(String[] args) throws MetaborgException {
+        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 
-        Injector injector = Guice.createInjector(new ConsoleReplModule());
-        IDisplay display = injector.getInstance(IDisplay.class);
+        try(final Spoofax spoofax = new Spoofax(new ConsoleReplModule())) {
+            final Injector injector = spoofax.injector;
+            final IDisplay display = injector.getInstance(IDisplay.class);
+            final ConsoleRepl repl = injector.getInstance(ConsoleRepl.class);
 
-        StyledText message = new StyledText("Spoofax REPL, version " + VERSION);
-        display.displayStyledText(message);
-
-        ConsoleRepl repl = injector.getInstance(ConsoleRepl.class);
-        if (args.length == 1) {
-            String arg = args[0];
-            if(arg.equals("--exit")) {
-                return;
+            if(args.length == 1) {
+                final String arg = args[0];
+                if(arg.equals("--exit")) {
+                    return;
+                }
+                repl.runOnce(":load " + args[0]);
+            } else if(args.length > 1) {
+                display.displayStyledText(error(args));
             }
-            repl.runOnce(":load " + args[0]);
-        } else if (args.length > 1) {
-            display.displayStyledText(error(args));
-        }
 
-        repl.run();
+            repl.run();
+        }
     }
 }

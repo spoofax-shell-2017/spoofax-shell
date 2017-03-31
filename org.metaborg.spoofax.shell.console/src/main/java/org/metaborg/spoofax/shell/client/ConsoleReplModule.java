@@ -21,9 +21,12 @@ import jline.console.ConsoleReader;
  * Bindings for the console REPL.
  */
 public class ConsoleReplModule extends ReplModule {
+    @Override protected void configure() {
+        super.configure();
+        bindUserInterface();
+    }
 
-    @Override
-    protected void bindCommands(MapBinder<String, IReplCommand> commandBinder) {
+    @Override protected void bindCommands(MapBinder<String, IReplCommand> commandBinder) {
         super.bindCommands(commandBinder);
         commandBinder.addBinding("exit").to(ExitCommand.class).in(Singleton.class);
     }
@@ -47,11 +50,5 @@ public class ConsoleReplModule extends ReplModule {
 
         bindConstant().annotatedWith(Names.named("historyPath"))
             .to(System.getProperty("user.home") + "/.spoofax_history");
-    }
-
-    @Override
-    protected void configure() {
-        super.configure();
-        bindUserInterface();
     }
 }
