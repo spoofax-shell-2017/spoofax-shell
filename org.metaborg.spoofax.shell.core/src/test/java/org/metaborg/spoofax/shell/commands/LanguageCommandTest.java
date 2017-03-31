@@ -1,16 +1,9 @@
 package org.metaborg.spoofax.shell.commands;
 
 import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Arrays;
@@ -163,7 +156,7 @@ public class LanguageCommandTest {
      */
     @Test
     public void testLoadLanguage() throws MetaborgException, FileSystemException {
-        Iterable<ILanguageDiscoveryRequest> langrequest = any();
+        Iterable<ILanguageDiscoveryRequest> langrequest = anyCollectionOf(ILanguageDiscoveryRequest.class);
         when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
 
         ILanguageImpl actual = langCommand.load(langloc);
