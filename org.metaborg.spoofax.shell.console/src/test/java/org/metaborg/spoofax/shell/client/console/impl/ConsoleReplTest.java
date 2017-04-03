@@ -19,6 +19,9 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
+import org.metaborg.core.MetaborgException;
+import org.metaborg.core.MetaborgRuntimeException;
+import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.shell.ReplModule;
 import org.metaborg.spoofax.shell.client.ConsoleReplModule;
 import org.metaborg.spoofax.shell.client.console.commands.ExitCommand;
@@ -49,7 +52,12 @@ public class ConsoleReplTest {
      */
     private void createInjector(Module... overrides) {
         Module overridden = Modules.override(replModule()).with(overrides);
-        injector = Guice.createInjector(overridden);
+        try {
+            Spoofax spoofax = new Spoofax(overridden);
+            injector = spoofax.injector;
+        } catch(MetaborgException e) {
+            throw new MetaborgRuntimeException(e);
+        }
     }
 
     private ReplModule replModule() {
@@ -79,7 +87,7 @@ public class ConsoleReplTest {
         in = new ByteArrayInputStream(inputString.getBytes("UTF-8"));
         out = new ByteArrayOutputStream();
 
-        injector = Guice.createInjector(replModule());
+        createInjector(replModule());
     }
 
     private void setUpCtrlD() throws IOException {
