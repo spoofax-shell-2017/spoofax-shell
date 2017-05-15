@@ -5,10 +5,7 @@ before opening issues or submitting pull requests.
 
 ## Contributors
 
-| Name             | Student Number | E-mail                         |
-|------------------|----------------|--------------------------------|
-| Gerlof Fokkema   | 4257286        | g.r.fokkema@student.tudelft.nl |
-| Jente Hidskes    | 4335732        | hjdskes@gmail.com              |
-| Skip Lentz       | 4334051        | s.m.lentz@student.tudelft.nl   |
-
-
+| Name                   | Student Number | E-mail                              |
+|------------------------|----------------|-------------------------------------|
+| Wouter Smit            | 4401409        | w.j.smit-1@student.tudelft.nl       |
+| Justin van der Krieken | 4357116        | j.m.vanderKrieken@student.tudelft.nl|
