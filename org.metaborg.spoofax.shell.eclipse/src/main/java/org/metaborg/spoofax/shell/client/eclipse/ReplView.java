@@ -38,7 +38,9 @@ public class ReplView extends ViewPart {
 
         // Instantiate the REPL and add it as observer of the editor.
         EclipseRepl repl = factory.createRepl(display);
-        this.editor.asObservable().subscribe(repl);
+
+        this.editor.asObservable(false).subscribe(repl.getLineInputObserver());
+        this.editor.asObservable(true).subscribe(repl.getLiveInputObserver());
 
         // Retrieve the color manager so that it can be disposed of when the view is closed.
         this.colorManager = injector.getInstance(ColorManager.class);

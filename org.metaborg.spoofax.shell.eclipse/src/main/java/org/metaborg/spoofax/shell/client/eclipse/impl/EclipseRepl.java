@@ -13,7 +13,10 @@ import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.IResultVisitor;
+import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.assistedinject.Assisted;
@@ -29,11 +32,14 @@ import rx.Observer;
  *
  * Note that this class evaluates input in a separate thread.
  */
-public class EclipseRepl implements IRepl, Observer<String> {
+public class EclipseRepl implements IRepl {
     private final IDisplay display;
     private final ICommandInvoker invoker;
     private final ExecutorService pool;
 
+    private final Observer<String> lineInputObserver;
+    private final Observer<String> liveInputObserver;
+    
     /**
      * Instantiates a new EclipseRepl.
      *
@@ -47,34 +53,23 @@ public class EclipseRepl implements IRepl, Observer<String> {
         this.display = display;
         this.invoker = invoker;
         pool = Executors.newSingleThreadExecutor();
+        this.lineInputObserver = new LineInputObserver();
+        this.liveInputObserver = new LiveInputObserver();
     }
 
+    public Observer<String> getLineInputObserver() {
+    	return this.lineInputObserver;
+    }
+
+    public Observer<String> getLiveInputObserver() {
+    	return this.liveInputObserver;
+    }
+    
     @Override
     public ICommandInvoker getInvoker() {
         return this.invoker;
     }
-
-    @Override
-    public void onCompleted() {
-        // We don't ever call onCompleted ourselves, so if it's called it is unexpectedly and
-        // probably an error somewhere. The pipeline cannot be restored, either.
-        System.err
-            .println("The observer/observable pipeline has completed unexpectedly."
-                     + "There is nothing more to do, try restarting the REPL.");
-    }
-
-    @Override
-    public void onError(Throwable t) {
-        // Do not display this to the user, as it is an internal exception.
-        t.printStackTrace();
-    }
-
-    @Override
-    public void onNext(String input) {
-        appendInputToDisplay(input);
-        runAsJob(input);
-    }
-
+    
     private void appendInputToDisplay(String input) {
         // TODO: Style input! Output cannot be styled since there is no way to "pretty-prettyprint"
         // it back to a format of the language currently being used. As such, it cannot be
@@ -114,4 +109,41 @@ public class EclipseRepl implements IRepl, Observer<String> {
         job.schedule();
     }
 
+    private abstract static class InputObserver implements Observer<String> {
+
+		@Override
+		public final void onCompleted() {
+	        // We don't ever call onCompleted ourselves, so if it's called it is unexpectedly and
+	        // probably an error somewhere. The pipeline cannot be restored, either.
+	        System.err
+	            .println("The observer/observable pipeline has completed unexpectedly."
+	                     + "There is nothing more to do, try restarting the REPL.");
+		}
+
+		@Override
+		public final void onError(Throwable t) {
+	        // Do not display this to the user, as it is an internal exception.
+	        t.printStackTrace();
+		}
+    	
+    }
+
+    private class LineInputObserver extends InputObserver {
+
+		@Override
+		public void onNext(String input) {
+	        appendInputToDisplay(input);
+	        runAsJob(input);
+		}
+    	
+    }
+
+    private class LiveInputObserver extends InputObserver {
+
+		@Override
+		public void onNext(String input) {
+	        runAsJob(input);
+		}
+    	
+    }
 }
