@@ -14,6 +14,7 @@ public interface IWidgetFactory {
      * @param parent
      *            A {@link Composite} control which will be the parent of this EclipseDisplay.
      *            (cannot be {@code null}).
+     * @param editor 
      * @return The created {@link EclipseDisplay}.
      */
     EclipseDisplay createDisplay(Composite parent);
@@ -35,6 +36,6 @@ public interface IWidgetFactory {
      *            The {@link IDisplay} for displaying results.
      * @return The created {@link EclipseRepl}.
      */
-    EclipseRepl createRepl(IDisplay display);
+    EclipseRepl createRepl(IDisplay display, EclipseEditor editor);
 
 }

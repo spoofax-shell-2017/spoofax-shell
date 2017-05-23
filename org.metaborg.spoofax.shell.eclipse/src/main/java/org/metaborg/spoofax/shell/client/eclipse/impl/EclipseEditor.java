@@ -10,19 +10,22 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.metaborg.core.syntax.ISyntaxService;
-import org.metaborg.spoofax.core.Spoofax;
-import org.metaborg.spoofax.eclipse.SpoofaxPlugin;
+import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IInputHistory;
 import org.metaborg.spoofax.shell.client.InputHistory;
+import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
+import org.metaborg.spoofax.shell.client.eclipse.EclipseUtil;
+import org.metaborg.spoofax.shell.output.FailResult;
+import org.metaborg.spoofax.shell.output.IResultVisitor;
+import org.metaborg.spoofax.shell.output.ISpoofaxResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
+import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.common.collect.Lists;
 import com.google.inject.assistedinject.Assisted;
@@ -48,7 +51,8 @@ public class EclipseEditor extends KeyAdapter implements IDocumentListener {
     private final IDocument document;
     private final List<Subscriber<? super String>> lineObservers;
     private final List<Subscriber<? super String>> liveObservers;
-
+    private final ColorManager colorManager;
+    
     /**
      * Instantiates a new EclipseEditor.
      *
@@ -59,7 +63,7 @@ public class EclipseEditor extends KeyAdapter implements IDocumentListener {
      *            (cannot be {@code null}).
      */
     @AssistedInject
-    public EclipseEditor(IInputHistory history, @Assisted Composite parent) {
+    public EclipseEditor(IInputHistory history, @Assisted Composite parent, ColorManager colorManager) {
         this.history = history;
         this.document = new Document();
         this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
@@ -68,6 +72,9 @@ public class EclipseEditor extends KeyAdapter implements IDocumentListener {
         this.input.setDocument(document);
         this.input.getTextWidget().addKeyListener(this);
         this.document.addDocumentListener(this);
+        
+        this.colorManager = colorManager;
+
         this.lineObservers = Lists.newArrayList();
         this.liveObservers = Lists.newArrayList();
     }
@@ -154,18 +161,37 @@ public class EclipseEditor extends KeyAdapter implements IDocumentListener {
         }
     }
 
-	@Override
-	public void documentAboutToBeChanged(DocumentEvent event) {
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void documentAboutToBeChanged(DocumentEvent event) {
+        // TODO Auto-generated method stub
+    }
 
-	@Override
-	public void documentChanged(DocumentEvent event) {
-		// TODO Auto-generated method stub
-        String text = removeLastNewline(document.get());
+    @Override
+    public void documentChanged(DocumentEvent event) {
+        // TODO: possibly wait a bit instead of spamming the observers with every possible change
+        String text = document.get();
         if (text.length() > 0 && text.charAt(0) != ':') {
-            // this.liveObservers.forEach(o -> o.onNext(String.format(":style %s", text)));
+            this.liveObservers.forEach(o -> o.onNext(String.format(":style %s", text)));
         }
-	}
+    }
+
+    public void applyStyle(StyleResult styleResult) {
+        styleResult.styled().getSource().forEach(regionStyle -> {
+            ISourceRegion region = regionStyle.region();
+            IStyle style = regionStyle.style();
+            if (style != null) {
+                StyleRange styleRange = EclipseUtil.style(
+                        colorManager,
+                        style,
+                        region.startOffset(),
+                        region.length());
+                try {
+                    input.getTextWidget().setStyleRange(styleRange);
+                } catch (Exception e) {
+                    // spammy, should validate the styleRange before setting
+                }
+            }
+        });
+    }
 
 }

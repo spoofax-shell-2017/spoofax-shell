@@ -2,6 +2,7 @@ package org.metaborg.spoofax.shell.output;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.language.ILanguageImpl;
+import org.metaborg.core.style.IRegionStyle;
 import org.metaborg.core.syntax.IInputUnit;
 import org.metaborg.spoofax.core.syntax.JSGLRParserConfiguration;
 import org.metaborg.spoofax.core.unit.ISpoofaxAnalyzeUnit;
@@ -84,4 +85,14 @@ public interface IResultFactory {
     EvaluateResult createEvaluateResult(ISpoofaxTermResult<?> inputTermResult,
                                         IStrategoTerm result);
 
+
+    /**
+     * Create an {@link StyleResult} that can be passed to the Repl client.
+     * @param regions Regions that represent the regions and include
+     *                styling region.
+     * @param unit    a wrapped {@link ISpoofaxParseUnit}
+     * @return a {@link StyleResult}
+     */
+    StyleResult createStyleResult(Iterable<IRegionStyle<IStrategoTerm>> regions, ISpoofaxParseUnit unit);
+    
 }

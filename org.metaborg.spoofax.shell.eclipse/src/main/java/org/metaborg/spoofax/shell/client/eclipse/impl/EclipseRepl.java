@@ -1,5 +1,6 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
+import java.awt.Color;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,6 +18,7 @@ import org.metaborg.spoofax.shell.output.FailResult;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.IResultVisitor;
 import org.metaborg.spoofax.shell.output.ISpoofaxResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.assistedinject.Assisted;
@@ -34,6 +36,7 @@ import rx.Observer;
  */
 public class EclipseRepl implements IRepl {
     private final IDisplay display;
+    private final EclipseEditor editor;
     private final ICommandInvoker invoker;
     private final ExecutorService pool;
 
@@ -49,8 +52,9 @@ public class EclipseRepl implements IRepl {
      *            The {@link IDisplay} to send results to.
      */
     @AssistedInject
-    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display) {
+    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display, @Assisted EclipseEditor editor) {
         this.display = display;
+        this.editor = editor;
         this.invoker = invoker;
         pool = Executors.newSingleThreadExecutor();
         this.lineInputObserver = new LineInputObserver();
@@ -99,8 +103,8 @@ public class EclipseRepl implements IRepl {
         Job job = new UIJob("Spoofax REPL display job") {
             @Override
             public IStatus runInUIThread(IProgressMonitor arg0) {
-                result.accept(display);
-                display.displayStyledText(new StyledText());
+                result.accept(resultVisitor);
+                // display.displayStyledText(new StyledText());
                 return Status.OK_STATUS;
             }
         };
@@ -108,6 +112,35 @@ public class EclipseRepl implements IRepl {
         job.setSystem(true);
         job.schedule();
     }
+
+    private IResultVisitor resultVisitor = new IResultVisitor() {
+
+        @Override
+        public void visitResult(ISpoofaxResult<?> result) {
+            // TODO actually use visitor
+            if (result instanceof StyleResult) {
+                editor.applyStyle((StyleResult) result);
+            } else {
+                result.accept(display);
+            }
+        }
+        
+        @Override
+        public void visitMessage(StyledText message) {
+            display.visitMessage(message);
+        }
+        
+        @Override
+        public void visitFailure(FailResult failResult) {
+            failResult.accept(display);
+        }
+
+        @Override
+        public void visitException(Throwable thrown) {
+            display.visitException(thrown);
+        }
+
+    };
 
     private abstract static class InputObserver implements Observer<String> {
 

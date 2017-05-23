@@ -126,6 +126,8 @@ public class LanguageCommand implements IReplCommand {
         }
         invoker.addCommand("eval", eval);
         invoker.addCommand("open", open);
+        invoker.addCommand("style", builder.style().description("Style the input").build());
+        
         invoker.setDefault(eval);
 
         new TransformVisitor(menuService).getActions(lang).forEach((key, action) ->

@@ -37,7 +37,7 @@ public class ReplView extends ViewPart {
         page.setWeights(new int[] { DISPLAYWEIGHT, EDITORWEIGHT });
 
         // Instantiate the REPL and add it as observer of the editor.
-        EclipseRepl repl = factory.createRepl(display);
+        EclipseRepl repl = factory.createRepl(display, editor);
 
         this.editor.asObservable(false).subscribe(repl.getLineInputObserver());
         this.editor.asObservable(true).subscribe(repl.getLiveInputObserver());
