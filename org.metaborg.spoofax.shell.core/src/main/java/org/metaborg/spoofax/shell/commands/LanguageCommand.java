@@ -16,6 +16,7 @@ import org.metaborg.core.language.LanguageUtils;
 import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
+import org.metaborg.spoofax.core.language.ComponentFactoryRequest;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.ExceptionResult;
@@ -81,16 +82,18 @@ public class LanguageCommand implements IReplCommand {
      *             when loading fails
      */
     public ILanguageImpl load(FileObject langloc) throws MetaborgException {
-        Iterable<ILanguageDiscoveryRequest> requests = langDiscoveryService.request(langloc);
-        Iterable<ILanguageComponent> components = langDiscoveryService.discover(requests);
-
-        Set<ILanguageImpl> implementations = LanguageUtils.toImpls(components);
-        ILanguageImpl lang = LanguageUtils.active(implementations);
-
-        if (lang == null) {
+        Set<ILanguageImpl> langs = langDiscoveryService.scanLanguagesInDirectory(langloc);
+        
+        if (langs == null || langs.isEmpty()) {
             throw new MetaborgException("Cannot find a language implementation");
         }
-        return lang;
+
+        if (langs.size() > 1) {
+            throw new MetaborgException("Multiple language implementations found. Please provide an unambiguous path.");
+        }
+
+        // take the first (and only one).
+        return langs.iterator().next();
     }
 
     private FileObject resolveLanguage(String path) {
