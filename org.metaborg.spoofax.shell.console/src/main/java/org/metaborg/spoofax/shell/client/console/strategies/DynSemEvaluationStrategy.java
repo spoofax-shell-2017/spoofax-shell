@@ -1,6 +1,5 @@
-package org.metaborg.spoofax.shell.core;
+package org.metaborg.spoofax.shell.client.console.strategies;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +12,8 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.meta.lang.dynsem.interpreter.nodes.rules.RuleResult;
 import org.metaborg.meta.lang.dynsem.interpreter.terms.ITerm;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
-import org.metaborg.spoofax.shell.core.IInterpreterLoader.InterpreterLoadException;
+import org.metaborg.spoofax.shell.client.console.strategies.IInterpreterLoader.InterpreterLoadException;
+import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -121,22 +121,18 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
     }
 
     private IStrategoTerm invoke(Value rule, ITerm programTerm) throws MetaborgException {
-        try {
-            // Add the arguments.
-            List<Object> arguments = new ArrayList<>(1 + rwSemanticComponents.length);
-            arguments.add(programTerm);
-            arguments.addAll(Arrays.asList(rwSemanticComponents));
+        // Add the arguments.
+        List<Object> arguments = new ArrayList<>(1 + rwSemanticComponents.length);
+        arguments.add(programTerm);
+        arguments.addAll(Arrays.asList(rwSemanticComponents));
 
-            // Execute the rule with the arguments, and update the execution environment.
-            RuleResult ruleResult = rule.execute(arguments.toArray()).as(RuleResult.class);
-            rwSemanticComponents = ruleResult.components;
+        // Execute the rule with the arguments, and update the execution environment.
+        RuleResult ruleResult = rule.execute(arguments.toArray()).as(RuleResult.class);
+        rwSemanticComponents = ruleResult.components;
 
-            // Return the result as IStrategoTerm.
-            return new StrategoString(ruleResult.result.toString(), TermFactory.EMPTY_LIST,
-                                      IStrategoTerm.IMMUTABLE);
-        } catch (IOException e) {
-            throw new MetaborgException("Input/output error while evaluating.", e);
-        }
+        // Return the result as IStrategoTerm.
+        return new StrategoString(ruleResult.result.toString(), TermFactory.EMPTY_LIST,
+                                  IStrategoTerm.IMMUTABLE);
     }
 
     private boolean uninitialized() {
@@ -159,8 +155,6 @@ public class DynSemEvaluationStrategy implements IEvaluationStrategy {
             RuleResult ruleResult = shellInitRule
                 .execute(interpLoader.getProgramTerm(shellInitAppl)).as(RuleResult.class);
             rwSemanticComponents = ruleResult.components;
-        } catch (IOException e) {
-            throw new InterpreterLoadException(e);
         } catch (MetaborgException e) {
             throw new InterpreterLoadException("No shell initialization rule found.\n"
                                                + "Initialize the semantic components for the"

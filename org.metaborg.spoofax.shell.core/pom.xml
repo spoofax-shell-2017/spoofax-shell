@@ -40,18 +40,6 @@
       <artifactId>org.strategoxt.strj</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.meta.lang.dynsem.interpreter</artifactId>
-      <version>${metaborg-version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.oracle.truffle</groupId>
-      <artifactId>truffle-api</artifactId>
-      <version>0.11</version>
-      <type>jar</type>
-    </dependency>
 
     <!-- From here on, all dependencies are inherited. -->
     <dependency>
@@ -97,31 +85,4 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <!-- Generate sources from annotations. -->
-      <plugin>
-        <groupId>org.bsc.maven</groupId>
-        <artifactId>maven-processor-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>process-test</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>target/generated-sources/annotations</outputDirectory>
-              <!--processor>com.oracle.truffle.dsl.processor.LanguageRegistrationProcessor</processor -->
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>com.oracle.truffle</groupId>
-            <artifactId>truffle-dsl-processor</artifactId>
-            <version>0.11</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-    </plugins>
-  </build>
 </project>

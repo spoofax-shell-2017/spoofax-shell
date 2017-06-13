@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.core;
+package org.metaborg.spoofax.shell.client.console.strategies;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -165,31 +165,26 @@ public class DynSemEvaluationStrategyTest {
         @Override
         public PolyglotEngine loadInterpreterForLanguage(ILanguageImpl langImpl)
             throws InterpreterLoadException {
-            try {
-                PolyglotEngine mockInterpreter = mock(PolyglotEngine.class);
+            PolyglotEngine mockInterpreter = mock(PolyglotEngine.class);
 
-                when(mockInterpreter.findGlobalSymbol("init/ShellInit/0")).thenReturn(mockInitRule);
+            when(mockInterpreter.findGlobalSymbol("init/ShellInit/0")).thenReturn(mockInitRule);
 
-                // Mock the shell rule. It extends the environment.
-                Value mockRule = when(mock(Value.class).execute(any(), anyMap()))
-                    .thenAnswer(new Answer<Value>() {
-                        @SuppressWarnings("unchecked")
-                        @Override
-                        public Value answer(InvocationOnMock invocation) throws Throwable {
-                            Map<String, Integer> map = invocation.getArgument(1);
-                            int result = map.getOrDefault("foo", 0);
-                            map.put("foo", DEFAULT_SHELL_RULE_ANSWER);
-                            return when(mock(Value.class).as(RuleResult.class))
-                                .thenReturn(new RuleResult(result, new Object[] { map })).getMock();
-                        }
-                    }).getMock();
-                when(mockInterpreter.findGlobalSymbol(ruleKey)).thenReturn(mockRule);
+            // Mock the shell rule. It extends the environment.
+            Value mockRule = when(mock(Value.class).execute(any(), anyMap()))
+                .thenAnswer(new Answer<Value>() {
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public Value answer(InvocationOnMock invocation) throws Throwable {
+                        Map<String, Integer> map = invocation.getArgument(1);
+                        int result = map.getOrDefault("foo", 0);
+                        map.put("foo", DEFAULT_SHELL_RULE_ANSWER);
+                        return when(mock(Value.class).as(RuleResult.class))
+                            .thenReturn(new RuleResult(result, new Object[] { map })).getMock();
+                    }
+                }).getMock();
+            when(mockInterpreter.findGlobalSymbol(ruleKey)).thenReturn(mockRule);
 
-                return mockInterpreter;
-            } catch (IOException e) {
-                fail("Should never happen.");
-                throw new InterpreterLoadException(e);
-            }
+            return mockInterpreter;
         }
         // CHECKSTYLE.ON: MethodLength
 

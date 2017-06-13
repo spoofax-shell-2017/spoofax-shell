@@ -12,10 +12,7 @@ import org.metaborg.spoofax.shell.commands.DefaultCommand;
 import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
-import org.metaborg.spoofax.shell.core.ClassPathInterpreterLoader;
-import org.metaborg.spoofax.shell.core.DynSemEvaluationStrategy;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
-import org.metaborg.spoofax.shell.core.IInterpreterLoader;
 import org.metaborg.spoofax.shell.functions.ATransformFunction;
 import org.metaborg.spoofax.shell.functions.AnalyzeFunction;
 import org.metaborg.spoofax.shell.functions.EvaluateFunction;
@@ -40,7 +37,6 @@ import org.metaborg.spoofax.shell.output.TransformResult;
 import com.google.common.io.Files;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.MapBinder;
@@ -83,12 +79,6 @@ public abstract class ReplModule extends AbstractModule {
      *            The {@link MapBinder} for binding the strategies to their names.
      */
     protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
-        bind(IInterpreterLoader.class).to(ClassPathInterpreterLoader.class);
-
-        // Make sure the DynSemEvaluationStrategy is a singleton so the REPL
-        // always uses the same unique rwSemanticComponents to evaluate in context.
-        bind(DynSemEvaluationStrategy.class).in(Singleton.class);
-        evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
     }
 
     /**

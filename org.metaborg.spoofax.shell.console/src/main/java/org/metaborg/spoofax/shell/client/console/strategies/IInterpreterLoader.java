@@ -1,4 +1,4 @@
-package org.metaborg.spoofax.shell.core;
+package org.metaborg.spoofax.shell.client.console.strategies;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.language.ILanguageImpl;
