@@ -27,10 +27,10 @@ public class StrategoEvaluationStrategy implements IEvaluationStrategy {
 	private IStrategoTerm env;
 
 	@Inject
-	public StrategoEvaluationStrategy(IStrategoCommon strategoCommon, ITermFactoryService termFactoryService) {
+	public StrategoEvaluationStrategy(IStrategoCommon strategoCommon,
+			ITermFactoryService termFactoryService) {
 		this.strategoCommon = strategoCommon;
 		this.termFactory = termFactoryService.getGeneric();
-
 	}
 
 	@Override
@@ -45,7 +45,8 @@ public class StrategoEvaluationStrategy implements IEvaluationStrategy {
 			env = strategoCommon.invoke(context.language(), context, term, INIT_TERM);
 		}
 
-		IStrategoTerm result = strategoCommon.invoke(context.language(), context, termFactory.makeTuple(term, env), EVAL_TERM);
+		IStrategoTerm result = strategoCommon.invoke(context.language(), context,
+				termFactory.makeTuple(term, env), EVAL_TERM);
 
 		if (Tools.isTermTuple(result)) {
 			int subterms = result.getSubtermCount();
@@ -55,11 +56,14 @@ public class StrategoEvaluationStrategy implements IEvaluationStrategy {
 				env = newEnv;
 				return value;
 			} else {
-				throw new MetaborgException(String.format("Evaluation result expected: Tuple of 2. Found: Tuple of %d", subterms));
+				throw new MetaborgException(String.format(
+						"Evaluation result expected: Tuple of 2. Found: Tuple of %d", subterms));
 			}
 		} else {
 			// TODO give useful 'found' if possible
-			throw new MetaborgException(String.format("Evaluation result expected: Tuple. Found: %s", "<result.getTermType()=" + result.getTermType() + ">"));
+			throw new MetaborgException(
+					String.format("Evaluation result expected: Tuple. Found: %s",
+							"<result.getTermType()=" + result.getTermType() + ">"));
 		}
 
 	}

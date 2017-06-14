@@ -102,7 +102,7 @@ public interface IFunctionFactory {
      *
      * @param project   The associated {@link IProject}
      * @param lang      The associated {@link ILanguageImpl}
-     * @return          an {@link CommandBuilder}
+     * @return          a {@link CommandBuilder}
      */
     CommandBuilder<?> createBuilder(IProject project, ILanguageImpl lang);
 
