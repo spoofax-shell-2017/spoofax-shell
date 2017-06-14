@@ -29,10 +29,14 @@ import rx.Observer;
  *
  * Note that this class evaluates input in a separate thread.
  */
-public class EclipseRepl implements IRepl, Observer<String> {
+public class EclipseRepl implements IRepl {
     private final IDisplay display;
+    private final EclipseEditor editor;
     private final ICommandInvoker invoker;
     private final ExecutorService pool;
+
+    private final Observer<String> lineInputObserver;
+    private final Observer<String> liveInputObserver;
 
     /**
      * Instantiates a new EclipseRepl.
@@ -43,10 +47,13 @@ public class EclipseRepl implements IRepl, Observer<String> {
      *            The {@link IDisplay} to send results to.
      */
     @AssistedInject
-    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display) {
+    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display, @Assisted EclipseEditor editor) {
         this.display = display;
+        this.editor = editor;
         this.invoker = invoker;
         pool = Executors.newSingleThreadExecutor();
+        this.lineInputObserver = new LineInputObserver();
+        this.liveInputObserver = new LiveInputObserver();
     }
 
     @Override
@@ -54,25 +61,12 @@ public class EclipseRepl implements IRepl, Observer<String> {
         return this.invoker;
     }
 
-    @Override
-    public void onCompleted() {
-        // We don't ever call onCompleted ourselves, so if it's called it is unexpectedly and
-        // probably an error somewhere. The pipeline cannot be restored, either.
-        System.err
-            .println("The observer/observable pipeline has completed unexpectedly."
-                     + "There is nothing more to do, try restarting the REPL.");
+    public Observer<String> getLineInputObserver() {
+		return this.lineInputObserver;
     }
 
-    @Override
-    public void onError(Throwable t) {
-        // Do not display this to the user, as it is an internal exception.
-        t.printStackTrace();
-    }
-
-    @Override
-    public void onNext(String input) {
-        appendInputToDisplay(input);
-        runAsJob(input);
+    public Observer<String> getLiveInputObserver() {
+		return this.liveInputObserver;
     }
 
     private void appendInputToDisplay(String input) {
@@ -114,4 +108,40 @@ public class EclipseRepl implements IRepl, Observer<String> {
         job.schedule();
     }
 
+    private abstract static class InputObserver implements Observer<String> {
+
+		@Override
+		public final void onCompleted() {
+	        // We don't ever call onCompleted ourselves, so if it's called it is unexpectedly and
+	        // probably an error somewhere. The pipeline cannot be restored, either.
+	        System.err
+	            .println("The observer/observable pipeline has completed unexpectedly."
+	                     + "There is nothing more to do, try restarting the REPL.");
+		}
+
+		@Override
+		public final void onError(Throwable t) {
+	        // Do not display this to the user, as it is an internal exception.
+	        t.printStackTrace();
+		}
+
+    }
+
+    private class LineInputObserver extends InputObserver {
+
+		@Override
+		public void onNext(String input) {
+	        appendInputToDisplay(input);
+	        runAsJob(input);
+		}
+
+    }
+
+    private class LiveInputObserver extends InputObserver {
+
+		@Override
+		public void onNext(String input) {
+		}
+
+    }
 }
