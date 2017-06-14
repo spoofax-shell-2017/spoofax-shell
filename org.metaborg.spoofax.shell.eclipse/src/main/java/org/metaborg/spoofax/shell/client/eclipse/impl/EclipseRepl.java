@@ -13,7 +13,11 @@ import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.ExceptionResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessVisitor;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.metaborg.spoofax.shell.services.IEditorServices;
 
@@ -116,6 +120,43 @@ public class EclipseRepl implements IRepl {
         job.schedule();
     }
 
+    private void runSyntaxHighlighting(final String source) {
+        Job job = new Job("Spoofax REPL evaluation job") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    FailOrSuccessResult<StyleResult, IResult> result = pool.submit(() -> services.highlight(source)).get();
+                    result.accept(syntaxVisitor);
+                    return Status.OK_STATUS;
+                } catch (InterruptedException | ExecutionException e) {
+                    return Status.CANCEL_STATUS;
+                }
+            }
+        };
+        job.setSystem(true);
+        job.schedule();
+    }
+
+    private FailOrSuccessVisitor<StyleResult, IResult> syntaxVisitor = new FailOrSuccessVisitor<StyleResult, IResult>() {
+
+		@Override
+		public void visitSuccess(StyleResult result) {
+			editor.applyStyle(result);
+		}
+
+		@Override
+		public void visitFailure(IResult result) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void visitException(ExceptionResult result) {
+			// TODO Auto-generated method stub
+		}
+
+
+    };
+
     private abstract static class InputObserver implements Observer<String> {
 
 		@Override
@@ -149,6 +190,7 @@ public class EclipseRepl implements IRepl {
 
 		@Override
 		public void onNext(String input) {
+			runSyntaxHighlighting(input);
 		}
 
     }
