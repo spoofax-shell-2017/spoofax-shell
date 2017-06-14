@@ -8,6 +8,7 @@ import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
 
 import com.google.inject.assistedinject.Assisted;
@@ -112,5 +113,19 @@ public class FunctionComposer {
     public FailableFunction<String, EvaluateResult, IResult> aEvaluateFunction() {
         return analyzeFunction()
             .kleisliCompose(functionFactory.createEvaluateFunction(project, lang));
+    }
+
+	/**
+	 * Composes a {@link StyleFunction}, which provides syntax highlighting.
+	 *
+	 * <p>
+	 * The <code>StyleFunction</code> is executed after the parse step.
+	 * </p>
+	 *
+	 * @return {@link StyleFunction} - The style function.
+	 */
+    public FailableFunction<String, StyleResult, IResult> pStyleFunction() {
+        return parseFunction()
+            .kleisliCompose(functionFactory.createStyleFunction(project, lang));
     }
 }

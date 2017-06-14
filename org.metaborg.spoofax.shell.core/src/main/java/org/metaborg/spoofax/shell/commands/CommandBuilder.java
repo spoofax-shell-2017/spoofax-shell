@@ -96,40 +96,6 @@ public class CommandBuilder<R extends IResult> {
         this(parent.functionFactory, parent.project, parent.lang, description, function);
     }
 
-    private FailableFunction<String, InputResult, IResult> inputFunction() {
-        return functionFactory.createInputFunction(project, lang);
-    }
-
-    private FailableFunction<String, ParseResult, IResult> parseFunction() {
-        return inputFunction().kleisliCompose(functionFactory.createParseFunction(project, lang));
-    }
-
-    private FailableFunction<String, AnalyzeResult, IResult> analyzeFunction() {
-        return parseFunction().kleisliCompose(functionFactory.createAnalyzeFunction(project, lang));
-    }
-
-    private FailableFunction<String, TransformResult, IResult>
-            pTransformFunction(ITransformAction action) {
-        return parseFunction()
-            .kleisliCompose(functionFactory.createPTransformFunction(project, lang, action));
-    }
-
-    private FailableFunction<String, TransformResult, IResult>
-            aTransformFunction(ITransformAction action) {
-        return analyzeFunction()
-            .kleisliCompose(functionFactory.createATransformFunction(project, lang, action));
-    }
-
-    private FailableFunction<String, EvaluateResult, IResult> pEvaluateFunction() {
-        return parseFunction()
-            .kleisliCompose(functionFactory.createEvaluateFunction(project, lang));
-    }
-
-    private FailableFunction<String, EvaluateResult, IResult> aEvaluateFunction() {
-        return analyzeFunction()
-            .kleisliCompose(functionFactory.createEvaluateFunction(project, lang));
-    }
-
     /**
      * Returns a function that creates an {@link InputResult} from a String.
      *

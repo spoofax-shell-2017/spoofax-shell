@@ -13,6 +13,7 @@ import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
 
 /**
@@ -90,6 +91,15 @@ public interface IFunctionFactory {
      */
     FailableFunction<ISpoofaxTermResult<?>, EvaluateResult, IResult>
     createEvaluateFunction(IProject project, ILanguageImpl lang);
+
+    /**
+     * Factory method for creating a {@link StyleFunction}.
+     * @param project   The associated {@link IProject}
+     * @param lang      The associated {@link ILanguageImpl}
+     * @return          an {@link StyleFunction}
+     */
+    FailableFunction<ParseResult, StyleResult, IResult>
+    createStyleFunction(IProject project, ILanguageImpl lang);
 
     /**
      * Factory method for creating a {@link CommandBuilder}.
