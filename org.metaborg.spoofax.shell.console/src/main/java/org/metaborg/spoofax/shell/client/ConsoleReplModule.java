@@ -9,6 +9,9 @@ import org.metaborg.spoofax.shell.client.console.impl.ConsoleRepl;
 import org.metaborg.spoofax.shell.client.console.impl.TerminalUserInterface;
 import org.metaborg.spoofax.shell.client.console.impl.history.JLine2InputHistory;
 import org.metaborg.spoofax.shell.client.console.impl.history.JLine2PersistentInputHistory;
+import org.metaborg.spoofax.shell.client.console.strategies.ClassPathInterpreterLoader;
+import org.metaborg.spoofax.shell.client.console.strategies.DynSemEvaluationStrategy;
+import org.metaborg.spoofax.shell.client.console.strategies.IInterpreterLoader;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 
@@ -30,12 +33,12 @@ public class ConsoleReplModule extends ReplModule {
     
     @Override protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
         super.bindEvalStrategies(evalStrategyBinder);
-        //bind(IInterpreterLoader.class).to(ClassPathInterpreterLoader.class);
+        bind(IInterpreterLoader.class).to(ClassPathInterpreterLoader.class);
 
         // Make sure the DynSemEvaluationStrategy is a singleton so the REPL
         // always uses the same unique rwSemanticComponents to evaluate in context.
-        //bind(DynSemEvaluationStrategy.class).in(Singleton.class);
-        //evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
+        bind(DynSemEvaluationStrategy.class).in(Singleton.class);
+        evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
     }
     
     @Override protected void bindCommands(MapBinder<String, IReplCommand> commandBinder) {
