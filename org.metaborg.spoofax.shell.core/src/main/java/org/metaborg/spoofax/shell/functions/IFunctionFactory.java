@@ -106,4 +106,17 @@ public interface IFunctionFactory {
      */
     CommandBuilder<?> createBuilder(IProject project, ILanguageImpl lang);
 
+    /**
+     * Factory method for creating a {@link FunctionComposer}.
+     *
+     * The composer composes multiple {@link FailableFunction}s by chaining
+     * them.
+     * These composed functions can be used by the {@link CommandBuilder} or
+     * freely in any way to expose them to the front end.
+     *
+     * @param project   The associated {@link IProject}
+     * @param lang      The associated {@link ILanguageImpl}
+     * @return          a {@link FunctionComposer}
+     */
+    FunctionComposer createComposer(IProject project, ILanguageImpl lang);
 }
