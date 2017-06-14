@@ -22,6 +22,7 @@ import org.metaborg.spoofax.shell.functions.InputFunction;
 import org.metaborg.spoofax.shell.functions.OpenInputFunction;
 import org.metaborg.spoofax.shell.functions.PTransformFunction;
 import org.metaborg.spoofax.shell.functions.ParseFunction;
+import org.metaborg.spoofax.shell.functions.StyleFunction;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
@@ -32,6 +33,7 @@ import org.metaborg.spoofax.shell.output.IResultVisitor;
 import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
 
 import com.google.common.io.Files;
@@ -114,7 +116,8 @@ public abstract class ReplModule extends AbstractModule {
 				.implement(
 						new TypeLiteral<FailableFunction<ISpoofaxTermResult<?>, EvaluateResult, IResult>>() {
 						}, EvaluateFunction.class)
-				.build(IFunctionFactory.class));
+				.implement(new TypeLiteral<FailableFunction<ParseResult, StyleResult, IResult>>() {
+				}, StyleFunction.class).build(IFunctionFactory.class));
 		// CHECKSTYLE.ON: LineLength
 	}
 
