@@ -17,7 +17,7 @@ import com.google.inject.Injector;
  */
 public class Activator extends AbstractUIPlugin {
     private static Activator plugin;
-    private static Injector injector;
+    private Injector injector;
 
 
     @Override public void start(BundleContext context) throws Exception {
@@ -47,7 +47,7 @@ public class Activator extends AbstractUIPlugin {
      *
      * @return The shared {@link Injector} instance.
      */
-    public static Injector getInjector() {
+    public Injector getInjector() {
         return injector;
     }
 
