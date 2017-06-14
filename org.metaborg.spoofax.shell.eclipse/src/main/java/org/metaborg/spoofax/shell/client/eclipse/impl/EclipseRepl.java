@@ -13,7 +13,11 @@ import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.ExceptionResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessVisitor;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.metaborg.spoofax.shell.services.IEditorServices;
 
@@ -226,6 +230,7 @@ public class EclipseRepl implements IRepl {
 
 		@Override
 		public void onNext(String input) {
+			runSyntaxHighlighting(input);
 		}
 
     }
