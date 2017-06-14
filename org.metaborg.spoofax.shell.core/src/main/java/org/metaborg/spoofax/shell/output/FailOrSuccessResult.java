@@ -42,6 +42,11 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
             Objects.requireNonNull(failable);
             return failable.apply(result);
         }
+
+        @Override
+        public void accept(FailOrSuccessVisitor<S, F> visitor) {
+            visitor.visitSuccess(result);
+        }
     }
 
     /**
@@ -69,6 +74,11 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
             Objects.requireNonNull(failable);
             return failed(result);
         }
+
+        @Override
+        public void accept(FailOrSuccessVisitor<S, F> visitor) {
+            visitor.visitFailure(result);
+        }
     }
 
     /**
@@ -95,6 +105,11 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
                 flatMap(FailableFunction<? super S, NewS, F> failable) {
             Objects.requireNonNull(failable);
             return excepted(result);
+        }
+
+        @Override
+        public void accept(FailOrSuccessVisitor<S, F> visitor) {
+            visitor.visitException(result);
         }
     }
 
@@ -172,6 +187,8 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
 
     @Override
     public abstract void accept(IResultVisitor visitor);
+
+    public abstract void accept(FailOrSuccessVisitor<Success, Fail> visitor);
 
     /**
      * Maps the given {@link FailableFunction} if this {@link FailOrSuccessResult} represents a
