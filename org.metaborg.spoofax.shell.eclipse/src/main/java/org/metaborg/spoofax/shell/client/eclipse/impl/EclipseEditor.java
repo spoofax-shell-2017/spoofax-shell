@@ -5,14 +5,14 @@ import java.util.Observer;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.metaborg.spoofax.shell.client.IInputHistory;
 import org.metaborg.spoofax.shell.client.InputHistory;
@@ -35,11 +35,12 @@ import rx.Subscriber;
  *
  * Note that this class should always be run in and accessed from the UI thread!
  */
-public class EclipseEditor extends KeyAdapter implements ModifyListener {
+public class EclipseEditor extends KeyAdapter implements IDocumentListener {
     private final IInputHistory history;
     private final SourceViewer input;
     private final IDocument document;
-    private final List<Subscriber<? super String>> observers;
+    private final List<Subscriber<? super String>> lineObservers;
+    private final List<Subscriber<? super String>> liveObservers;
 
     /**
      * Instantiates a new EclipseEditor.
@@ -59,7 +60,9 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         this.input.getTextWidget().setAlwaysShowScrollBars(false);
         this.input.setDocument(document);
         this.input.getTextWidget().addKeyListener(this);
-        this.observers = Lists.newArrayList();
+        this.document.addDocumentListener(this);
+        this.lineObservers = Lists.newArrayList();
+        this.liveObservers = Lists.newArrayList();
     }
 
     /**
@@ -74,11 +77,18 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      * {@link KeyListener} functions when some notable key presses (e.g. Enter to submit input)
      * occur.
      *
+     * @param live
+     *            - boolean denoting whether the observer subscribes to live or normal input.
      * @return A new {@link Observable} from this editor.
      */
-    public Observable<String> asObservable() {
-        return Observable
-            .create((Observable.OnSubscribe<String>) EclipseEditor.this.observers::add);
+    public Observable<String> asObservable(boolean live) {
+        return Observable.create((o) -> {
+            if (live) {
+                EclipseEditor.this.liveObservers.add(o);
+            } else {
+                EclipseEditor.this.lineObservers.add(o);
+            }
+        });
     }
 
     /**
@@ -88,12 +98,13 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      *            The {@link Subscriber} to remove.
      */
     public void removeObserver(Subscriber<? super String> observer) {
-        this.observers.remove(observer);
+        this.lineObservers.remove(observer);
+        this.liveObservers.remove(observer);
     }
 
-    private String removeLastNewline(String text) {
+    private static String removeLastNewline(String text) {
         int length = text.length() - 1;
-        if (text.charAt(length) == '\n') {
+        if (length > 0 && text.charAt(length) == '\n') {
             text = text.substring(0, length);
         }
         return text;
@@ -101,7 +112,7 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
 
     private void enterPressed() {
         String text = removeLastNewline(document.get());
-        this.observers.forEach(o -> o.onNext(text));
+        this.lineObservers.forEach(o -> o.onNext(text));
         if (text.length() > 0) {
             this.history.append(text);
         }
@@ -139,8 +150,16 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
     }
 
     @Override
-    public void modifyText(ModifyEvent event) {
-        // TODO: text has been modified, send it to get syntax highlighting.
+    public void documentAboutToBeChanged(DocumentEvent event) {
+        // TODO Auto-generated method stub
     }
+
+    @Override
+    public void documentChanged(DocumentEvent event) {
+        // TODO: possibly wait a bit instead of spamming the observers with every possible change
+        liveObservers.forEach(o -> {
+            o.onNext(document.get());
+        });
+	}
 
 }

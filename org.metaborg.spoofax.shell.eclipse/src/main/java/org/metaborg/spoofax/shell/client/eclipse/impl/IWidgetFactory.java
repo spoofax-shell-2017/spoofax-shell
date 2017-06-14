@@ -33,8 +33,10 @@ public interface IWidgetFactory {
      *
      * @param display
      *            The {@link IDisplay} for displaying results.
+     * @param editor
+     *            The {@link EclipseEditor}.
      * @return The created {@link EclipseRepl}.
      */
-    EclipseRepl createRepl(IDisplay display);
+    EclipseRepl createRepl(IDisplay display, EclipseEditor editor);
 
 }

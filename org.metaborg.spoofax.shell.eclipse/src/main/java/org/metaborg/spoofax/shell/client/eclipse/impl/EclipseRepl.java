@@ -29,10 +29,14 @@ import rx.Observer;
  *
  * Note that this class evaluates input in a separate thread.
  */
-public class EclipseRepl implements IRepl, Observer<String> {
+public class EclipseRepl implements IRepl {
     private final IDisplay display;
+    private final EclipseEditor editor; //NOPMD - Will be used in later commits.
     private final ICommandInvoker invoker;
     private final ExecutorService pool;
+
+    private final Observer<String> lineInputObserver;
+    private final Observer<String> liveInputObserver;
 
     /**
      * Instantiates a new EclipseRepl.
@@ -41,12 +45,18 @@ public class EclipseRepl implements IRepl, Observer<String> {
      *            The {@link ICommandInvoker} for executing user input.
      * @param display
      *            The {@link IDisplay} to send results to.
+     * @param editor
+     *            The {@link EclipseEditor} to send input results to.
      */
     @AssistedInject
-    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display) {
+    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display,
+            @Assisted EclipseEditor editor) {
         this.display = display;
+        this.editor = editor;
         this.invoker = invoker;
         pool = Executors.newSingleThreadExecutor();
+        this.lineInputObserver = new LineInputObserver();
+        this.liveInputObserver = new LiveInputObserver();
     }
 
     @Override
@@ -54,25 +64,22 @@ public class EclipseRepl implements IRepl, Observer<String> {
         return this.invoker;
     }
 
-    @Override
-    public void onCompleted() {
-        // We don't ever call onCompleted ourselves, so if it's called it is unexpectedly and
-        // probably an error somewhere. The pipeline cannot be restored, either.
-        System.err
-            .println("The observer/observable pipeline has completed unexpectedly."
-                     + "There is nothing more to do, try restarting the REPL.");
+    /**
+     * The line observer.
+     *
+     * @return {@link Observer} for input strings.
+     */
+    public Observer<String> getLineInputObserver() {
+        return this.lineInputObserver;
     }
 
-    @Override
-    public void onError(Throwable t) {
-        // Do not display this to the user, as it is an internal exception.
-        t.printStackTrace();
-    }
-
-    @Override
-    public void onNext(String input) {
-        appendInputToDisplay(input);
-        runAsJob(input);
+    /**
+     * The live observer.
+     *
+     * @return {@link Observer} for input strings.
+     */
+    public Observer<String> getLiveInputObserver() {
+        return this.liveInputObserver;
     }
 
     private void appendInputToDisplay(String input) {
@@ -114,4 +121,49 @@ public class EclipseRepl implements IRepl, Observer<String> {
         job.schedule();
     }
 
+    /**
+     * Abstract observer class implementing common behaviour for both observers.
+     */
+    private abstract static class InputObserver implements Observer<String> {
+
+        @Override
+        public final void onCompleted() {
+            // We don't ever call onCompleted ourselves, so if it's called it is unexpectedly and
+            // probably an error somewhere. The pipeline cannot be restored, either.
+            System.err
+                    .println("The observer/observable pipeline has completed unexpectedly."
+                            + "There is nothing more to do, try restarting the REPL.");
+        }
+
+        @Override
+        public final void onError(Throwable t) {
+            // Do not display this to the user, as it is an internal exception.
+            t.printStackTrace();
+        }
+
+    }
+
+    /**
+     * Line observer to be notified when the user presses enter.
+     */
+    private class LineInputObserver extends InputObserver {
+
+        @Override
+        public void onNext(String input) {
+            appendInputToDisplay(input);
+            runAsJob(input);
+        }
+
+    }
+
+    /**
+     * Live observer to be notified when input is being typed.
+     */
+    private class LiveInputObserver extends InputObserver {
+
+        @Override
+        public void onNext(String input) {
+        }
+
+    }
 }
