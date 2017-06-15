@@ -20,7 +20,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.analysis.AnalyzerFacet;
 import org.metaborg.core.language.ILanguageComponent;
-import org.metaborg.core.language.ILanguageDiscoveryRequest;
 import org.metaborg.core.language.ILanguageDiscoveryService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.language.LanguageIdentifier;
@@ -38,6 +37,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.internal.util.collections.Sets;
 
 import com.google.common.collect.Lists;
 
@@ -143,8 +143,7 @@ public class LanguageCommandTest {
      */
     @Test(expected = MetaborgException.class)
     public void testLoadLanguageFail() throws MetaborgException, FileSystemException {
-        Iterable<ILanguageDiscoveryRequest> langrequest = any();
-        when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList());
+        when(langDiscoveryService.scanLanguagesInDirectory(any())).thenReturn(Sets.newSet());
 
         langCommand.load(langloc);
     }
@@ -156,12 +155,10 @@ public class LanguageCommandTest {
      */
     @Test
     public void testLoadLanguage() throws MetaborgException, FileSystemException {
-        Iterable<ILanguageDiscoveryRequest> langrequest = anyCollectionOf(ILanguageDiscoveryRequest.class);
-        when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
+        when(langDiscoveryService.scanLanguagesInDirectory(any())).thenReturn(Sets.newSet(lang));
 
         ILanguageImpl actual = langCommand.load(langloc);
-        verify(langDiscoveryService, times(1)).request(langloc);
-        verify(langDiscoveryService, times(1)).discover(langrequest);
+        verify(langDiscoveryService, times(1)).scanLanguagesInDirectory(langloc);
         assertEquals(lang, actual);
     }
 
@@ -170,8 +167,7 @@ public class LanguageCommandTest {
      * @throws MetaborgException when language discovery fails
      */
     public void testExecuteInvalidArgs1() throws MetaborgException {
-        Iterable<ILanguageDiscoveryRequest> langrequest = any();
-        when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
+        when(langDiscoveryService.scanLanguagesInDirectory(any())).thenReturn(Sets.newSet(lang));
 
         langCommand.execute().accept(visitor);
         verify(visitor, times(1)).visitException(any(MetaborgException.class));
@@ -185,8 +181,7 @@ public class LanguageCommandTest {
      */
     @Test
     public void testExecuteInvalidArgs2() throws MetaborgException {
-        Iterable<ILanguageDiscoveryRequest> langrequest = any();
-        when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
+        when(langDiscoveryService.scanLanguagesInDirectory(any())).thenReturn(Sets.newSet(lang));
 
         langCommand.execute(new String[] { "", "" }).accept(visitor);
 
@@ -201,8 +196,7 @@ public class LanguageCommandTest {
      */
     @Test
     public void testExecute() throws MetaborgException {
-        Iterable<ILanguageDiscoveryRequest> langrequest = any();
-        when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
+        when(langDiscoveryService.scanLanguagesInDirectory(any())).thenReturn(Sets.newSet(lang));
         when(menuService.menuItems(any())).thenReturn(Lists.newArrayList());
 
         String expected = "Loaded language org.borg:lang:0.0.0-snap";
@@ -220,8 +214,7 @@ public class LanguageCommandTest {
      */
     @Test
     public void testExecuteAnalyzed() throws MetaborgException {
-        Iterable<ILanguageDiscoveryRequest> langrequest = any();
-        when(langDiscoveryService.discover(langrequest)).thenReturn(Lists.newArrayList(langcomp));
+        when(langDiscoveryService.scanLanguagesInDirectory(any())).thenReturn(Sets.newSet(lang));
         when(menuService.menuItems(any())).thenReturn(Lists.newArrayList());
         when(lang.hasFacet(AnalyzerFacet.class)).thenReturn(true);
 
