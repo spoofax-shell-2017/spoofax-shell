@@ -7,6 +7,10 @@ import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
 import org.metaborg.spoofax.shell.client.eclipse.commands.ExitCommand;
 import org.metaborg.spoofax.shell.client.eclipse.impl.IWidgetFactory;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
+import org.metaborg.spoofax.shell.services.IEditorServices;
+import org.metaborg.spoofax.shell.services.IServicesStrategyFactory;
+import org.metaborg.spoofax.shell.services.SpoofaxEditorServices;
+import org.metaborg.spoofax.shell.services.SpoofaxServicesStrategyFactory;
 
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -18,6 +22,7 @@ import com.google.inject.multibindings.MapBinder;
 public class EclipseReplModule extends ReplModule {
     @Override protected void configure() {
         super.configure();
+		bindEditorServices();
 
         // Bind simple project service for creating a fake project
         bind(ISimpleProjectService.class).to(SimpleProjectService.class).in(Singleton.class);
@@ -32,4 +37,13 @@ public class EclipseReplModule extends ReplModule {
         super.bindCommands(commandBinder);
         commandBinder.addBinding("exit").to(ExitCommand.class);
     }
+
+	/**
+	 * Binds Editor services.
+	 */
+	protected void bindEditorServices() {
+		bind(IEditorServices.class).to(SpoofaxEditorServices.class).in(Singleton.class);
+		bind(IServicesStrategyFactory.class).to(SpoofaxServicesStrategyFactory.class);
+	}
+
 }
