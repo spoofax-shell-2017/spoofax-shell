@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.services.IEditorServices;
 
 import com.google.inject.Inject;
 
@@ -19,6 +20,7 @@ public class ConsoleRepl implements IRepl {
     private final TerminalUserInterface iface;
     private final IDisplay display;
     private boolean running;
+    private final IEditorServices services;
 
     /**
      * Instantiates a new ConsoleRepl.
@@ -31,10 +33,11 @@ public class ConsoleRepl implements IRepl {
      *            The {@link ICommandInvoker} for executing user input.
      */
     @Inject
-    public ConsoleRepl(TerminalUserInterface iface, IDisplay display, ICommandInvoker invoker) {
+    public ConsoleRepl(TerminalUserInterface iface, IDisplay display, ICommandInvoker invoker, IEditorServices services) {
         this.invoker = invoker;
         this.iface = iface;
         this.display = display;
+        this.services = services;
     }
 
     /**
@@ -85,6 +88,11 @@ public class ConsoleRepl implements IRepl {
     @Override
     public ICommandInvoker getInvoker() {
         return this.invoker;
+    }
+
+    @Override
+    public IEditorServices getServices() {
+        return this.services;
     }
 
 }

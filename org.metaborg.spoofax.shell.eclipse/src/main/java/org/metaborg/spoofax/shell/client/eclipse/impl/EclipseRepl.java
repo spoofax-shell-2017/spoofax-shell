@@ -15,6 +15,7 @@ import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.services.IEditorServices;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -33,6 +34,7 @@ public class EclipseRepl implements IRepl {
     private final IDisplay display;
     private final EclipseEditor editor;
     private final ICommandInvoker invoker;
+    private final IEditorServices services;
     private final ExecutorService pool;
 
     private final Observer<String> lineInputObserver;
@@ -47,10 +49,11 @@ public class EclipseRepl implements IRepl {
      *            The {@link IDisplay} to send results to.
      */
     @AssistedInject
-    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display, @Assisted EclipseEditor editor) {
+    public EclipseRepl(ICommandInvoker invoker, IEditorServices services, @Assisted IDisplay display, @Assisted EclipseEditor editor) {
         this.display = display;
         this.editor = editor;
         this.invoker = invoker;
+        this.services = services;
         pool = Executors.newSingleThreadExecutor();
         this.lineInputObserver = new LineInputObserver();
         this.liveInputObserver = new LiveInputObserver();
@@ -59,6 +62,11 @@ public class EclipseRepl implements IRepl {
     @Override
     public ICommandInvoker getInvoker() {
         return this.invoker;
+    }
+
+    @Override
+    public IEditorServices getServices() {
+        return services;
     }
 
     public Observer<String> getLineInputObserver() {

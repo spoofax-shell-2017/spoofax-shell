@@ -13,12 +13,14 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.menu.IMenuService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.resource.IResourceService;
+import org.metaborg.spoofax.shell.functions.FunctionComposer;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.ExceptionResult;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.metaborg.spoofax.shell.output.TransformResult;
+import org.metaborg.spoofax.shell.services.IEditorServices;
 
 import com.google.inject.Inject;
 
@@ -34,6 +36,7 @@ public class LanguageCommand implements IReplCommand {
 	private final ICommandInvoker invoker;
 	private final IProject project;
 	private final IFunctionFactory factory;
+	private final IEditorServices editorServices;
 
 	/**
 	 * Instantiate a {@link LanguageCommand}. Loads all commands applicable to a language.
@@ -46,6 +49,8 @@ public class LanguageCommand implements IReplCommand {
 	 *            the {@link ICommandInvoker}
 	 * @param factory
 	 *            the {@link IFunctionFactory}
+	 * @param editorServices
+	 *            the {@link IEditorServices}
 	 * @param menuService
 	 *            the {@link IMenuService}
 	 * @param project
@@ -54,12 +59,13 @@ public class LanguageCommand implements IReplCommand {
 	@Inject
 	public LanguageCommand(ILanguageDiscoveryService langDiscoveryService,
 			IResourceService resourceService, IMenuService menuService, ICommandInvoker invoker,
-			IFunctionFactory factory, IProject project) {
+			IEditorServices editorServices, IFunctionFactory factory, IProject project) {
 		// FIXME: don't use the hardcoded @Provides
 		this.langDiscoveryService = langDiscoveryService;
 		this.resourceService = resourceService;
 		this.menuService = menuService;
 		this.invoker = invoker;
+		this.editorServices = editorServices;
 		this.factory = factory;
 		this.project = project;
 	}
@@ -104,9 +110,23 @@ public class LanguageCommand implements IReplCommand {
 		return resourceService.resolve(path);
 	}
 
+	/**
+	 * Initializes the {@link IEditorServices} based on the language
+	 * implementation.
+	 *
+	 * @param lang
+	 *            {@link ILanguageImpl} The language implementation.
+	 */
+	private void loadEditorServices(ILanguageImpl lang) {
+		FunctionComposer composer = factory.createComposer(project, lang);
+		editorServices.load(composer);
+	}
+
 	private void loadCommands(ILanguageImpl lang) {
 		boolean analyze = lang.hasFacet(AnalyzerFacet.class);
 		CommandBuilder<?> builder = factory.createBuilder(project, lang);
+
+		loadEditorServices(lang);
 
 		IReplCommand eval, open;
 		Function<ITransformAction, CommandBuilder<TransformResult>> transform;
