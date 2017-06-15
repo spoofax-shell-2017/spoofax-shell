@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
+import org.metaborg.spoofax.shell.client.eclipse.EclipseUtil;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 import com.google.inject.assistedinject.Assisted;
@@ -75,34 +76,6 @@ public class EclipseDisplay implements IDisplay {
         }
     }
 
-    private void style(IStyle style, int offset, int length) {
-        if (style != null) {
-            StyleRange styleRange = new StyleRange();
-
-            styleRange.start = offset;
-            styleRange.length = length;
-            if (style.color() != null) {
-                styleRange.foreground = this.colorManager.getColor(awtToRGB(style.color()));
-            }
-            if (style.backgroundColor() != null) {
-                styleRange.background =
-                    this.colorManager.getColor(awtToRGB(style.backgroundColor()));
-            }
-            if (style.bold()) {
-                styleRange.fontStyle |= SWT.BOLD;
-            }
-            if (style.italic()) {
-                styleRange.fontStyle |= SWT.ITALIC;
-            }
-
-            output.getTextWidget().setStyleRange(styleRange);
-        }
-    }
-
-    private RGB awtToRGB(Color awt) {
-        return new RGB(awt.getRed(), awt.getGreen(), awt.getBlue());
-    }
-
     @Override
     public void displayStyledText(StyledText text) {
         IDocument doc = getDocument();
@@ -111,7 +84,17 @@ public class EclipseDisplay implements IDisplay {
             int offset = doc.getLength();
 
             append(doc, offset, e.fragment());
-            style(e.style(), offset, e.region().length());
+
+            IStyle style = e.style();
+            if (style != null) {
+                StyleRange styleRange = EclipseUtil.style(
+                        colorManager,
+                        e.style(),
+                        offset,
+                        e.region().length());
+
+                output.getTextWidget().setStyleRange(styleRange);
+            }
         });
 
         if (doc != null) {

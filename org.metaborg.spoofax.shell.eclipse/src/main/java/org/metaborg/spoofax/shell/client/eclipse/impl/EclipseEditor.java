@@ -10,12 +10,18 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.widgets.Composite;
+import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IInputHistory;
 import org.metaborg.spoofax.shell.client.InputHistory;
+import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
+import org.metaborg.spoofax.shell.client.eclipse.EclipseUtil;
+import org.metaborg.spoofax.shell.output.StyleResult;
 
 import com.google.common.collect.Lists;
 import com.google.inject.assistedinject.Assisted;
@@ -41,6 +47,7 @@ public class EclipseEditor extends KeyAdapter implements IDocumentListener {
     private final IDocument document;
     private final List<Subscriber<? super String>> lineObservers;
     private final List<Subscriber<? super String>> liveObservers;
+    private final ColorManager colorManager;
 
     /**
      * Instantiates a new EclipseEditor.
@@ -52,7 +59,7 @@ public class EclipseEditor extends KeyAdapter implements IDocumentListener {
      *            (cannot be {@code null}).
      */
     @AssistedInject
-    public EclipseEditor(IInputHistory history, @Assisted Composite parent) {
+    public EclipseEditor(IInputHistory history, @Assisted Composite parent, ColorManager colorManager) {
         this.history = history;
         this.document = new Document();
         this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
@@ -61,6 +68,9 @@ public class EclipseEditor extends KeyAdapter implements IDocumentListener {
         this.input.setDocument(document);
         this.input.getTextWidget().addKeyListener(this);
         this.document.addDocumentListener(this);
+
+        this.colorManager = colorManager;
+
         this.lineObservers = Lists.newArrayList();
         this.liveObservers = Lists.newArrayList();
     }
@@ -155,6 +165,25 @@ public class EclipseEditor extends KeyAdapter implements IDocumentListener {
     @Override
     public void documentChanged(DocumentEvent event) {
         // TODO: possibly wait a bit instead of spamming the observers with every possible change
-	}
+    }
+
+    public void applyStyle(StyleResult styleResult) {
+        styleResult.styled().getSource().forEach(regionStyle -> {
+            ISourceRegion region = regionStyle.region();
+            IStyle style = regionStyle.style();
+            if (style != null) {
+                StyleRange styleRange = EclipseUtil.style(
+                        colorManager,
+                        style,
+                        region.startOffset(),
+                        region.length());
+                try {
+                    input.getTextWidget().setStyleRange(styleRange);
+                } catch (Exception e) {
+                    // spammy, should validate the styleRange before setting
+                }
+            }
+        });
+    }
 
 }
