@@ -36,10 +36,15 @@ import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
 import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
+import org.metaborg.spoofax.shell.services.IEditorServices;
+import org.metaborg.spoofax.shell.services.IServicesStrategyFactory;
+import org.metaborg.spoofax.shell.services.SpoofaxEditorServices;
+import org.metaborg.spoofax.shell.services.SpoofaxServicesStrategyFactory;
 
 import com.google.common.io.Files;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.MapBinder;
@@ -62,6 +67,7 @@ public abstract class ReplModule extends AbstractModule {
 		bindCommands(commandBinder);
 		bindEvalStrategies(evalStrategyBinder);
 		bindFactories();
+		bindEditorServices();
 	}
 
 	/**
@@ -142,4 +148,13 @@ public abstract class ReplModule extends AbstractModule {
 		FileObject resolve = resourceService.resolve(Files.createTempDir());
 		return projectService.create(resolve);
 	}
+
+	/**
+	 * Binds Editor services.
+	 */
+	protected void bindEditorServices() {
+		bind(IEditorServices.class).to(SpoofaxEditorServices.class).in(Singleton.class);
+		bind(IServicesStrategyFactory.class).to(SpoofaxServicesStrategyFactory.class);
+	}
+
 }

@@ -13,8 +13,13 @@ import org.metaborg.core.style.Style;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.IRepl;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
+import org.metaborg.spoofax.shell.output.ExceptionResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessVisitor;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.services.IEditorServices;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -31,8 +36,9 @@ import rx.Observer;
  */
 public class EclipseRepl implements IRepl {
     private final IDisplay display;
-    private final EclipseEditor editor; //NOPMD - Will be used in later commits.
+    private final EclipseEditor editor;
     private final ICommandInvoker invoker;
+    private final IEditorServices services;
     private final ExecutorService pool;
 
     private final Observer<String> lineInputObserver;
@@ -43,17 +49,20 @@ public class EclipseRepl implements IRepl {
      *
      * @param invoker
      *            The {@link ICommandInvoker} for executing user input.
+     * @param services
+     *            The {@link IEditorServices} for requesting editor features.
      * @param display
      *            The {@link IDisplay} to send results to.
      * @param editor
      *            The {@link EclipseEditor} to send input results to.
      */
     @AssistedInject
-    public EclipseRepl(ICommandInvoker invoker, @Assisted IDisplay display,
-            @Assisted EclipseEditor editor) {
+    public EclipseRepl(ICommandInvoker invoker, IEditorServices services,
+            @Assisted IDisplay display, @Assisted EclipseEditor editor) {
         this.display = display;
         this.editor = editor;
         this.invoker = invoker;
+        this.services = services;
         pool = Executors.newSingleThreadExecutor();
         this.lineInputObserver = new LineInputObserver();
         this.liveInputObserver = new LiveInputObserver();
@@ -62,6 +71,11 @@ public class EclipseRepl implements IRepl {
     @Override
     public ICommandInvoker getInvoker() {
         return this.invoker;
+    }
+
+    @Override
+    public IEditorServices getServices() {
+        return services;
     }
 
     /**
@@ -121,6 +135,58 @@ public class EclipseRepl implements IRepl {
         job.schedule();
     }
 
+    private void runSyntaxHighlighting(final String source) {
+        Job job = new Job("Spoofax REPL evaluation job") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    FailOrSuccessResult<StyleResult, IResult> result = pool
+                            .submit(() -> services.highlight(source)).get();
+                    runSyntaxAsUIJob(result);
+                    return Status.OK_STATUS;
+                } catch (InterruptedException | ExecutionException e) {
+                    return Status.CANCEL_STATUS;
+                }
+            }
+        };
+        job.setSystem(true);
+        job.schedule();
+    }
+
+    private void runSyntaxAsUIJob(FailOrSuccessResult<StyleResult, IResult> result) {
+        Job job = new UIJob("Spoofax REPL display job") {
+            @Override
+            public IStatus runInUIThread(IProgressMonitor arg0) {
+                result.accept(syntaxVisitor);
+                return Status.OK_STATUS;
+            }
+        };
+        job.setPriority(Job.SHORT);
+        job.setSystem(true);
+        job.schedule();
+    }
+
+    // CHECKSTYLE.OFF: LineLength
+    private FailOrSuccessVisitor<StyleResult, IResult> syntaxVisitor = new FailOrSuccessVisitor<StyleResult, IResult>() {
+
+        @Override
+        public void visitSuccess(StyleResult result) {
+            editor.applyStyle(result);
+        }
+
+        @Override
+        public void visitFailure(IResult result) {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void visitException(ExceptionResult result) {
+            // TODO Auto-generated method stub
+        }
+
+    };
+    // CHECKSTYLE.ON: LineLength
+
     /**
      * Abstract observer class implementing common behaviour for both observers.
      */
@@ -163,6 +229,7 @@ public class EclipseRepl implements IRepl {
 
         @Override
         public void onNext(String input) {
+            runSyntaxHighlighting(input);
         }
 
     }
