@@ -22,6 +22,7 @@ import org.metaborg.spoofax.shell.functions.InputFunction;
 import org.metaborg.spoofax.shell.functions.OpenInputFunction;
 import org.metaborg.spoofax.shell.functions.PTransformFunction;
 import org.metaborg.spoofax.shell.functions.ParseFunction;
+import org.metaborg.spoofax.shell.functions.StyleFunction;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
@@ -32,7 +33,12 @@ import org.metaborg.spoofax.shell.output.IResultVisitor;
 import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
+import org.metaborg.spoofax.shell.services.IEditorServices;
+import org.metaborg.spoofax.shell.services.IEditorServicesStrategy;
+import org.metaborg.spoofax.shell.services.SpoofaxEditorServices;
+import org.metaborg.spoofax.shell.services.UnloadedServices;
 
 import com.google.common.io.Files;
 import com.google.inject.AbstractModule;
@@ -59,6 +65,7 @@ public abstract class ReplModule extends AbstractModule {
 		bindCommands(commandBinder);
 		bindEvalStrategies(evalStrategyBinder);
 		bindFactories();
+		bindEditorServices();
 	}
 
 	/**
@@ -73,6 +80,11 @@ public abstract class ReplModule extends AbstractModule {
 		bind(IReplCommand.class).annotatedWith(Names.named("default_command"))
 				.to(DefaultCommand.class);
 		bind(ICommandInvoker.class).to(SpoofaxCommandInvoker.class);
+	}
+
+	protected void bindEditorServices() {
+		bind(IEditorServices.class).to(SpoofaxEditorServices.class);
+		bind(IEditorServicesStrategy.class).to(UnloadedServices.class);
 	}
 
 	/**
@@ -114,7 +126,8 @@ public abstract class ReplModule extends AbstractModule {
 				.implement(
 						new TypeLiteral<FailableFunction<ISpoofaxTermResult<?>, EvaluateResult, IResult>>() {
 						}, EvaluateFunction.class)
-				.build(IFunctionFactory.class));
+				.implement(new TypeLiteral<FailableFunction<ParseResult, StyleResult, IResult>>() {
+				}, StyleFunction.class).build(IFunctionFactory.class));
 		// CHECKSTYLE.ON: LineLength
 	}
 

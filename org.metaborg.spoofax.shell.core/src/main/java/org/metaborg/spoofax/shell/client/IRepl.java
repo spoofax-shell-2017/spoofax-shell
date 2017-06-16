@@ -6,6 +6,7 @@ import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.ExceptionResult;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.IResultVisitor;
+import org.metaborg.spoofax.shell.services.IEditorServices;
 
 /**
  * This interface defines the evaluation part of a REPL (Read-Eval-Print-Loop). The reason for only
@@ -48,4 +49,11 @@ public interface IRepl {
      * @return The {@link ICommandInvoker}.
      */
     ICommandInvoker getInvoker();
+
+    /**
+     * Return the {@link IEditorServices} used to request editor services.
+     *
+     * @return The {@link IEditorServices}.
+     */
+    IEditorServices getServices();
 }
