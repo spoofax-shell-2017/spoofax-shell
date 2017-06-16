@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>org.metaborg.spoofax.shell.eclipse.externaldeps</artifactId>
   <packaging>bundle</packaging>
@@ -87,4 +84,22 @@
       </plugin>
     </plugins>
   </build>
+
+  <organization>
+    <name>Delft University of Technology</name>
+    <url>http://www.ewi.tudelft.nl/en</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <name>Justin van der Krieken</name>
+      <email>justin@vdkrieken.com</email>
+      <url>https://github.com/justinvdk</url>
+    </developer>
+    <developer>
+      <name>Wouter Smit</name>
+      <email>pathemeous@gmail.com</email>
+      <url>https://github.com/Pathemeous</url>
+    </developer>
+  </developers>
 </project>

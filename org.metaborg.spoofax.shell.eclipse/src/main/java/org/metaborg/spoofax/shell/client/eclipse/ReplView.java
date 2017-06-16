@@ -25,7 +25,7 @@ public class ReplView extends ViewPart {
 
     @Override
     public void createPartControl(Composite parent) {
-        Injector injector = Activator.getInjector();
+        Injector injector = Activator.getDefault().getInjector();
         SashForm page = new SashForm(parent, SWT.VERTICAL | SWT.LEFT_TO_RIGHT);
 
         // Create the display first so it appears on top in the sash.
