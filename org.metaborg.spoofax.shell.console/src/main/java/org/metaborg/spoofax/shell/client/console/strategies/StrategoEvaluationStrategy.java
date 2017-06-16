@@ -11,6 +11,10 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 import com.google.inject.Inject;
 
+
+/**
+ * An {@link IEvaluationStrategy} for Stratego-based languages.
+ */
 public class StrategoEvaluationStrategy implements IEvaluationStrategy {
 
 	// TODO: hardcoded init and eval terms
@@ -26,6 +30,17 @@ public class StrategoEvaluationStrategy implements IEvaluationStrategy {
 	 */
 	private IStrategoTerm env;
 
+	/**
+	 * Construct a new {@link StrategoEvaluationStrategy}.
+	 * On the first {@link #evaluate(IStrategoTerm, IContext) call an
+	 * environment is initialised and subsequent calls will use this
+	 * envirnonment.
+	 *
+	 * @param strategoCommon
+	 *            The interface for all Statego related functionality.
+	 * @param termFactoryService
+	 *            The {@link ITermFactoryService} for retrieving an {@link ITermFactory}.
+	 */
 	@Inject
 	public StrategoEvaluationStrategy(IStrategoCommon strategoCommon,
 			ITermFactoryService termFactoryService) {
