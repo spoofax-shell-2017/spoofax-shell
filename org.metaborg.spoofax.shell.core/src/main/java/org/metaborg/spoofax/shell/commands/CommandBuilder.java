@@ -8,6 +8,7 @@ import org.metaborg.core.action.ITransformAction;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.functions.FailableFunction;
+import org.metaborg.spoofax.shell.functions.FunctionComposer;
 import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
@@ -49,6 +50,7 @@ public class CommandBuilder<R extends IResult> {
     private final IFunctionFactory functionFactory;
     private final ILanguageImpl lang;
     private final IProject project;
+    private final FunctionComposer composer;
 
     private final String description;
     private final @Nullable FailableFunction<String[], R, IResult> function;
@@ -56,6 +58,7 @@ public class CommandBuilder<R extends IResult> {
     private CommandBuilder(IFunctionFactory functionFactory, IProject project, ILanguageImpl lang,
                            String description, FailableFunction<String[], R, IResult> function) {
         this.functionFactory = functionFactory;
+        this.composer = functionFactory.createComposer(project, lang);
         this.project = project;
         this.lang = lang;
         this.description = description;
@@ -133,7 +136,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<InputResult> input() {
-        return function(inputFunction());
+        return function(composer.inputFunction());
     }
 
     /**
@@ -142,7 +145,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<ParseResult> parse() {
-        return function(parseFunction());
+        return function(composer.parseFunction());
     }
 
     /**
@@ -151,7 +154,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<AnalyzeResult> analyze() {
-        return function(analyzeFunction());
+        return function(composer.analyzeFunction());
     }
 
     /**
@@ -162,7 +165,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<TransformResult> transformParsed(ITransformAction action) {
-        return function(pTransformFunction(action));
+        return function(composer.pTransformFunction(action));
     }
 
     /**
@@ -173,7 +176,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<TransformResult> transformAnalyzed(ITransformAction action) {
-        return function(aTransformFunction(action));
+        return function(composer.aTransformFunction(action));
     }
 
     /**
@@ -182,7 +185,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<EvaluateResult> evalParsed() {
-        return function(pEvaluateFunction());
+        return function(composer.pEvaluateFunction());
     }
 
     /**
@@ -191,7 +194,7 @@ public class CommandBuilder<R extends IResult> {
      * @return the builder
      */
     public CommandBuilder<EvaluateResult> evalAnalyzed() {
-        return function(aEvaluateFunction());
+        return function(composer.aEvaluateFunction());
     }
 
     /**

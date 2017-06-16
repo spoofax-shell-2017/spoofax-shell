@@ -177,6 +177,9 @@ public class TransformFunctionTest {
             .thenReturn(pTransformFunction);
         when(functionFactory.createATransformFunction(any(), any(), any()))
             .thenReturn(aTransformFunction);
+
+        FunctionComposer composer = new FunctionComposer(functionFactory, project, lang);
+        when(functionFactory.createComposer(any(), any())).thenReturn(composer);
     }
 
     /**
