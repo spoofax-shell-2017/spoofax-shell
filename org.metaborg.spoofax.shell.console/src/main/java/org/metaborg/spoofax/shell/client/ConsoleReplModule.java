@@ -12,7 +12,6 @@ import org.metaborg.spoofax.shell.client.console.impl.history.JLine2PersistentIn
 import org.metaborg.spoofax.shell.client.console.strategies.ClassPathInterpreterLoader;
 import org.metaborg.spoofax.shell.client.console.strategies.DynSemEvaluationStrategy;
 import org.metaborg.spoofax.shell.client.console.strategies.IInterpreterLoader;
-import org.metaborg.spoofax.shell.client.console.strategies.StrategoEvaluationStrategy;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 
@@ -42,7 +41,6 @@ public class ConsoleReplModule extends ReplModule {
 		// context.
 		bind(DynSemEvaluationStrategy.class).in(Singleton.class);
 		evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
-		evalStrategyBinder.addBinding("stratego").to(StrategoEvaluationStrategy.class);
 	}
 
 	@Override

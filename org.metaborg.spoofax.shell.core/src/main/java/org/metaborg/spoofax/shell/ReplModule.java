@@ -13,6 +13,7 @@ import org.metaborg.spoofax.shell.commands.HelpCommand;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.commands.LanguageCommand;
 import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
+import org.metaborg.spoofax.shell.core.StrategoEvaluationStrategy;
 import org.metaborg.spoofax.shell.functions.ATransformFunction;
 import org.metaborg.spoofax.shell.functions.AnalyzeFunction;
 import org.metaborg.spoofax.shell.functions.EvaluateFunction;
@@ -82,6 +83,7 @@ public abstract class ReplModule extends AbstractModule {
 	 *            The {@link MapBinder} for binding the strategies to their names.
 	 */
 	protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
+		evalStrategyBinder.addBinding("stratego").to(StrategoEvaluationStrategy.class);
 	}
 
 	/**

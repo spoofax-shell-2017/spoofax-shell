@@ -1,10 +1,9 @@
-package org.metaborg.spoofax.shell.client.console.strategies;
+package org.metaborg.spoofax.shell.core;
 
 import org.metaborg.core.MetaborgException;
 import org.metaborg.core.context.IContext;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
 import org.metaborg.spoofax.core.terms.ITermFactoryService;
-import org.metaborg.spoofax.shell.core.IEvaluationStrategy;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
