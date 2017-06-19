@@ -159,7 +159,7 @@
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>3.0.3</version>
         <configuration>
-          <includeTests>true</includeTests>
+          <includeTests>false</includeTests>
           <!-- See: http://stackoverflow.com/questions/29594445/cobertura-maven-plugin-conflicts-with-findbugs -->
           <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
         </configuration>
