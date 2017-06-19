@@ -77,6 +77,9 @@ public class InputFunctionTest {
         when(inputResult.unit()).thenReturn(inputUnit);
         when(resultFactory.createInputResult(any(), any(), any(), any())).thenReturn(inputResult);
 
+        FunctionComposer composer = new FunctionComposer(functionFactory, project, lang);
+        when(functionFactory.createComposer(any(), any())).thenReturn(composer);
+
         when(lang.facet(ShellFacet.class)).thenReturn(facet);
 
         inputCommand = new CommandBuilder<>(functionFactory, project, lang)

@@ -42,6 +42,11 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
             Objects.requireNonNull(failable);
             return failable.apply(result);
         }
+
+        @Override
+        public void accept(FailOrSuccessVisitor<S, F> visitor) {
+            visitor.visitSuccess(result);
+        }
     }
 
     /**
@@ -68,6 +73,43 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
                 flatMap(FailableFunction<? super S, NewS, F> failable) {
             Objects.requireNonNull(failable);
             return failed(result);
+        }
+
+        @Override
+        public void accept(FailOrSuccessVisitor<S, F> visitor) {
+            visitor.visitFailure(result);
+        }
+    }
+
+    /**
+     * An excepted result.
+     *
+     * @param <S>
+     * @param <F>
+     */
+    private static final class Excepted<S extends IResult, F extends IResult>
+        extends FailOrSuccessResult<S, F> {
+        private final ExceptionResult result;
+
+        private Excepted(ExceptionResult result) {
+            this.result = result;
+        }
+
+        @Override
+        public void accept(IResultVisitor visitor) {
+            result.accept(visitor);
+        }
+
+        @Override
+        public <NewS extends IResult> FailOrSuccessResult<NewS, F>
+                flatMap(FailableFunction<? super S, NewS, F> failable) {
+            Objects.requireNonNull(failable);
+            return excepted(result);
+        }
+
+        @Override
+        public void accept(FailOrSuccessVisitor<S, F> visitor) {
+            visitor.visitException(result);
         }
     }
 
@@ -104,6 +146,24 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
     }
 
     /**
+     * Create an {@link FailOrSuccessResult} that represents an unsuccessful
+     * result (exception).
+     *
+     * @param exceptedResult
+     *            The cause of the exception.
+     * @return The {@link FailOrSuccessResult} with an unsuccessful result.
+     * @param <S>
+     *            The type of the non-existing successful
+     *            {@link ISpoofaxResult}.
+     * @param <F>
+     *            The type of the non-existing failure {@linkplain IResult}.
+     */
+    public static <S extends IResult, F extends IResult> FailOrSuccessResult<S, F> excepted(
+            ExceptionResult exceptedResult) {
+        return new Excepted<>(exceptedResult);
+    }
+
+    /**
      * Create an {@link FailOrSuccessResult} that, depending on whether the given
      * {@link ISpoofaxResult} is {@link ISpoofaxResult#valid valid}, represents either a success or
      * a failure. In the latter case, it wraps a {@link FailResult} as the failure, which upon
@@ -127,6 +187,18 @@ public abstract class FailOrSuccessResult<Success extends IResult, Fail extends 
 
     @Override
     public abstract void accept(IResultVisitor visitor);
+
+	/**
+	 * Accept a visitor to dispatch the dynamic type of this class.
+	 *
+	 * <p>
+	 * Such a visitor can define behaviour of the result based on the succesfullness of the request.
+	 * </p>
+	 *
+	 * @param visitor
+	 *            {@link FailOrSuccessVisitor} of the correct generic types.
+	 */
+    public abstract void accept(FailOrSuccessVisitor<Success, Fail> visitor);
 
     /**
      * Maps the given {@link FailableFunction} if this {@link FailOrSuccessResult} represents a

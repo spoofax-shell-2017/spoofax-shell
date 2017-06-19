@@ -29,12 +29,14 @@ public interface IWidgetFactory {
     EclipseEditor createEditor(Composite parent);
 
     /**
-     * Instantiate a new {@link EclipseRepl}.
-     *
-     * @param display
-     *            The {@link IDisplay} for displaying results.
-     * @return The created {@link EclipseRepl}.
-     */
-    EclipseRepl createRepl(IDisplay display);
+	 * Instantiate a new {@link EclipseRepl}.
+	 *
+	 * @param display
+	 *            The {@link IDisplay} for displaying results.
+	 * @param editor
+	 *            The {@link EclipseEditor}.
+	 * @return The created {@link EclipseRepl}.
+	 */
+	EclipseRepl createRepl(IDisplay display, EclipseEditor editor);
 
 }

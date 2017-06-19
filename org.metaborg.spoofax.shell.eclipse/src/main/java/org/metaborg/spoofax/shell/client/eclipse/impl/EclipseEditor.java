@@ -5,17 +5,23 @@ import java.util.Observer;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
+import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IInputHistory;
 import org.metaborg.spoofax.shell.client.InputHistory;
+import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
+import org.metaborg.spoofax.shell.client.eclipse.EclipseUtil;
+import org.metaborg.spoofax.shell.output.StyleResult;
 
 import com.google.common.collect.Lists;
 import com.google.inject.assistedinject.Assisted;
@@ -35,11 +41,13 @@ import rx.Subscriber;
  *
  * Note that this class should always be run in and accessed from the UI thread!
  */
-public class EclipseEditor extends KeyAdapter implements ModifyListener {
+public class EclipseEditor extends KeyAdapter implements IDocumentListener {
     private final IInputHistory history;
     private final SourceViewer input;
     private final IDocument document;
-    private final List<Subscriber<? super String>> observers;
+    private final List<Subscriber<? super String>> lineObservers;
+    private final List<Subscriber<? super String>> liveObservers;
+    private final ColorManager colorManager;
 
     /**
      * Instantiates a new EclipseEditor.
@@ -49,9 +57,12 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      * @param parent
      *            A {@link Composite} control which will be the parent of this EclipseEditor.
      *            (cannot be {@code null}).
+     * @param colorManager
+     *            A {@link ColorManager} to manage SWT colours.
      */
     @AssistedInject
-    public EclipseEditor(IInputHistory history, @Assisted Composite parent) {
+	public EclipseEditor(IInputHistory history, @Assisted Composite parent,
+			ColorManager colorManager) {
         this.history = history;
         this.document = new Document();
         this.input = new SourceViewer(parent, null, SWT.BORDER | SWT.MULTI);
@@ -59,7 +70,12 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
         this.input.getTextWidget().setAlwaysShowScrollBars(false);
         this.input.setDocument(document);
         this.input.getTextWidget().addKeyListener(this);
-        this.observers = Lists.newArrayList();
+        this.document.addDocumentListener(this);
+
+        this.colorManager = colorManager;
+
+        this.lineObservers = Lists.newArrayList();
+        this.liveObservers = Lists.newArrayList();
     }
 
     /**
@@ -74,11 +90,18 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      * {@link KeyListener} functions when some notable key presses (e.g. Enter to submit input)
      * occur.
      *
+     * @param live
+     *            - boolean denoting whether the observer subscribes to live or normal input.
      * @return A new {@link Observable} from this editor.
      */
-    public Observable<String> asObservable() {
-        return Observable
-            .create((Observable.OnSubscribe<String>) EclipseEditor.this.observers::add);
+    public Observable<String> asObservable(boolean live) {
+        return Observable.create((o) -> {
+            if (live) {
+                EclipseEditor.this.liveObservers.add(o);
+            } else {
+                EclipseEditor.this.lineObservers.add(o);
+            }
+        });
     }
 
     /**
@@ -88,12 +111,13 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
      *            The {@link Subscriber} to remove.
      */
     public void removeObserver(Subscriber<? super String> observer) {
-        this.observers.remove(observer);
+        this.lineObservers.remove(observer);
+        this.liveObservers.remove(observer);
     }
 
-    private String removeLastNewline(String text) {
+    private static String removeLastNewline(String text) {
         int length = text.length() - 1;
-        if (text.charAt(length) == '\n') {
+        if (length > 0 && text.charAt(length) == '\n') {
             text = text.substring(0, length);
         }
         return text;
@@ -101,7 +125,7 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
 
     private void enterPressed() {
         String text = removeLastNewline(document.get());
-        this.observers.forEach(o -> o.onNext(text));
+        this.lineObservers.forEach(o -> o.onNext(text));
         if (text.length() > 0) {
             this.history.append(text);
         }
@@ -139,8 +163,41 @@ public class EclipseEditor extends KeyAdapter implements ModifyListener {
     }
 
     @Override
-    public void modifyText(ModifyEvent event) {
-        // TODO: text has been modified, send it to get syntax highlighting.
+    public void documentAboutToBeChanged(DocumentEvent event) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void documentChanged(DocumentEvent event) {
+        // TODO: possibly wait a bit instead of spamming the observers with every possible change
+        liveObservers.forEach(o -> {
+            o.onNext(document.get());
+        });
+	}
+
+    /**
+	 * Applies a {@link StyleResult} to the input text.
+	 *
+	 * @param styleResult
+	 *            {@link StyleResult} containing the styling for the text.
+	 */
+    public void applyStyle(StyleResult styleResult) {
+        styleResult.styled().getSource().forEach(regionStyle -> {
+            ISourceRegion region = regionStyle.region();
+            IStyle style = regionStyle.style();
+            if (style != null) {
+                StyleRange styleRange = EclipseUtil.style(
+                        colorManager,
+                        style,
+                        region.startOffset(),
+                        region.length());
+                try {
+                    input.getTextWidget().setStyleRange(styleRange);
+                } catch (Exception e) { //NOPMD - Temporary: nothing meaningful can be done anyway.
+                    //TODO: validate the styleRange before setting
+                }
+            }
+        });
     }
 
 }

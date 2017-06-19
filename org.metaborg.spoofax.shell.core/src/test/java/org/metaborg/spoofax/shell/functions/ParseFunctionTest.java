@@ -83,6 +83,9 @@ public class ParseFunctionTest {
         );
         when(functionFactory.createParseFunction(any(), any())).thenReturn(parseFunction);
 
+        FunctionComposer composer = new FunctionComposer(functionFactory, project, lang);
+        when(functionFactory.createComposer(any(), any())).thenReturn(composer);
+
         when(inputResult.unit()).thenReturn(inputUnit);
         when(parseResult.unit()).thenReturn(parseUnit);
         when(resultFactory.createParseResult(any())).thenReturn(parseResult);
