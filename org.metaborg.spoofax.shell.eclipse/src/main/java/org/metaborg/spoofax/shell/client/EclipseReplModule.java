@@ -22,7 +22,6 @@ import com.google.inject.multibindings.MapBinder;
 public class EclipseReplModule extends ReplModule {
     @Override protected void configure() {
         super.configure();
-		bindEditorServices();
 
         // Bind simple project service for creating a fake project
         bind(ISimpleProjectService.class).to(SimpleProjectService.class).in(Singleton.class);
@@ -37,13 +36,5 @@ public class EclipseReplModule extends ReplModule {
         super.bindCommands(commandBinder);
         commandBinder.addBinding("exit").to(ExitCommand.class);
     }
-
-	/**
-	 * Binds Editor services.
-	 */
-	protected void bindEditorServices() {
-		bind(IEditorServices.class).to(SpoofaxEditorServices.class).in(Singleton.class);
-		bind(IServicesStrategyFactory.class).to(SpoofaxServicesStrategyFactory.class);
-	}
 
 }

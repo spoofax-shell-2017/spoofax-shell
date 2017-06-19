@@ -131,6 +131,59 @@ public class EclipseRepl implements IRepl {
         job.schedule();
     }
 
+	private void runSyntaxHighlighting(final String source) {
+		Job job = new Job("Spoofax REPL evaluation job") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					FailOrSuccessResult<StyleResult, IResult> result = pool
+							.submit(() -> services.highlight(source)).get();
+					runSyntaxAsUIJob(result);
+					return Status.OK_STATUS;
+				} catch (InterruptedException | ExecutionException e) {
+					return Status.CANCEL_STATUS;
+				}
+			}
+		};
+		job.setSystem(true);
+		job.schedule();
+	}
+
+    private void runSyntaxAsUIJob(FailOrSuccessResult<StyleResult, IResult> result) {
+        Job job = new UIJob("Spoofax REPL display job") {
+            @Override
+            public IStatus runInUIThread(IProgressMonitor arg0) {
+                result.accept(syntaxVisitor);
+                return Status.OK_STATUS;
+            }
+        };
+        job.setPriority(Job.SHORT);
+        job.setSystem(true);
+        job.schedule();
+    }
+
+	// CHECKSTYLE.OFF: LineLength
+    private FailOrSuccessVisitor<StyleResult, IResult> syntaxVisitor = new FailOrSuccessVisitor<StyleResult, IResult>() {
+
+		@Override
+		public void visitSuccess(StyleResult result) {
+			editor.applyStyle(result);
+		}
+
+		@Override
+		public void visitFailure(IResult result) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void visitException(ExceptionResult result) {
+			// TODO Auto-generated method stub
+		}
+
+
+    };
+	// CHECKSTYLE.ON: LineLength
+
     /**
      * Abstract observer class implementing common behaviour for both observers.
      */
