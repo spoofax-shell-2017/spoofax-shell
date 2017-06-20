@@ -30,7 +30,12 @@
   <dependencies>
     <dependency>
       <groupId>org.metaborg</groupId>
-      <artifactId>org.spoofax.interpreter.core</artifactId>
+      <artifactId>org.metaborg.spoofax.eclipse</artifactId>
+      <version>${metaborg-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.metaborg.spoofax.eclipse.util</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
   </dependencies>
