@@ -1,0 +1,31 @@
+language: java
+jdk:
+  - oraclejdk8
+notifications:
+  email: false
+# Skip the install step, which causes a double build. The commands below in
+# `script` automatically download and install their dependencies as well.
+install: true
+# Cache the dependencies: these take unnecessarily long to download.
+cache:
+  directories:
+    - $HOME/.m2
+# Install custom dynsem version, containing the required classes
+# for the project.
+# dependency only exists because DynSemEvaluationStrategy is kept,
+# even though it is not functional or being used.
+before_install:
+ - git clone https://github.com/spoofax-shell-2017/dynsem.git --branch develop/shell ~/dynsem --depth=1
+ - cd ~/dynsem/org.metaborg.meta.lang.dynsem.interpreter/
+ - mvn install
+ - cd $TRAVIS_BUILD_DIR
+# The Eclipse plugin module cannot be build in the same reactor build, so it has
+# to be build separately. This also means that its dependencies will not be
+# automatically resolved, hence the `install` phase for the reactor build.
+# To work around a bug in the Eclipse compiler, all modules have to be build
+# separately.
+script:
+  cd org.metaborg.spoofax.shell.core && mvn clean install &&
+  cd ../org.metaborg.spoofax.shell.eclipse.externaldeps && mvn clean install &&
+  cd ../org.metaborg.spoofax.shell.eclipse && mvn clean verify &&
+  cd ../org.metaborg.spoofax.shell.console && mvn clean verify

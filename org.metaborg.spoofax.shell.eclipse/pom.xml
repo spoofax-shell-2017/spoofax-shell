@@ -12,6 +12,35 @@
     <relativePath>../../releng/parent/eclipse/plugin</relativePath>
   </parent>
 
+  <!-- Metaborg parent POMs do not allow us to download snapshot releases. We need those in order to build our
+    code standalone (which is not only easier for testing locally, but required on TravisCI). -->
+  <repositories>
+    <repository>
+      <id>metaborg-snapshot-repo</id>
+      <url>http://artifacts.metaborg.org/content/repositories/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <!-- List dependencies that are unavailable in the target platform. -->
+  <dependencies>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.metaborg.spoofax.shell.core</artifactId>
+      <version>2.3.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.metaborg.spoofax.shell.eclipse.externaldeps</artifactId>
+      <version>2.3.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
