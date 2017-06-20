@@ -58,103 +58,103 @@ import com.google.inject.name.Names;
  * (which is also an {@link IResultVisitor}).
  */
 public abstract class ReplModule extends AbstractModule {
-	@Override
-	protected void configure() {
-		MapBinder<String, IReplCommand> commandBinder = MapBinder.newMapBinder(binder(),
-				String.class, IReplCommand.class);
-		MapBinder<String, IEvaluationStrategy> evalStrategyBinder = MapBinder.newMapBinder(binder(),
-				String.class, IEvaluationStrategy.class);
-		bindCommands(commandBinder);
-		bindEvalStrategies(evalStrategyBinder);
-		bindFactories();
-		bindEditorServices();
-	}
+    @Override
+    protected void configure() {
+        MapBinder<String, IReplCommand> commandBinder = MapBinder.newMapBinder(binder(),
+                String.class, IReplCommand.class);
+        MapBinder<String, IEvaluationStrategy> evalStrategyBinder = MapBinder.newMapBinder(binder(),
+                String.class, IEvaluationStrategy.class);
+        bindCommands(commandBinder);
+        bindEvalStrategies(evalStrategyBinder);
+        bindFactories();
+        bindEditorServices();
+    }
 
-	/**
-	 * Binds the default commands.
-	 *
-	 * @param commandBinder
-	 *            The {@link MapBinder} for binding the commands to their names.
-	 */
-	protected void bindCommands(MapBinder<String, IReplCommand> commandBinder) {
-		commandBinder.addBinding("help").to(HelpCommand.class);
-		commandBinder.addBinding("load").to(LanguageCommand.class);
-		bind(IReplCommand.class).annotatedWith(Names.named("default_command"))
-				.to(DefaultCommand.class);
-		bind(ICommandInvoker.class).to(SpoofaxCommandInvoker.class);
-	}
+    /**
+     * Binds the default commands.
+     *
+     * @param commandBinder
+     *            The {@link MapBinder} for binding the commands to their names.
+     */
+    protected void bindCommands(MapBinder<String, IReplCommand> commandBinder) {
+        commandBinder.addBinding("help").to(HelpCommand.class);
+        commandBinder.addBinding("load").to(LanguageCommand.class);
+        bind(IReplCommand.class).annotatedWith(Names.named("default_command"))
+                .to(DefaultCommand.class);
+        bind(ICommandInvoker.class).to(SpoofaxCommandInvoker.class);
+    }
 
-	/**
-	 * Binds the evaluation strategies.
-	 *
-	 * @param evalStrategyBinder
-	 *            The {@link MapBinder} for binding the strategies to their names.
-	 */
-	protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
-		evalStrategyBinder.addBinding("stratego").to(StrategoEvaluationStrategy.class);
-	}
+    /**
+     * Binds the evaluation strategies.
+     *
+     * @param evalStrategyBinder
+     *            The {@link MapBinder} for binding the strategies to their names.
+     */
+    protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
+        evalStrategyBinder.addBinding("stratego").to(StrategoEvaluationStrategy.class);
+    }
 
-	/**
-	 * Binds implementations for the {@link IResultFactory} and the {@link IFunctionFactory}.
-	 */
-	// CHECKSTYLE.OFF: MethodLength - There simply are many function bindings.
-	protected void bindFactories() {
-		install(new FactoryModuleBuilder()
-				.implement(TransformResult.class, Names.named("parsed"),
-						TransformResult.Parsed.class)
-				.implement(TransformResult.class, Names.named("analyzed"),
-						TransformResult.Analyzed.class)
-				.build(IResultFactory.class));
+    /**
+     * Binds implementations for the {@link IResultFactory} and the {@link IFunctionFactory}.
+     */
+    // CHECKSTYLE.OFF: MethodLength - There simply are many function bindings.
+    protected void bindFactories() {
+        install(new FactoryModuleBuilder()
+                .implement(TransformResult.class, Names.named("parsed"),
+                        TransformResult.Parsed.class)
+                .implement(TransformResult.class, Names.named("analyzed"),
+                        TransformResult.Analyzed.class)
+                .build(IResultFactory.class));
 
-		// CHECKSTYLE.OFF: LineLength - Installs are rather long.
-		install(new FactoryModuleBuilder()
-				.implement(new TypeLiteral<FailableFunction<String, InputResult, IResult>>() {
-				}, Names.named("Source"), InputFunction.class)
-				.implement(new TypeLiteral<FailableFunction<String, InputResult, IResult>>() {
-				}, Names.named("Open"), OpenInputFunction.class)
-				.implement(new TypeLiteral<FailableFunction<InputResult, ParseResult, IResult>>() {
-				}, ParseFunction.class).implement(
-						new TypeLiteral<FailableFunction<ParseResult, AnalyzeResult, IResult>>() {
-						}, AnalyzeFunction.class)
-				.implement(
-						new TypeLiteral<FailableFunction<ParseResult, TransformResult, IResult>>() {
-						}, PTransformFunction.class)
-				.implement(
-						new TypeLiteral<FailableFunction<AnalyzeResult, TransformResult, IResult>>() {
-						}, ATransformFunction.class)
-				.implement(
-						new TypeLiteral<FailableFunction<ISpoofaxTermResult<?>, EvaluateResult, IResult>>() {
-						}, EvaluateFunction.class)
-				.implement(new TypeLiteral<FailableFunction<ParseResult, StyleResult, IResult>>() {
-				}, StyleFunction.class).build(IFunctionFactory.class));
-		// CHECKSTYLE.ON: LineLength
-	}
-	// CHECKSTYLE.ON: MethodLength
+        // CHECKSTYLE.OFF: LineLength - Installs are rather long.
+        install(new FactoryModuleBuilder()
+                .implement(new TypeLiteral<FailableFunction<String, InputResult, IResult>>() {
+                }, Names.named("Source"), InputFunction.class)
+                .implement(new TypeLiteral<FailableFunction<String, InputResult, IResult>>() {
+                }, Names.named("Open"), OpenInputFunction.class)
+                .implement(new TypeLiteral<FailableFunction<InputResult, ParseResult, IResult>>() {
+                }, ParseFunction.class).implement(
+                        new TypeLiteral<FailableFunction<ParseResult, AnalyzeResult, IResult>>() {
+                        }, AnalyzeFunction.class)
+                .implement(
+                        new TypeLiteral<FailableFunction<ParseResult, TransformResult, IResult>>() {
+                        }, PTransformFunction.class)
+                .implement(
+                        new TypeLiteral<FailableFunction<AnalyzeResult, TransformResult, IResult>>() {
+                        }, ATransformFunction.class)
+                .implement(
+                        new TypeLiteral<FailableFunction<ISpoofaxTermResult<?>, EvaluateResult, IResult>>() {
+                        }, EvaluateFunction.class)
+                .implement(new TypeLiteral<FailableFunction<ParseResult, StyleResult, IResult>>() {
+                }, StyleFunction.class).build(IFunctionFactory.class));
+        // CHECKSTYLE.ON: LineLength
+    }
+    // CHECKSTYLE.ON: MethodLength
 
-	/**
-	 * FIXME: hardcoded project returned here.
-	 *
-	 * @param resourceService
-	 *            the Spoofax {@link ResourceService}
-	 * @param projectService
-	 *            the Spoofax {@link ISimpleProjectService}
-	 * @return an {@link IProject}
-	 * @throws MetaborgException
-	 *             when creating a project failed
-	 */
-	@Provides
-	protected IProject project(IResourceService resourceService,
-			ISimpleProjectService projectService) throws MetaborgException {
-		FileObject resolve = resourceService.resolve(Files.createTempDir());
-		return projectService.create(resolve);
-	}
+    /**
+     * FIXME: hardcoded project returned here.
+     *
+     * @param resourceService
+     *            the Spoofax {@link ResourceService}
+     * @param projectService
+     *            the Spoofax {@link ISimpleProjectService}
+     * @return an {@link IProject}
+     * @throws MetaborgException
+     *             when creating a project failed
+     */
+    @Provides
+    protected IProject project(IResourceService resourceService,
+            ISimpleProjectService projectService) throws MetaborgException {
+        FileObject resolve = resourceService.resolve(Files.createTempDir());
+        return projectService.create(resolve);
+    }
 
-	/**
-	 * Binds Editor services.
-	 */
-	protected void bindEditorServices() {
-		bind(IEditorServices.class).to(SpoofaxEditorServices.class).in(Singleton.class);
-		bind(IServicesStrategyFactory.class).to(SpoofaxServicesStrategyFactory.class);
-	}
+    /**
+     * Binds Editor services.
+     */
+    protected void bindEditorServices() {
+        bind(IEditorServices.class).to(SpoofaxEditorServices.class).in(Singleton.class);
+        bind(IServicesStrategyFactory.class).to(SpoofaxServicesStrategyFactory.class);
+    }
 
 }
