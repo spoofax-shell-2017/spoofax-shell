@@ -16,20 +16,20 @@ import org.metaborg.spoofax.shell.output.ISpoofaxResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 
 /**
- * Adapter {@link IResultVisitor} interface for displaying results and errors. An implementation of
- * {@link IDisplay} knows how to interpret the style information of a {@link StyledText} and display
- * it appropriately.
+ * Adapter {@link IResultVisitor} interface for displaying results and errors.
+ * An implementation of {@link IDisplay} knows how to interpret the style
+ * information of a {@link StyledText} and display it appropriately.
  */
 public interface IDisplay extends IResultVisitor {
 
     /**
-     * Display the given {@link StyledText}. How the style information is interpreted depends on the
-     * client.
+     * Display the given {@link StyledText}. How the style information is
+     * interpreted depends on the client.
      *
-     * @param text
+     * @param styledText
      *            The {@link StyledText} to display.
      */
-    void displayStyledText(StyledText text);
+    void displayStyledText(StyledText styledText);
 
     @Override
     default void visitMessage(StyledText message) {
@@ -54,8 +54,8 @@ public interface IDisplay extends IResultVisitor {
     }
 
     /**
-     * Highlights the {@link SourceRegion}s of the given {@link IMessage}s in the given source text
-     * with a red color and bold style.
+     * Highlights the {@link SourceRegion}s of the given {@link IMessage}s in
+     * the given source text with a red color and bold style.
      *
      * @param sourceText
      *            The source text that caused the failure.
@@ -64,8 +64,10 @@ public interface IDisplay extends IResultVisitor {
      * @return The highlighted {@link StyledText}
      */
     default StyledText highlightMessagesInSource(String sourceText, List<IMessage> messages) {
-        List<ISourceRegion> regions = messages.stream().map(IMessage::region)
-            .filter(Objects::nonNull).collect(Collectors.toList());
+        List<ISourceRegion> regions = messages.stream()
+                .map(IMessage::region)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         StyledText styled = new StyledText();
         IStyle style = new Style(Color.RED, null, true, false, false, false);
         styled.append(regions, style, sourceText);

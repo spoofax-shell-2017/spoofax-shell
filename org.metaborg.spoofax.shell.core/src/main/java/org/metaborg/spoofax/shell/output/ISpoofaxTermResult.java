@@ -16,4 +16,9 @@ public interface ISpoofaxTermResult<T extends IUnit> extends ISpoofaxResult<T> {
      * @return a {@link IStrategoTerm} or null
      */
     Optional<IStrategoTerm> ast();
+
+    @Override
+    default void accept(IResultVisitor visitor) {
+        visitor.visitTermResult(this);
+    }
 }

@@ -3,6 +3,8 @@ package org.metaborg.spoofax.shell.services;
 import org.metaborg.spoofax.shell.functions.FunctionComposer;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
+import org.metaborg.spoofax.shell.output.PrintResult;
 import org.metaborg.spoofax.shell.output.StyleResult;
 
 /**
@@ -33,5 +35,15 @@ public interface IEditorServicesStrategy {
      *         or a failed result
      */
     FailOrSuccessResult<StyleResult, IResult> highlight(String source);
+
+    /**
+     * Attempts to provide pretty printing of the input.
+     *
+     * @param input
+     *            the term that must be pretty printed.
+     * @return {@link FailOrSuccessResult} - A {@link PrintResult} containing a human readable
+     *         text plus fold regions, or a failed result.
+     */
+    FailOrSuccessResult<PrintResult, IResult> foldAndPrint(ISpoofaxTermResult<?> input);
 
 }
