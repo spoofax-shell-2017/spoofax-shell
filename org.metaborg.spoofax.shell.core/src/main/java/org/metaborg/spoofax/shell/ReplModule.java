@@ -23,6 +23,7 @@ import org.metaborg.spoofax.shell.functions.InputFunction;
 import org.metaborg.spoofax.shell.functions.OpenInputFunction;
 import org.metaborg.spoofax.shell.functions.PTransformFunction;
 import org.metaborg.spoofax.shell.functions.ParseFunction;
+import org.metaborg.spoofax.shell.functions.StyleFunction;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.invoker.SpoofaxCommandInvoker;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
@@ -33,11 +34,17 @@ import org.metaborg.spoofax.shell.output.IResultVisitor;
 import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
+import org.metaborg.spoofax.shell.services.IEditorServices;
+import org.metaborg.spoofax.shell.services.IServicesStrategyFactory;
+import org.metaborg.spoofax.shell.services.SpoofaxEditorServices;
+import org.metaborg.spoofax.shell.services.SpoofaxServicesStrategyFactory;
 
 import com.google.common.io.Files;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.MapBinder;
@@ -60,6 +67,7 @@ public abstract class ReplModule extends AbstractModule {
 		bindCommands(commandBinder);
 		bindEvalStrategies(evalStrategyBinder);
 		bindFactories();
+		bindEditorServices();
 	}
 
 	/**
@@ -89,6 +97,7 @@ public abstract class ReplModule extends AbstractModule {
 	/**
 	 * Binds implementations for the {@link IResultFactory} and the {@link IFunctionFactory}.
 	 */
+	// CHECKSTYLE.OFF: MethodLength - There simply are many function bindings.
 	protected void bindFactories() {
 		install(new FactoryModuleBuilder()
 				.implement(TransformResult.class, Names.named("parsed"),
@@ -116,9 +125,11 @@ public abstract class ReplModule extends AbstractModule {
 				.implement(
 						new TypeLiteral<FailableFunction<ISpoofaxTermResult<?>, EvaluateResult, IResult>>() {
 						}, EvaluateFunction.class)
-				.build(IFunctionFactory.class));
+				.implement(new TypeLiteral<FailableFunction<ParseResult, StyleResult, IResult>>() {
+				}, StyleFunction.class).build(IFunctionFactory.class));
 		// CHECKSTYLE.ON: LineLength
 	}
+	// CHECKSTYLE.ON: MethodLength
 
 	/**
 	 * FIXME: hardcoded project returned here.
@@ -137,4 +148,13 @@ public abstract class ReplModule extends AbstractModule {
 		FileObject resolve = resourceService.resolve(Files.createTempDir());
 		return projectService.create(resolve);
 	}
+
+	/**
+	 * Binds Editor services.
+	 */
+	protected void bindEditorServices() {
+		bind(IEditorServices.class).to(SpoofaxEditorServices.class).in(Singleton.class);
+		bind(IServicesStrategyFactory.class).to(SpoofaxServicesStrategyFactory.class);
+	}
+
 }

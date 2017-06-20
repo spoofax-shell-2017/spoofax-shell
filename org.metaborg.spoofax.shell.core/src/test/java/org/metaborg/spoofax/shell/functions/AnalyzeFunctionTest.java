@@ -92,6 +92,9 @@ public class AnalyzeFunctionTest {
         );
         when(functionFactory.createAnalyzeFunction(any(), any())).thenReturn(analyzeFunction);
 
+        FunctionComposer composer = new FunctionComposer(functionFactory, project, lang);
+        when(functionFactory.createComposer(any(), any())).thenReturn(composer);
+
         when(parseResult.context()).thenReturn(Optional.empty());
         when(analyzeResult.unit()).thenReturn(analyzeUnit);
         when(resultFactory.createAnalyzeResult(any())).thenReturn(analyzeResult);

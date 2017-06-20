@@ -195,6 +195,9 @@ public class EvaluateFunctionTest {
             .thenReturn((input) -> FailOrSuccessResult.successful(analyzeResult));
 
         when(functionFactory.createEvaluateFunction(any(), any())).thenReturn(pEvalFunction);
+
+        FunctionComposer composer = new FunctionComposer(functionFactory, project, lang);
+        when(functionFactory.createComposer(any(), any())).thenReturn(composer);
     }
 
     /**

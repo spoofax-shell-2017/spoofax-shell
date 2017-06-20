@@ -40,6 +40,7 @@ import org.metaborg.spoofax.shell.functions.IFunctionFactory;
 import org.metaborg.spoofax.shell.invoker.ICommandInvoker;
 import org.metaborg.spoofax.shell.output.IResultVisitor;
 import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.services.IEditorServices;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -64,6 +65,8 @@ public class LanguageCommandTest {
 	private IMenuService menuService;
 	@Mock
 	private ICommandInvoker invoker;
+	@Mock
+	private IEditorServices editorServices;
 	@Mock
 	private IFunctionFactory functionFactory;
 
@@ -139,7 +142,7 @@ public class LanguageCommandTest {
 		when(builder.evalAOpen()).thenReturn(builder);
 
 		langCommand = new LanguageCommand(langDiscoveryService, resourceService, menuService,
-				invoker, functionFactory, project);
+				invoker, editorServices, functionFactory, project);
 	}
 
 	/**
