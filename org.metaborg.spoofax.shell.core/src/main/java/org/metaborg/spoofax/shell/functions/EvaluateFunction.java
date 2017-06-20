@@ -78,9 +78,10 @@ public class EvaluateFunction extends ContextualSpoofaxFunction<ISpoofaxTermResu
         if (evalStrategy == null) {
             Iterable<String> quoted = evaluationStrategies.keySet().stream()
                 .map(s -> '\"' + s + '\"')::iterator;
-            throw new MetaborgException("Evaluation method \"" + evaluationMethod
-                                        + "\" not supported.\n" + "Supported evaluation method(s): "
-                                        + String.join(", ", quoted));
+            throw new MetaborgException(String.format(
+                    "Evaluation method \"%s\" not supported.%nSupported evaluation method(s): %s",
+                    evaluationMethod,
+                    String.join(", ", quoted)));
         }
         return evalStrategy;
     }
