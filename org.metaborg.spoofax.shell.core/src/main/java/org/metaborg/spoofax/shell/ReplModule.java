@@ -156,5 +156,4 @@ public abstract class ReplModule extends AbstractModule {
         bind(IEditorServices.class).to(SpoofaxEditorServices.class).in(Singleton.class);
         bind(IServicesStrategyFactory.class).to(SpoofaxServicesStrategyFactory.class);
     }
-
 }
