@@ -32,5 +32,4 @@ public class EclipseReplModule extends ReplModule {
         super.bindCommands(commandBinder);
         commandBinder.addBinding("exit").to(ExitCommand.class);
     }
-
 }

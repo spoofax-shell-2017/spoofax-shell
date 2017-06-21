@@ -25,48 +25,48 @@ import jline.console.ConsoleReader;
  * Bindings for the console REPL.
  */
 public class ConsoleReplModule extends ReplModule {
-	@Override
-	protected void configure() {
-		super.configure();
-		bindUserInterface();
-	}
+    @Override
+    protected void configure() {
+        super.configure();
+        bindUserInterface();
+    }
 
-	@Override
-	protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
-		super.bindEvalStrategies(evalStrategyBinder);
-		bind(IInterpreterLoader.class).to(ClassPathInterpreterLoader.class);
+    @Override
+    protected void bindEvalStrategies(MapBinder<String, IEvaluationStrategy> evalStrategyBinder) {
+        super.bindEvalStrategies(evalStrategyBinder);
+        bind(IInterpreterLoader.class).to(ClassPathInterpreterLoader.class);
 
-		// Make sure the DynSemEvaluationStrategy is a singleton so the REPL
-		// always uses the same unique rwSemanticComponents to evaluate in
-		// context.
-		bind(DynSemEvaluationStrategy.class).in(Singleton.class);
-		evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
-	}
+        // Make sure the DynSemEvaluationStrategy is a singleton so the REPL
+        // always uses the same unique rwSemanticComponents to evaluate in
+        // context.
+        bind(DynSemEvaluationStrategy.class).in(Singleton.class);
+        evalStrategyBinder.addBinding("dynsem").to(DynSemEvaluationStrategy.class);
+    }
 
-	@Override
-	protected void bindCommands(MapBinder<String, IReplCommand> commandBinder) {
-		super.bindCommands(commandBinder);
-		commandBinder.addBinding("exit").to(ExitCommand.class).in(Singleton.class);
-	}
+    @Override
+    protected void bindCommands(MapBinder<String, IReplCommand> commandBinder) {
+        super.bindCommands(commandBinder);
+        commandBinder.addBinding("exit").to(ExitCommand.class).in(Singleton.class);
+    }
 
-	/**
-	 * Binds the user interface implementations.
-	 */
-	protected void bindUserInterface() {
-		bind(IRepl.class).to(ConsoleRepl.class);
-		bind(ConsoleRepl.class).in(Singleton.class);
-		bind(ConsoleReader.class).in(Singleton.class);
-		bind(IInputHistory.class).to(JLine2InputHistory.class);
-		bind(JLine2InputHistory.class).to(JLine2PersistentInputHistory.class);
+    /**
+     * Binds the user interface implementations.
+     */
+    protected void bindUserInterface() {
+        bind(IRepl.class).to(ConsoleRepl.class);
+        bind(ConsoleRepl.class).in(Singleton.class);
+        bind(ConsoleReader.class).in(Singleton.class);
+        bind(IInputHistory.class).to(JLine2InputHistory.class);
+        bind(JLine2InputHistory.class).to(JLine2PersistentInputHistory.class);
 
-		bind(TerminalUserInterface.class).in(Singleton.class);
-		bind(IDisplay.class).to(TerminalUserInterface.class);
+        bind(TerminalUserInterface.class).in(Singleton.class);
+        bind(IDisplay.class).to(TerminalUserInterface.class);
 
-		bind(InputStream.class).annotatedWith(Names.named("in")).toInstance(System.in);
-		bind(OutputStream.class).annotatedWith(Names.named("out")).toInstance(System.out);
-		bind(OutputStream.class).annotatedWith(Names.named("err")).toInstance(System.err);
+        bind(InputStream.class).annotatedWith(Names.named("in")).toInstance(System.in);
+        bind(OutputStream.class).annotatedWith(Names.named("out")).toInstance(System.out);
+        bind(OutputStream.class).annotatedWith(Names.named("err")).toInstance(System.err);
 
-		bindConstant().annotatedWith(Names.named("historyPath"))
-				.to(System.getProperty("user.home") + "/.spoofax_history");
-	}
+        bindConstant().annotatedWith(Names.named("historyPath"))
+                .to(System.getProperty("user.home") + "/.spoofax_history");
+    }
 }
