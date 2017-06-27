@@ -2,8 +2,11 @@ package org.metaborg.spoofax.shell;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.core.MetaborgException;
+import org.metaborg.core.config.ProjectConfigBuilder;
+import org.metaborg.core.config.ProjectConfigService;
 import org.metaborg.core.project.IProject;
 import org.metaborg.core.project.ISimpleProjectService;
+import org.metaborg.core.project.SimpleProjectService;
 import org.metaborg.core.resource.IResourceService;
 import org.metaborg.core.resource.ResourceService;
 import org.metaborg.spoofax.shell.client.IDisplay;
@@ -131,22 +134,27 @@ public abstract class ReplModule extends AbstractModule {
     }
     // CHECKSTYLE.ON: MethodLength
 
-    /**
-     * FIXME: hardcoded project returned here.
-     *
-     * @param resourceService
-     *            the Spoofax {@link ResourceService}
-     * @param projectService
-     *            the Spoofax {@link ISimpleProjectService}
-     * @return an {@link IProject}
-     * @throws MetaborgException
-     *             when creating a project failed
-     */
-    @Provides
-    protected IProject project(IResourceService resourceService,
-            ISimpleProjectService projectService) throws MetaborgException {
-        FileObject resolve = resourceService.resolve(Files.createTempDir());
-        return projectService.create(resolve);
+//    /**
+//     * FIXME: hardcoded project returned here.
+//     *
+//     * @param resourceService
+//     *            the Spoofax {@link ResourceService}
+//     * @param projectService
+//     *            the Spoofax {@link ISimpleProjectService}
+//     * @return an {@link IProject}
+//     * @throws MetaborgException
+//     *             when creating a project failed
+//     */
+//    @Provides
+//    protected IProject project(IResourceService resourceService,
+//            ISimpleProjectService projectService) throws MetaborgException {
+//        FileObject resolve = resourceService.resolve(Files.createTempDir());
+//        return projectService.create(resolve);
+//    }
+
+    protected void bindProjectServices() {
+        bind(ProjectConfigBuilder.class).to(ProjectConfigBuilder.class);
+        bind(ISimpleProjectService.class).to(SimpleProjectService.class).in(Singleton.class);
     }
 
     /**
