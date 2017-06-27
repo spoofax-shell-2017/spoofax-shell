@@ -4,13 +4,11 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.context.IContextService;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
-import org.metaborg.core.source.ISourceLocation;
 import org.metaborg.core.style.IRegionCategory;
 import org.metaborg.core.style.IRegionStyle;
 import org.metaborg.spoofax.core.style.CategorizerValidator;
 import org.metaborg.spoofax.core.style.ISpoofaxCategorizerService;
 import org.metaborg.spoofax.core.style.ISpoofaxStylerService;
-import org.metaborg.spoofax.core.tracing.ISpoofaxTracingService;
 import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResult;
@@ -29,7 +27,6 @@ public class StyleFunction extends ContextualSpoofaxFunction<ParseResult, StyleR
 
 	private final ISpoofaxStylerService stylerService;
 	private final ISpoofaxCategorizerService categorizer;
-	private final ISpoofaxTracingService tracer;
 
 	/**
 	 * Instantiate the Style Function.
@@ -38,8 +35,6 @@ public class StyleFunction extends ContextualSpoofaxFunction<ParseResult, StyleR
 	 *            The {@link ISpoofaxStylerService} that applies a certain style to a region.
 	 * @param categorizer
 	 *            The {@link ISpoofaxCategorizerService} that defines regions.
-	 * @param tracer
-	 *            The {@link ISpoofaxTracingService} that connects the source with style regions.
 	 * @param contextService
 	 *            The {@link IContextService} with which to create a new {@link IContext} if
 	 *            necessary.
@@ -52,13 +47,12 @@ public class StyleFunction extends ContextualSpoofaxFunction<ParseResult, StyleR
 	 */
 	@Inject
 	public StyleFunction(ISpoofaxStylerService stylerService,
-			ISpoofaxCategorizerService categorizer, ISpoofaxTracingService tracer,
+			ISpoofaxCategorizerService categorizer,
 			IContextService contextService, IResultFactory resultFactory,
 			@Assisted IProject project, @Assisted ILanguageImpl lang) {
 		super(contextService, resultFactory, project, lang);
 		this.stylerService = stylerService;
 		this.categorizer = categorizer;
-		this.tracer = tracer;
 	}
 
 	@Override
@@ -74,11 +68,6 @@ public class StyleFunction extends ContextualSpoofaxFunction<ParseResult, StyleR
 
 		Iterable<IRegionStyle<IStrategoTerm>> regions = stylerService
 				.styleParsed(context.language(), categories);
-
-		regions.forEach(region -> {
-			ISourceLocation loc = tracer.location(region.fragment());
-			System.out.println(loc.toString());
-		});
 
 		return FailOrSuccessResult
 				.ofSpoofaxResult(resultFactory.createStyleResult(regions, spoofaxParseUnit));
