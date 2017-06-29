@@ -1,8 +1,10 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.JFaceResources;
@@ -11,7 +13,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TextViewer;
-import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.IAnnotationAccess;
 import org.eclipse.jface.text.source.IOverviewRuler;
@@ -26,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.style.IRegionStyle;
 import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
@@ -56,6 +58,8 @@ public class EclipseDisplay implements IDisplay {
     private final Document document = new Document();
     private final ProjectionAnnotationModel projectionAnnotationModel;
     private final IEditorServices editorServices;
+
+    private final List<ProjectionAnnotation> projectionAnnotations = new ArrayList<>();
     // private final ProjectionAnnotationModel annotationModel;
 
     /**
@@ -119,38 +123,46 @@ public class EclipseDisplay implements IDisplay {
         displayStyledText(styledText, Collections.emptyList());
     }
 
-    private void displayStyledText(StyledText text, List<ISourceRegion> foldingRegions) {
-
-        int offsetPreAppendNewText = document.getLength();
-
-        text.getSource().forEach(e -> {
-            int offset = document.getLength();
-
-            append(document, offset, e.fragment());
-
-            IStyle style = e.style();
-            if (style != null) {
-                StyleRange styleRange = EclipseUtil.style(
-                        colorManager,
-                        e.style(),
-                        offset,
-                        e.region().length());
-
+    private void applyFragmentToDocument(IRegionStyle<String> fragment) {
+        int offset = document.getLength();
+        append(document, offset, fragment.fragment());
+        IStyle style = fragment.style();
+        if (style != null) {
+            StyleRange styleRange = EclipseUtil.style(
+                    colorManager,
+                    fragment.style(),
+                    offset,
+                    fragment.region().length());
                 viewer.getTextWidget().setStyleRange(styleRange);
+        }
+    }
+
+    private void displayStyledText(StyledText text, List<ISourceRegion> foldingRegions) {
+        Map<ProjectionAnnotation, Boolean> annotationStates = new HashMap<>();
+        for (ProjectionAnnotation annotation : projectionAnnotations) {
+            annotationStates.put(annotation, annotation.isCollapsed());
+            projectionAnnotationModel.expand(annotation);
+        }
+        int offsetPreAppendNewText = document.getLength();
+        text.getSource().forEach(this::applyFragmentToDocument);
+        annotationStates.forEach((annotation, isCollapsed) -> {
+            if (isCollapsed) {
+                projectionAnnotationModel.collapse(annotation);
+            } else {
+                projectionAnnotationModel.expand(annotation);
             }
         });
-
         append(document, document.getLength(), "\n");
         scrollText();
         List<Position> positions = foldingRegions.stream().map(region -> {
             return new Position(region.startOffset() + offsetPreAppendNewText, region.length());
         }).collect(Collectors.toList());
-
-        HashMap<Annotation, Position> newAnnotations = new HashMap<>();
+        HashMap<ProjectionAnnotation, Position> newAnnotations = new HashMap<>();
         for (Position position : positions) {
             ProjectionAnnotation annotation = new ProjectionAnnotation();
             newAnnotations.put(annotation, position);
         }
+        projectionAnnotations.addAll(newAnnotations.keySet());
         projectionAnnotationModel.modifyAnnotations(null, newAnnotations, null);
     }
 
