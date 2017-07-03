@@ -39,6 +39,7 @@ import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
 import org.metaborg.spoofax.shell.output.PrintResult;
 import org.metaborg.spoofax.shell.output.StyledText;
 import org.metaborg.spoofax.shell.services.IEditorServices;
+import org.metaborg.spoofax.shell.util.SuppressFBWarnings;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -137,6 +138,10 @@ public class EclipseDisplay implements IDisplay {
         }
     }
 
+    @SuppressFBWarnings(
+            value = "UC_USELESS_OBJECT",
+            justification = "False positive, of course it has side-effect..."
+    )
     private void displayStyledText(StyledText text, List<ISourceRegion> foldingRegions) {
         Map<ProjectionAnnotation, Boolean> annotationStates = new HashMap<>();
         for (ProjectionAnnotation annotation : projectionAnnotations) {
