@@ -1,19 +1,45 @@
 package org.metaborg.spoofax.shell.client.eclipse.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TextViewer;
+import org.eclipse.jface.text.source.CompositeRuler;
+import org.eclipse.jface.text.source.IAnnotationAccess;
+import org.eclipse.jface.text.source.IOverviewRuler;
+import org.eclipse.jface.text.source.OverviewRuler;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
+import org.eclipse.jface.text.source.projection.ProjectionSupport;
+import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
+import org.eclipse.ui.texteditor.DefaultRangeIndicator;
+import org.metaborg.core.source.ISourceRegion;
+import org.metaborg.core.style.IRegionStyle;
 import org.metaborg.core.style.IStyle;
 import org.metaborg.spoofax.shell.client.IDisplay;
 import org.metaborg.spoofax.shell.client.eclipse.ColorManager;
 import org.metaborg.spoofax.shell.client.eclipse.EclipseUtil;
+import org.metaborg.spoofax.shell.output.ExceptionResult;
+import org.metaborg.spoofax.shell.output.FailOrSuccessVisitor;
+import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
+import org.metaborg.spoofax.shell.output.PrintResult;
 import org.metaborg.spoofax.shell.output.StyledText;
+import org.metaborg.spoofax.shell.services.IEditorServices;
+import org.metaborg.spoofax.shell.util.SuppressFBWarnings;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -28,8 +54,14 @@ public class EclipseDisplay implements IDisplay {
     // TODO: Use ReplDocument to provide custom partitioning? Perhaps more something for the output
     // as opposed to input. Should be relatively easy for output to at least partition different
     // input/output combinations.
-    private final ITextViewer output;
+    private final ProjectionViewer viewer;
     private final ColorManager colorManager;
+    private final Document document = new Document();
+    private final ProjectionAnnotationModel projectionAnnotationModel;
+    private final IEditorServices editorServices;
+
+    private final List<ProjectionAnnotation> projectionAnnotations = new ArrayList<>();
+    // private final ProjectionAnnotationModel annotationModel;
 
     /**
      * Instantiates a new EclipseDisplay.
@@ -39,24 +71,38 @@ public class EclipseDisplay implements IDisplay {
      * @param parent
      *            A {@link Composite} control which will be the parent of this EclipseDisplay.
      *            (cannot be {@code null}).
+     * @param editorServices the {@link IEditorServices} used to request editor services.
      */
     @AssistedInject
-    public EclipseDisplay(ColorManager colorManager, @Assisted Composite parent) {
-        this.output = new TextViewer(parent, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-        this.output.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
-        this.output.getTextWidget().setAlwaysShowScrollBars(false);
-        this.output.setEditable(false);
-        this.output.setDocument(new Document());
+    public EclipseDisplay(
+            ColorManager colorManager,
+            @Assisted Composite parent,
+            IEditorServices editorServices) {
+        // see AbstractDecoratedTextEditor.VERTICAL_RULER_WIDTH
+        IAnnotationAccess annotationAccess = new DefaultMarkerAnnotationAccess();
+        IOverviewRuler overviewRuler = new OverviewRuler(annotationAccess, 0, colorManager);
+        CompositeRuler ruler = new CompositeRuler();
 
+        this.editorServices = editorServices;
+
+        this.viewer = new ProjectionViewer(parent, ruler, overviewRuler, true,
+                SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+        this.viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
+        this.viewer.getTextWidget().setAlwaysShowScrollBars(false);
+        this.viewer.setEditable(true);
+        this.viewer.setDocument(document, new ProjectionAnnotationModel());
+
+        ProjectionSupport projectionSupport = new ProjectionSupport(viewer, annotationAccess,
+                colorManager);
+        projectionSupport.install();
+        viewer.setRangeIndicator(new DefaultRangeIndicator());
+        this.viewer.enableProjection();
+        this.projectionAnnotationModel = viewer.getProjectionAnnotationModel();
         this.colorManager = colorManager;
     }
 
-    private IDocument getDocument() {
-        return this.output.getDocument();
-    }
-
     private void scrollText() {
-        output.revealRange(getDocument().getLength(), 0);
+        viewer.revealRange(viewer.getDocument().getLength(), 0);
     }
 
     private void append(IDocument doc, int offset, String fragment) {
@@ -74,29 +120,78 @@ public class EclipseDisplay implements IDisplay {
     }
 
     @Override
-    public void displayStyledText(StyledText text) {
-        IDocument doc = getDocument();
+    public void displayStyledText(StyledText styledText) {
+        displayStyledText(styledText, Collections.emptyList());
+    }
 
-        text.getSource().forEach(e -> {
-            int offset = doc.getLength();
-
-            append(doc, offset, e.fragment());
-
-            IStyle style = e.style();
-            if (style != null) {
-                StyleRange styleRange = EclipseUtil.style(
-                        colorManager,
-                        e.style(),
-                        offset,
-                        e.region().length());
-
-                output.getTextWidget().setStyleRange(styleRange);
-            }
-        });
-
-        if (doc != null) {
-            append(doc, doc.getLength(), "\n");
-            scrollText();
+    private void applyFragmentToDocument(IRegionStyle<String> fragment) {
+        int offset = document.getLength();
+        append(document, offset, fragment.fragment());
+        IStyle style = fragment.style();
+        if (style != null) {
+            StyleRange styleRange = EclipseUtil.style(
+                    colorManager,
+                    fragment.style(),
+                    offset,
+                    fragment.region().length());
+                viewer.getTextWidget().setStyleRange(styleRange);
         }
     }
+
+    @SuppressFBWarnings(
+            value = "UC_USELESS_OBJECT",
+            justification = "False positive, of course it has side-effect..."
+    )
+    private void displayStyledText(StyledText text, List<ISourceRegion> foldingRegions) {
+        Map<ProjectionAnnotation, Boolean> annotationStates = new HashMap<>();
+        for (ProjectionAnnotation annotation : projectionAnnotations) {
+            annotationStates.put(annotation, annotation.isCollapsed());
+            projectionAnnotationModel.expand(annotation);
+        }
+        int offsetPreAppendNewText = document.getLength();
+        text.getSource().forEach(this::applyFragmentToDocument);
+        annotationStates.forEach((annotation, isCollapsed) -> {
+            if (isCollapsed) {
+                projectionAnnotationModel.collapse(annotation);
+            } else {
+                projectionAnnotationModel.expand(annotation);
+            }
+        });
+        append(document, document.getLength(), "\n");
+        scrollText();
+        List<Position> positions = foldingRegions.stream().map(region -> {
+            return new Position(region.startOffset() + offsetPreAppendNewText, region.length());
+        }).collect(Collectors.toList());
+        HashMap<ProjectionAnnotation, Position> newAnnotations = new HashMap<>();
+        for (Position position : positions) {
+            ProjectionAnnotation annotation = new ProjectionAnnotation();
+            newAnnotations.put(annotation, position);
+        }
+        projectionAnnotations.addAll(newAnnotations.keySet());
+        projectionAnnotationModel.modifyAnnotations(null, newAnnotations, null);
+    }
+
+    @Override
+    public void visitTermResult(ISpoofaxTermResult<?> result) {
+        editorServices
+            .foldAndPrint(result)
+            .accept(new FailOrSuccessVisitor<PrintResult, IResult>() {
+
+                    @Override
+                    public void visitSuccess(PrintResult result) {
+                        displayStyledText(result.getText(), result.getRegions());
+                    }
+
+                    @Override
+                    public void visitFailure(IResult result) {
+                        result.accept(EclipseDisplay.this);
+                    }
+
+                    @Override
+                    public void visitException(ExceptionResult result) {
+                        result.accept(EclipseDisplay.this);
+                    }
+                });
+    }
+
 }

@@ -3,6 +3,8 @@ package org.metaborg.spoofax.shell.services;
 import org.metaborg.spoofax.shell.output.ExceptionResult;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
+import org.metaborg.spoofax.shell.output.PrintResult;
 import org.metaborg.spoofax.shell.output.StyleResult;
 
 /**
@@ -38,5 +40,10 @@ public class UnloadedServices implements IEditorServicesStrategy {
     @Override
     public FailOrSuccessResult<StyleResult, IResult> highlight(String source) {
         return FailOrSuccessResult.excepted(createException("Syntax Highlighting"));
+    }
+
+    @Override
+    public FailOrSuccessResult<PrintResult, IResult> foldAndPrint(ISpoofaxTermResult<?> input) {
+        return FailOrSuccessResult.excepted(createException("Pretty printing"));
     }
 }

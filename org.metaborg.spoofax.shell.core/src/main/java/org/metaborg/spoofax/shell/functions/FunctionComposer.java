@@ -6,8 +6,10 @@ import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.PrintResult;
 import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
 
@@ -128,4 +130,16 @@ public class FunctionComposer {
         return parseFunction()
             .kleisliCompose(functionFactory.createStyleFunction(project, lang));
     }
+
+    /**
+     * Composes a {@link PrettyPrintFunction}, which provides pretty printing.
+     *
+     * @return {@link PrettyPrintFunction} - The pretty print function.
+     */
+    public FailableFunction<ISpoofaxTermResult<?>, PrintResult, IResult> termPrettyPrintFunction() {
+        return functionFactory.createFoldFunction(project, lang)
+                .kleisliCompose(functionFactory.createPrettyPrintFunction(project, lang));
+
+    }
+
 }

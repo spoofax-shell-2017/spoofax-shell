@@ -3,6 +3,8 @@ package org.metaborg.spoofax.shell.services;
 import org.metaborg.spoofax.shell.functions.FunctionComposer;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
+import org.metaborg.spoofax.shell.output.PrintResult;
 import org.metaborg.spoofax.shell.output.StyleResult;
 
 import com.google.inject.Inject;
@@ -38,6 +40,11 @@ public class SpoofaxEditorServices implements IEditorServices {
     @Override
     public void load(FunctionComposer composer) {
         strategy = strategyfactory.createLoadedStrategy(composer);
+    }
+
+    @Override
+    public FailOrSuccessResult<PrintResult, IResult> foldAndPrint(ISpoofaxTermResult<?> input) {
+        return strategy.foldAndPrint(input);
     }
 
     @Override

@@ -3,6 +3,8 @@ package org.metaborg.spoofax.shell.services;
 import org.metaborg.spoofax.shell.functions.FunctionComposer;
 import org.metaborg.spoofax.shell.output.FailOrSuccessResult;
 import org.metaborg.spoofax.shell.output.IResult;
+import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
+import org.metaborg.spoofax.shell.output.PrintResult;
 import org.metaborg.spoofax.shell.output.StyleResult;
 
 /**
@@ -36,4 +38,9 @@ public class LoadedServices implements IEditorServicesStrategy {
 	public FailOrSuccessResult<StyleResult, IResult> highlight(String source) {
 		return composer.pStyleFunction().apply(source);
 	}
+
+    @Override
+    public FailOrSuccessResult<PrintResult, IResult> foldAndPrint(ISpoofaxTermResult<?> input) {
+        return composer.termPrettyPrintFunction().apply(input);
+    }
 }

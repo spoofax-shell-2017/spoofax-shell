@@ -3,6 +3,7 @@ package org.metaborg.spoofax.shell.client.eclipse;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jface.text.source.ISharedTextColors;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -17,12 +18,13 @@ import org.eclipse.swt.widgets.Display;
  *
  * Note that the ColorManager is not thread-safe.
  */
-public class ColorManager {
+public class ColorManager implements ISharedTextColors {
     private final Map<RGB, Color> colors = new HashMap<>();
 
     /**
      * Dispose all created colors.
      */
+    @Override
     public void dispose() {
         colors.values().stream().forEach(Color::dispose);
         colors.clear();
@@ -35,6 +37,7 @@ public class ColorManager {
      *            The color to retrieve.
      * @return The {@link Color}.
      */
+    @Override
     public Color getColor(RGB rgb) {
         Color result = colors.get(rgb);
 

@@ -9,10 +9,12 @@ import org.metaborg.spoofax.shell.commands.CommandBuilder;
 import org.metaborg.spoofax.shell.commands.IReplCommand;
 import org.metaborg.spoofax.shell.output.AnalyzeResult;
 import org.metaborg.spoofax.shell.output.EvaluateResult;
+import org.metaborg.spoofax.shell.output.FoldResult;
 import org.metaborg.spoofax.shell.output.IResult;
 import org.metaborg.spoofax.shell.output.ISpoofaxTermResult;
 import org.metaborg.spoofax.shell.output.InputResult;
 import org.metaborg.spoofax.shell.output.ParseResult;
+import org.metaborg.spoofax.shell.output.PrintResult;
 import org.metaborg.spoofax.shell.output.StyleResult;
 import org.metaborg.spoofax.shell.output.TransformResult;
 
@@ -100,6 +102,25 @@ public interface IFunctionFactory {
      */
     FailableFunction<ParseResult, StyleResult, IResult>
     createStyleFunction(IProject project, ILanguageImpl lang);
+
+    /**
+     * Factory method for creating a {@link FoldFunction}.
+     * @param project   The associated {@link IProject}
+     * @param lang      The associated {@link ILanguageImpl}
+     * @return          an {@link FoldFunction}
+     */
+    FailableFunction<ISpoofaxTermResult<?>, FoldResult, IResult>
+    createFoldFunction(IProject project, ILanguageImpl lang);
+
+    /**
+     * Factory method for creating a {@link PrettyPrintFunction}.
+     * @param project   The associated {@link IProject}
+     * @param lang      The associated {@link ILanguageImpl}
+     * @return          an {@link PrettyPrintFunction}
+     */
+    FailableFunction<FoldResult, PrintResult, IResult>
+    createPrettyPrintFunction(IProject project, ILanguageImpl lang);
+
 
     /**
      * Factory method for creating a {@link CommandBuilder}.

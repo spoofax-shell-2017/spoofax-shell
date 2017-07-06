@@ -35,17 +35,19 @@ public final class EclipseUtil {
 
 		styleRange.start = offset;
 		styleRange.length = length;
-		if (style.color() != null) {
-			styleRange.foreground = colorManager.getColor(awtToRGB(style.color()));
-		}
-		if (style.backgroundColor() != null) {
-			styleRange.background = colorManager.getColor(awtToRGB(style.backgroundColor()));
-		}
-		if (style.bold()) {
-			styleRange.fontStyle |= SWT.BOLD;
-		}
-		if (style.italic()) {
-			styleRange.fontStyle |= SWT.ITALIC;
+		if (style != null) {
+			if (style.color() != null) {
+				styleRange.foreground = colorManager.getColor(awtToRGB(style.color()));
+			}
+			if (style.backgroundColor() != null) {
+				styleRange.background = colorManager.getColor(awtToRGB(style.backgroundColor()));
+			}
+			if (style.bold()) {
+				styleRange.fontStyle |= SWT.BOLD;
+			}
+			if (style.italic()) {
+				styleRange.fontStyle |= SWT.ITALIC;
+			}
 		}
 
 		return styleRange;
