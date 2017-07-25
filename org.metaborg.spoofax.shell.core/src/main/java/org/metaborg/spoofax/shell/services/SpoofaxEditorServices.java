@@ -31,13 +31,13 @@ public class SpoofaxEditorServices implements IEditorServices {
     }
 
     @Override
-    public FailOrSuccessResult<StyleResult, IResult> highlight(String source) {
-        return strategy.highlight(source);
+    public void load(FunctionComposer composer) {
+        strategy = strategyfactory.createLoadedStrategy(composer);
     }
 
     @Override
-    public void load(FunctionComposer composer) {
-        strategy = strategyfactory.createLoadedStrategy(composer);
+    public FailOrSuccessResult<StyleResult, IResult> highlight(String source) {
+        return strategy.highlight(source);
     }
 
     @Override
