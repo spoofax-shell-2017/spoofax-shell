@@ -16,7 +16,7 @@ import org.metaborg.spoofax.shell.output.FailOrSuccessVisitor;
  * via {@link #load(FunctionComposer)}.
  * </p>
  * <p>
- * The actual exposed interface of <code>IEditorServices</code> is maintained in its strategy
+ * The actual exposed API of <code>IEditorServices</code> is maintained in its strategy
  * interface {@link IEditorServicesStrategy}.
  * This interface only provides the additional ability to change strategies.
  * </p>
